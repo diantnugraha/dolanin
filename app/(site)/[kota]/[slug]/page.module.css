@@ -1,0 +1,26 @@
+.hero {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  max-height: 70vh;
+  width: 100%;
+  background: var(--tint-l);
+  overflow: hidden;
+}
+@media (min-width: 1024px) {
+  .page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 40px 0;
+  }
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 40px;
+    align-items: start;
+  }
+  .hero {
+    aspect-ratio: 16 / 10;
+    max-height: none;
+    border-radius: 20px;
+  }
+}

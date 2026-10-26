@@ -1,0 +1,55 @@
+/* Sticky at the end of the page column: always on screen, never covers content or footer. */
+.dock {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  background: #fff;
+  border-top: 1px solid var(--garis);
+  padding: 12px 16px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.p {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.p small {
+  display: block;
+  font-size: 11px;
+  color: var(--abu);
+}
+.price {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--jingga);
+}
+.wa,
+.go {
+  height: 46px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+.wa {
+  width: 46px;
+  background: var(--wa);
+  color: #063d1c;
+}
+.go {
+  padding: 0 22px;
+  gap: 6px;
+  background: var(--jingga);
+  color: var(--malam);
+}
+@media (min-width: 1024px) {
+  .dock {
+    display: none;
+  }
+}
