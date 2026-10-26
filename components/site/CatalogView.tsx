@@ -64,7 +64,7 @@ export function CatalogView({
 
       <div className={s.cat}>
         <FilterSidebar {...panel} />
-        <main>
+        <section aria-label="Hasil">
           <div className={s.tool}>
             <p>
               <b>{total}</b> hasil
@@ -95,7 +95,7 @@ export function CatalogView({
               </Link>
             </div>
           )}
-        </main>
+        </section>
       </div>
     </div>
   );

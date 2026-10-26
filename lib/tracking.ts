@@ -23,7 +23,13 @@ export async function recordEvent(listingId: string, kind: EventKind): Promise<b
 
 type GoResult = { status: 302; location: string } | { status: 404 };
 
-export async function resolveGo(id: string, kind: string, ua: string | null): Promise<GoResult> {
+/** `record: false` (HEAD requests) resolves the same redirect without counting a click. */
+export async function resolveGo(
+  id: string,
+  kind: string,
+  ua: string | null,
+  { record = true }: { record?: boolean } = {},
+): Promise<GoResult> {
   if (kind !== "pesan" && kind !== "wa") return { status: 404 };
   const l = await db.listing.findFirst({
     where: { id, published: true },
@@ -42,7 +48,7 @@ export async function resolveGo(id: string, kind: string, ua: string | null): Pr
     location = waLink(number, listingWaText(l.name, url));
   }
 
-  if (!isBot(ua)) {
+  if (record && !isBot(ua)) {
     try {
       await recordEvent(id, kind === "pesan" ? "PESAN" : "WA");
     } catch (e) {

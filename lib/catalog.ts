@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { db } from "@/lib/db";
 import type { ListingType, Prisma } from "../generated/prisma/client";
 import { PAGE_SIZE, priceRange, type CatalogParams } from "./listing";
@@ -101,12 +102,13 @@ export async function getFeatured(limit = 8): Promise<ListingCardData[]> {
   return rows.map(card);
 }
 
-export async function getCity(slug: string) {
+// cache(): generateMetadata, the page and the layout share one query per request.
+export const getCity = cache(async (slug: string) => {
   return db.city.findUnique({
     where: { slug },
     select: { id: true, name: true, slug: true, code: true, photoKey: true },
   });
-}
+});
 
 export async function getCatalog(
   scope: { citySlug?: string; promoOnly?: boolean; q?: string },
@@ -180,7 +182,7 @@ export async function findCityByExactName(q: string): Promise<{ slug: string } |
   });
 }
 
-export async function getListingDetail(citySlug: string, slug: string): Promise<ListingDetail | null> {
+export const getListingDetail = cache(async (citySlug: string, slug: string): Promise<ListingDetail | null> => {
   const l = await db.listing.findFirst({
     where: { slug, published: true, city: { slug: citySlug } },
     select: {
@@ -200,9 +202,9 @@ export async function getListingDetail(citySlug: string, slug: string): Promise<
         : { kind: "VIDEO" as const, guid: m.key, durationSec: m.durationSec },
     ),
   };
-}
+});
 
-export async function getSiteSettings(): Promise<{ waDefault: string | null }> {
+export const getSiteSettings = cache(async (): Promise<{ waDefault: string | null }> => {
   const s = await db.setting.findUnique({ where: { id: 1 } });
   return { waDefault: s?.waDefault ?? null };
-}
+});

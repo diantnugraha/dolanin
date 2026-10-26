@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "@/lib/db";
 import { recordEvent, resolveGo } from "@/lib/tracking";
 import { POST } from "@/app/api/view/route";
+import * as go from "@/app/go/[id]/[kind]/route";
 import { resetDb, seedBasic } from "./setup";
 
 const CHROME =
@@ -70,6 +71,36 @@ describe("resolveGo", () => {
     expect(await resolveGo(l.id, "lain", CHROME)).toEqual({ status: 404 });
     expect(await resolveGo("tidak-ada", "pesan", CHROME)).toEqual({ status: 404 });
     expect(await db.event.count()).toBe(0);
+  });
+});
+
+describe("/go route handler", () => {
+  const call = (method: "GET" | "HEAD", id: string) =>
+    (go as Record<string, unknown>)[method] as (r: Request, c: { params: Promise<{ id: string; kind: string }> }) => Promise<Response>;
+  const req = (method: string, id: string) =>
+    new Request(`http://x/go/${id}/pesan`, { method, headers: { "user-agent": CHROME } });
+
+  it("GET: 302 to the affiliate link and counts the click", async () => {
+    const l = await get("omah-tugu-inn");
+    const res = await call("GET", l.id)(req("GET", l.id), { params: Promise.resolve({ id: l.id, kind: "pesan" }) });
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe(l.affiliateUrl);
+    expect(await db.event.count()).toBe(1);
+  });
+
+  it("HEAD (curl -sI, link checkers): same 302 but no click is recorded", async () => {
+    const l = await get("omah-tugu-inn");
+    expect(typeof go.HEAD).toBe("function");
+    const res = await call("HEAD", l.id)(req("HEAD", l.id), { params: Promise.resolve({ id: l.id, kind: "pesan" }) });
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe(l.affiliateUrl);
+    expect(res.headers.get("cache-control")).toBe("no-store");
+    expect(await db.event.count()).toBe(0);
+  });
+
+  it("HEAD: unknown listing -> 404", async () => {
+    const res = await call("HEAD", "tidak-ada")(req("HEAD", "tidak-ada"), { params: Promise.resolve({ id: "tidak-ada", kind: "pesan" }) });
+    expect(res.status).toBe(404);
   });
 });
 
