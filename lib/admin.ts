@@ -11,6 +11,8 @@ export type SaveResult = { ok: true; id: string } | { ok: false; errors: Record<
 export type AdminListingRow = {
   id: string;
   name: string;
+  slug: string;
+  citySlug: string;
   area: string;
   cityName: string;
   type: ListingType;
@@ -138,18 +140,55 @@ export async function listAdminListings(f: {
     where,
     orderBy: { updatedAt: "desc" },
     select: {
-      id: true, name: true, area: true, type: true, price: true, normalPrice: true, published: true, updatedAt: true,
-      city: { select: { name: true } },
+      id: true, name: true, slug: true, area: true, type: true, price: true, normalPrice: true, published: true, updatedAt: true,
+      city: { select: { name: true, slug: true } },
       media: { orderBy: { sortOrder: "asc" }, select: { kind: true, key: true, status: true } },
     },
   });
   return rows.map((r) => {
     const c = r.media.find((m) => m.kind === "PHOTO" || m.status === "READY");
     return {
-      id: r.id, name: r.name, area: r.area, cityName: r.city.name, type: r.type, price: r.price,
+      id: r.id, name: r.name, slug: r.slug, citySlug: r.city.slug, area: r.area, cityName: r.city.name, type: r.type, price: r.price,
       normalPrice: r.normalPrice, published: r.published, updatedAt: r.updatedAt,
       cover: !c ? null : c.kind === "PHOTO" ? { kind: "PHOTO", key: c.key } : { kind: "VIDEO", guid: c.key },
       hasVideo: r.media.some((m) => m.kind === "VIDEO"),
     };
   });
+}
+
+export async function listCities(): Promise<{ id: string; name: string }[]> {
+  return db.city.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } });
+}
+
+export type AdminListingDetail = {
+  id: string;
+  name: string;
+  cityId: string;
+  type: ListingType;
+  area: string;
+  mapsUrl: string;
+  price: number;
+  normalPrice: number | null;
+  description: string;
+  facilities: string[];
+  extraFacilities: string[];
+  affiliateUrl: string;
+  waNumber: string;
+  published: boolean;
+  featured: boolean;
+  media: { kind: MediaKind; key: string; status: VideoStatus | null }[];
+};
+
+export async function getAdminListing(id: string): Promise<AdminListingDetail | null> {
+  const l = await db.listing.findUnique({
+    where: { id },
+    include: { media: { orderBy: { sortOrder: "asc" }, select: { kind: true, key: true, status: true } } },
+  });
+  if (!l) return null;
+  return {
+    id: l.id, name: l.name, cityId: l.cityId, type: l.type, area: l.area, mapsUrl: l.mapsUrl ?? "",
+    price: l.price, normalPrice: l.normalPrice, description: l.description, facilities: l.facilities,
+    extraFacilities: l.extraFacilities, affiliateUrl: l.affiliateUrl, waNumber: l.waNumber ?? "",
+    published: l.published, featured: l.featured, media: l.media,
+  };
 }

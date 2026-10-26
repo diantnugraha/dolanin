@@ -8,11 +8,11 @@ import { PromoStamp } from "./PromoStamp";
 import { TypeTag } from "./TypeTag";
 import s from "./ListingCard.module.css";
 
-export function ListingCard({ data, variant }: { data: ListingCardData; variant: "row" | "card" | "auto" }) {
+export function ListingCard({ data, variant, linkless = false }: { data: ListingCardData; variant: "row" | "card" | "auto"; linkless?: boolean }) {
   const isRow = variant === "row";
-  return (
-    <Link href={`/${data.citySlug}/${data.slug}`} className={`${s.item} ${s[variant]}`}
-      data-price={data.price}>
+  const cls = `${s.item} ${s[variant]}`;
+  const body = (
+    <>
       <div className={s.th}>
         <CoverImage
           cover={data.cover}
@@ -31,6 +31,11 @@ export function ListingCard({ data, variant }: { data: ListingCardData; variant:
           <PriceTag price={data.price} normalPrice={data.normalPrice} perNight={!isRow} />
         </div>
       </div>
-    </Link>
+    </>
+  );
+  return linkless ? (
+    <div className={cls} data-price={data.price}>{body}</div>
+  ) : (
+    <Link href={`/${data.citySlug}/${data.slug}`} className={cls} data-price={data.price}>{body}</Link>
   );
 }
