@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ListingType {
+  HOTEL
+  PENGINAPAN
+  VILLA
+}
+
+enum MediaKind {
+  PHOTO
+  VIDEO
+}
+
+enum VideoStatus {
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum EventKind {
+  VIEW
+  PESAN
+  WA
+}
+
+model City {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  code      String // "YK", 2–4 huruf besar
+  photoKey  String? // basis key S3 (lihat Task 11)
+  sortOrder Int       @default(0)
+  listings  Listing[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Listing {
+  id              String      @id @default(cuid())
+  name            String
+  slug            String      @unique
+  cityId          String
+  city            City        @relation(fields: [cityId], references: [id], onDelete: Restrict)
+  type            ListingType
+  area            String
+  mapsUrl         String?
+  price           Int
+  normalPrice     Int?
+  description     String // ≤ 300 karakter
+  facilities      String[] // key preset dari FACILITIES
+  extraFacilities String[] // teks bebas "Lainnya"
+  affiliateUrl    String
+  waNumber        String? // sudah dinormalisasi "62…"
+  published       Boolean     @default(false)
+  featured        Boolean     @default(false)
+  media           Media[]
+  events          Event[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([cityId, published, price])
+}
+
+model Media {
+  id          String       @id @default(cuid())
+  listingId   String
+  listing     Listing      @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  kind        MediaKind
+  key         String // PHOTO: basis key S3; VIDEO: GUID Bunny
+  status      VideoStatus? // null untuk foto
+  durationSec Int?
+  sortOrder   Int
+
+  @@index([listingId, sortOrder])
+}
+
+model Setting {
+  id        Int     @id @default(1)
+  waDefault String?
+}
+
+model Admin {
+  id             Int       @id @default(1)
+  username       String    @unique
+  passwordHash   String
+  sessionVersion Int       @default(0)
+  failedCount    Int       @default(0)
+  lockedUntil    DateTime?
+}
+
+model Event {
+  id        BigInt      @id @default(autoincrement())
+  listingId String
+  listing   Listing     @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  kind      EventKind
+  cityId    String // didenormalisasi saat event terjadi
+  type      ListingType
+  createdAt DateTime    @default(now())
+
+  @@index([createdAt])
+  @@index([listingId, createdAt])
+}
