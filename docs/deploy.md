@@ -22,12 +22,13 @@ Angka pasti bisa berubah; cek halaman harga masing-masing sebelum mendaftar. Sia
    - **Pooled** (hostname mengandung `-pooler`) untuk `DATABASE_URL`. Dipakai aplikasi saat runtime (`lib/db.ts` lewat `@prisma/adapter-pg`).
    - **Direct / unpooled** (tanpa `-pooler`) untuk `DIRECT_URL`. Dipakai hanya untuk migrasi.
 3. Kenapa dua: Prisma 7 menghapus `directUrl`; CLI (`prisma migrate`) hanya membaca `datasource.url` di `prisma.config.ts`. Repo ini membaca `DIRECT_URL` dulu, lalu jatuh ke `DATABASE_URL` bila `DIRECT_URL` kosong. Neon menyarankan koneksi direct untuk migrasi ([Prisma config reference](https://www.prisma.io/docs/orm/reference/prisma-config-reference), [Neon + Prisma](https://neon.com/docs/guides/prisma)).
-4. Migrasi berjalan otomatis di setiap build Vercel lewat script `vercel-build` (`prisma migrate deploy && next build`).
+4. Migrasi berjalan otomatis hanya pada deploy **Production** lewat `vercel-build` (`scripts/vercel-build.sh`: `prisma migrate deploy` jika `VERCEL_ENV=production`, lalu `next build` selalu). Kalau migrasi produksi gagal, build gagal. Deploy **Preview tidak menjalankan migrasi**. Jangan pernah mengarahkan Preview ke DB produksi. Bila ingin Preview berfungsi, buat branch Neon terpisah, isi `DATABASE_URL`/`DIRECT_URL` khusus environment Preview dengan branch itu, dan jalankan migrasinya manual (`DIRECT_URL=<url branch> npx prisma migrate deploy`).
 
 ## 3. S3 + CloudFront (foto)
 
 Foto diupload langsung dari browser ke S3 lewat presigned URL, dan dibaca lewat CloudFront.
 
+0. `ap-southeast-3` (Jakarta) adalah region opt-in AWS: aktifkan dulu di Account (menu nama akun, Account) lalu AWS Regions, tunggu statusnya Enabled. Alternatif tanpa opt-in: `ap-southeast-1` (Singapura); ganti semua `ap-southeast-3` di bawah.
 1. **Bucket S3** privat di `ap-southeast-3` (Jakarta). Biarkan Block Public Access aktif semua.
 2. **CloudFront**: buat distribusi paket **Free**, origin = bucket di atas, akses origin lewat **Origin Access Control (OAC)** (signing: sign requests). Catat domain `dxxxx.cloudfront.net`.
 3. **Bucket policy** agar hanya distribusi itu yang boleh baca (ganti `BUCKET`, `ACCOUNT_ID`, `DIST_ID`):
@@ -51,7 +52,7 @@ Foto diupload langsung dari browser ke S3 lewat presigned URL, dan dibaca lewat 
 ```json
 [
   {
-    "AllowedOrigins": ["https://DOMAIN-PRODUKSI", "http://localhost:3000"],
+    "AllowedOrigins": ["https://DOMAIN-PRODUKSI", "https://PROYEK.vercel.app", "http://localhost:3000"],
     "AllowedMethods": ["PUT"],
     "AllowedHeaders": ["Content-Type"],
     "ExposeHeaders": [],
@@ -60,6 +61,7 @@ Foto diupload langsung dari browser ke S3 lewat presigned URL, dan dibaca lewat 
 ]
 ```
 
+   Penting: origin harus mencakup URL tempat tes upload pertama dijalankan, termasuk URL `*.vercel.app` bawaan Vercel, SEBELUM smoke test (domain custom boleh menyusul).
 5. **IAM user** khusus aplikasi (tanpa akses console), policy hanya ini:
 
 ```json
@@ -83,7 +85,7 @@ Sumber: [OAC untuk S3](https://docs.aws.amazon.com/AmazonCloudFront/latest/Devel
 1. Buat **Stream Library**.
 2. Aktifkan **MP4 Fallback** (di pengaturan library; pilih resolusi 720p). Tanpa ini `play_720p.mp4` tidak ada.
 3. **Webhook**: set ke `https://{domain}/api/bunny/webhook?token={BUNNY_WEBHOOK_TOKEN}`. `BUNNY_WEBHOOK_TOKEN` = string acak panjang buatanmu (mis. `openssl rand -hex 32`); sama persis dengan env di Vercel.
-4. **Allowed referrers** = domain produksi (tambahkan `localhost` hanya jika perlu tes lokal).
+4. **Allowed referrers** = domain produksi, plus URL `*.vercel.app` bawaan bila smoke test dijalankan di sana (harus sudah diisi sebelum smoke test). Tambahkan `localhost` hanya jika perlu tes lokal.
 5. Pemetaan nilai:
    - `BUNNY_LIBRARY_ID` = ID library (angka).
    - `BUNNY_API_KEY` = API key library (bukan API key akun).
@@ -115,14 +117,14 @@ Catatan: nama menu persis di dashboard Bunny dapat berbeda; halaman dokumentasi 
 
 ## 6. Deploy dan admin pertama
 
-1. Deploy (push ke branch produksi). Build menjalankan `prisma migrate deploy` lalu `next build`.
-2. Buat admin dari laptop, terhadap DB produksi. Export env produksi hanya di shell, jangan simpan ke file yang masuk git:
+1. Deploy (push ke branch produksi). Build Production menjalankan `prisma migrate deploy` lalu `next build`.
+2. Buat admin dari laptop, terhadap DB produksi. Pakai URL **direct** Neon. Awali perintah dengan satu spasi agar tidak tersimpan di history shell (zsh: `setopt HIST_IGNORE_SPACE`; bash: `HISTCONTROL=ignorespace`). Jangan simpan ke file yang masuk git:
 
 ```bash
-DATABASE_URL='<url produksi>' npm run admin:password -- <username> <password>
+ DATABASE_URL='<url direct produksi>' npm run admin:password -- <username> <password>
 ```
 
-   Pakai URL direct atau pooled, keduanya bisa. Jangan jalankan seed di produksi (`prisma/seed.ts` berisi data contoh).
+   Jangan jalankan seed di produksi (`prisma/seed.ts` berisi data contoh).
 3. **Lupa password**: jalankan perintah yang sama dengan password baru.
 
 ## 7. Smoke test
