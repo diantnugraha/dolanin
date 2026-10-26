@@ -38,7 +38,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             {cities.slice(0, 5).map((c) => (
               <CityTile key={c.id} city={c} />
             ))}
-            {desktopMore > 0 && <MoreCitiesTile n={desktopMore} className={s.desktopOnly} />}
+            <MoreCitiesTile n={desktopMore} className={s.desktopOnly} />
           </div>
           {mobileMore > 0 && (
             <Link href="/kota" className={s.more}>

@@ -8,12 +8,23 @@
   font-weight: 700;
   letter-spacing: -0.02em;
 }
+.hello h1 {
+  isolation: isolate;
+}
+/* The senja highlight sits behind the text and never covers descenders of the line above. */
 .hello h1 mark {
+  position: relative;
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+.hello h1 mark::before {
+  content: "";
+  position: absolute;
+  inset: 0 -6px;
   background: var(--senja);
-  color: var(--malam);
-  padding: 0 6px;
   border-radius: 8px;
-  box-decoration-break: clone;
+  z-index: -1;
 }
 .hello p {
   margin: 8px 0 0;
@@ -106,8 +117,8 @@
     letter-spacing: -0.03em;
     text-wrap: balance;
   }
-  .hello h1 mark {
-    padding: 0 8px;
+  .hello h1 mark::before {
+    inset: 0 -8px;
     border-radius: 10px;
   }
   .hello p {

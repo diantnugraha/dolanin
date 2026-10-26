@@ -62,6 +62,22 @@ test.describe("landing desktop", () => {
     await page.goto("/");
     await expect(page.locator("a[data-city]:visible")).toHaveCount(5);
     await expect(page.getByText("kota lainnya").locator("visible=true")).toHaveCount(0);
+    // 6th board slot is never a hole: with every city shown it reads "Semua kota"
+    await expect(page.getByRole("link", { name: "Semua kota" }).locator("visible=true")).toHaveAttribute("href", "/kota");
+  });
+
+  test("tapping a city tile lands on its catalog (shared-element transition)", async ({ page }) => {
+    await page.goto("/");
+    await tile(page, "Yogyakarta").click();
+    await expect(page).toHaveURL(/\/yogyakarta$/);
+    await expect(page.getByRole("heading", { level: 1, name: "Yogyakarta" })).toBeVisible();
+  });
+
+  test("tapping a city tile works with reduced motion", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+    await tile(page, "Bali").click();
+    await expect(page).toHaveURL(/\/bali$/);
   });
 });
 

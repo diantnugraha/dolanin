@@ -64,3 +64,12 @@ body {
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* City tile -> catalog banner shared-element transition: off for reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

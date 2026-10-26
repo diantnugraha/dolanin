@@ -25,6 +25,7 @@ type SeedListing = {
   description: string;
   facilities: string[];
   photos: string[];
+  mapsUrl?: string;
 };
 
 const listings: SeedListing[] = [
@@ -33,6 +34,7 @@ const listings: SeedListing[] = [
     area: "Jetis, dekat Tugu", price: 185000, normalPrice: 240000, featured: true, published: true,
     description: "Hotel bersih dan nyaman, jalan kaki ke Tugu dan stasiun.",
     facilities: ["wifi", "ac", "sarapan"], photos: ["seed-room-3", "seed-room-1", "seed-room-2"],
+    mapsUrl: "https://maps.app.goo.gl/omahtugu1nn",
   },
   {
     name: "Ndalem Prawiro", slug: "ndalem-prawiro", city: "yogyakarta", type: "PENGINAPAN",

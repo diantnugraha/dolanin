@@ -90,12 +90,11 @@
 
 @media (max-width: 1000px) {
   .kpi { grid-template-columns: 1fr 1fr; }
-  .hero { grid-column: 1 / -1; }
   .row { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 800px) {
   .range { margin-left: 0; width: 100%; }
   .card { padding: 16px; }
   .hd { flex-wrap: wrap; }
-  .hero .v { font-size: 44px; }
+  .hero .v { font-size: 36px; }
 }

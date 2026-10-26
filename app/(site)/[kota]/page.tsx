@@ -23,7 +23,7 @@ export default async function CityPage({ params, searchParams }: Props) {
   return (
     <CatalogView
       title={city.name}
-      banner={{ photoKey: city.photoKey, name: city.name }}
+      banner={{ photoKey: city.photoKey, name: city.name, slug: city.slug }}
       basePath={`/${city.slug}`}
       params={p}
       result={result}

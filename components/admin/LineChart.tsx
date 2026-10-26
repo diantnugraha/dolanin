@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IconTable } from "@tabler/icons-react";
 import { formatDay } from "@/lib/format";
 import s from "./dashboard.module.css";
 
 const PESAN = "#F26B3A";
 const WA = "#00918F";
-const W = 640, H = 250, L = 32, R = 12, T = 10, B = 30;
-const PH = H - T - B, PW = W - L - R;
+const H = 250, L = 32, R = 12, T = 10, B = 30;
+const PH = H - T - B;
 
 type Day = { date: string; pesan: number; wa: number };
 
@@ -19,6 +19,18 @@ function axisMax(max: number) {
 
 export function LineChart({ series, label }: { series: Day[]; label: string }) {
   const n = series.length;
+  // Drawn 1:1 in CSS pixels (viewBox width = container width) so axis labels stay 11px at any width.
+  const box = useRef<HTMLDivElement>(null);
+  const [W, setW] = useState(640);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setW(Math.max(240, Math.round(el.clientWidth))));
+    ro.observe(el);
+    setW(Math.max(240, Math.round(el.clientWidth)));
+    return () => ro.disconnect();
+  }, []);
+  const PW = W - L - R;
   const ymax = axisMax(Math.max(0, ...series.map((r) => Math.max(r.pesan, r.wa))));
   const x = (i: number) => (n > 1 ? L + (PW * i) / (n - 1) : L);
   const y = (v: number) => T + PH * (1 - v / ymax);
@@ -33,9 +45,10 @@ export function LineChart({ series, label }: { series: Day[]; label: string }) {
 
   return (
     <>
-      <div className={s.chart}>
+      <div className={s.chart} ref={box}>
       <svg
         viewBox={`0 0 ${W} ${H}`}
+        height={H}
         role="img"
         aria-label={label}
         tabIndex={0}

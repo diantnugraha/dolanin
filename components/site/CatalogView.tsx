@@ -1,3 +1,4 @@
+import { ViewTransition } from "react";
 import Link from "next/link";
 import { IconArrowLeft } from "@tabler/icons-react";
 import type { ListingCardData } from "@/lib/catalog";
@@ -17,7 +18,7 @@ export function CatalogView({
   title, banner, basePath, query, params, result, cities, currentCity,
 }: {
   title: string;
-  banner?: { photoKey: string | null; name: string };
+  banner?: { photoKey: string | null; name: string; slug: string };
   basePath: string;
   query?: string;
   params: CatalogParams;
@@ -42,9 +43,11 @@ export function CatalogView({
     <div className={`wrap ${s.page}`}>
       {banner ? (
         <div className={s.banner}>
-          <div className={s.bannerImg}>
-            <CoverImage cover={banner.photoKey ? { kind: "PHOTO", key: banner.photoKey } : null} sizes="(min-width: 1024px) 1120px, 100vw" />
-          </div>
+          <ViewTransition name={`city-${banner.slug}`} share="city-grow" default="none">
+            <div className={s.bannerImg}>
+              <CoverImage cover={banner.photoKey ? { kind: "PHOTO", key: banner.photoKey } : null} sizes="(min-width: 1024px) 1120px, 100vw" />
+            </div>
+          </ViewTransition>
           <Link href="/" className={s.back} aria-label="Kembali">
             <IconArrowLeft size={20} stroke={1.75} />
           </Link>
