@@ -19,6 +19,11 @@ describe("listing", () => {
       types: ["VILLA"], min: 100000, max: 250000, sort: "asc", page: 1,
     });
   });
+  it("bounds min/max", () => {
+    expect(parseCatalogParams({ min: "99999999999" }).min).toBeUndefined();
+    expect(parseCatalogParams({ max: "9".repeat(400) }).max).toBeUndefined();
+    expect(parseCatalogParams({ min: "100000" }).min).toBe(100000);
+  });
   it("computes price range", () => {
     const b: CatalogParams = { types: [], sort: "asc", page: 1 };
     expect(priceRange({ ...b, preset: "lt150" })).toEqual({ max: 149999 });

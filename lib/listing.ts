@@ -42,7 +42,12 @@ const TYPES = Object.keys(TYPE_LABEL) as ListingType[];
 const PRESETS: PricePreset[] = ["lt150", "150-300", "gt300"];
 
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
-const nonNegInt = (v: string | undefined) => (v !== undefined && /^\d+$/.test(v) ? Number(v) : undefined);
+const MAX_PRICE = 100_000_000;
+const priceParam = (v: string | undefined) => {
+  if (v === undefined || !/^\d+$/.test(v)) return undefined;
+  const n = Number(v);
+  return n <= MAX_PRICE ? n : undefined;
+};
 
 export function parseCatalogParams(sp: Record<string, string | string[] | undefined>): CatalogParams {
   const types = (first(sp.tipe) ?? "")
@@ -51,8 +56,8 @@ export function parseCatalogParams(sp: Record<string, string | string[] | undefi
     .filter((t, i, a): t is ListingType => (TYPES as string[]).includes(t) && a.indexOf(t) === i);
   const harga = first(sp.harga);
   const preset = PRESETS.find((p) => p === harga);
-  const min = nonNegInt(first(sp.min));
-  const max = nonNegInt(first(sp.max));
+  const min = priceParam(first(sp.min));
+  const max = priceParam(first(sp.max));
   const hal = Number.parseInt(first(sp.hal) ?? "", 10);
   const page = Number.isFinite(hal) ? Math.min(Math.max(hal, 1), MAX_PAGE) : 1;
   const out: CatalogParams = { types, sort: first(sp.urut) === "termahal" ? "desc" : "asc", page };

@@ -1,5 +1,9 @@
 export const RESERVED_SLUGS: readonly string[] = ["kota", "promo", "cari", "admin", "go", "api"];
 
+export function isReservedSlug(slug: string): boolean {
+  return RESERVED_SLUGS.includes(slug);
+}
+
 export function slugify(s: string): string {
   return s
     .normalize("NFD")
@@ -13,6 +17,6 @@ export async function uniqueSlug(base: string, taken: (s: string) => Promise<boo
   const root = slugify(base) || "item";
   for (let n = 1; ; n++) {
     const candidate = n === 1 ? root : `${root}-${n}`;
-    if (!RESERVED_SLUGS.includes(candidate) && !(await taken(candidate))) return candidate;
+    if (!(await taken(candidate))) return candidate;
   }
 }
