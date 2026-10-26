@@ -2,6 +2,7 @@
 import { pathToFileURL } from "node:url";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient, ListingType } from "../generated/prisma/client";
+import { hashPassword } from "../lib/password";
 
 const cities = [
   { name: "Yogyakarta", slug: "yogyakarta", code: "YK", photoKey: "seed-jogja" },
@@ -115,6 +116,13 @@ export async function seedData(db: PrismaClient) {
   }
 
   await db.setting.upsert({ where: { id: 1 }, update: { waDefault: "6281200000000" }, create: { id: 1, waDefault: "6281200000000" } });
+  // Admin contoh untuk dev/E2E. Di produksi pakai `npm run admin:password`.
+  const passwordHash = await hashPassword("dolanin-dev-123");
+  await db.admin.upsert({
+    where: { id: 1 },
+    update: { username: "admin", passwordHash, failedCount: 0, lockedUntil: null },
+    create: { id: 1, username: "admin", passwordHash },
+  });
   return { cities: cityRows, listings: listingRows };
 }
 

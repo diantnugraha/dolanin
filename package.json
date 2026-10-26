@@ -10,6 +10,7 @@
     "test:unit": "vitest run tests/unit",
     "test:int": "vitest run tests/int",
     "test:e2e": "playwright test",
+    "admin:password": "tsx scripts/set-admin-password.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {
