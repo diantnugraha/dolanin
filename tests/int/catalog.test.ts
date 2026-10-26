@@ -65,6 +65,29 @@ describe("getCatalog", () => {
     expect(r.typeCounts.HOTEL).toBeGreaterThan(0);
   });
 
+  it("typeCounts ignore the type filter and exclude drafts", async () => {
+    const r = await getCatalog({ citySlug: "yogyakarta" }, { ...P, types: ["VILLA"] });
+    expect(r.typeCounts).toEqual({ HOTEL: 2, PENGINAPAN: 2, VILLA: 1 });
+  });
+
+  it("typeCounts honour the price filter", async () => {
+    const r = await getCatalog({ citySlug: "yogyakarta" }, { ...P, preset: "lt150" });
+    expect(r.typeCounts).toEqual({ HOTEL: 0, PENGINAPAN: 1, VILLA: 0 });
+  });
+
+  it("typeCounts honour q", async () => {
+    const r = await getCatalog({ q: "tugu" }, P);
+    expect(r.typeCounts).toEqual({ HOTEL: 1, PENGINAPAN: 0, VILLA: 0 });
+  });
+
+  it("typeCounts on the promoOnly path", async () => {
+    const r = await getCatalog({ promoOnly: true }, P);
+    expect(r.typeCounts).toEqual({ HOTEL: 2, PENGINAPAN: 1, VILLA: 1 });
+    const v = await getCatalog({ promoOnly: true }, { ...P, types: ["VILLA"] });
+    expect(v.typeCounts).toEqual({ HOTEL: 2, PENGINAPAN: 1, VILLA: 1 });
+    expect(v.total).toBe(1);
+  });
+
   it("zero-fills typeCounts", async () => {
     const r = await getCatalog({ citySlug: "bali" }, P);
     expect(r.typeCounts).toEqual({ HOTEL: 0, PENGINAPAN: 0, VILLA: 1 });
