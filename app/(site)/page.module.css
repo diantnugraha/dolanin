@@ -1,0 +1,141 @@
+.hero {
+  padding: 12px 0 0;
+}
+.hello h1 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.hello h1 mark {
+  background: var(--senja);
+  color: var(--malam);
+  padding: 0 6px;
+  border-radius: 8px;
+  box-decoration-break: clone;
+}
+.hello p {
+  margin: 8px 0 0;
+  color: var(--abu-pasir);
+  font-size: 14px;
+  max-width: 32ch;
+}
+.hello nav {
+  margin-top: 20px;
+}
+.board {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding-top: 20px;
+}
+/* mobile: 4 tiles; the 5th (and the "more" tile) only exist on desktop */
+.board > :nth-child(n + 5) {
+  display: none;
+}
+.more {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1.5px solid var(--laut);
+  color: var(--laut-d);
+  border-radius: 999px;
+  padding: 10px;
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: none;
+}
+.promo {
+  padding-top: 32px;
+}
+.promo h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.deals {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  margin: 0 -20px;
+  padding: 0 20px;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 20px;
+  scrollbar-width: none;
+}
+.deals::-webkit-scrollbar {
+  display: none;
+}
+.deals > * {
+  flex: none;
+  width: 220px;
+  scroll-snap-align: start;
+}
+.desktopOnly {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    padding: 56px 0 40px;
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    gap: 56px;
+    align-items: center;
+  }
+  .hello h1 {
+    font-size: 56px;
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+  .hello h1 mark {
+    padding: 0 8px;
+    border-radius: 10px;
+  }
+  .hello p {
+    margin-top: 20px;
+    font-size: 17px;
+    max-width: 38ch;
+  }
+  .hello nav {
+    margin-top: 32px;
+  }
+  .board {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding-top: 0;
+  }
+  .board > :nth-child(n + 5) {
+    display: block;
+  }
+  .board > .desktopOnly {
+    display: flex;
+  }
+  .more {
+    display: none;
+  }
+  .promo {
+    padding-top: 24px;
+  }
+  .promo h2 {
+    margin-bottom: 20px;
+    font-size: 28px;
+    letter-spacing: -0.02em;
+  }
+  .deals {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    overflow: visible;
+    margin: 0;
+    padding: 0;
+  }
+  .deals > * {
+    width: auto;
+  }
+}

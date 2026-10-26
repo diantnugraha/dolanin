@@ -1,0 +1,103 @@
+.city {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--tint-l);
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.city img {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.code {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: var(--tint-l);
+  color: #073f3f;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+.plate {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  background: var(--pasir);
+  border-radius: 12px;
+  padding: 8px 10px;
+}
+.plate b {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.meta {
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
+.meta small {
+  display: block;
+  font-size: 11px;
+  color: var(--abu-pasir);
+  line-height: 1.45;
+}
+.meta em {
+  font-style: normal;
+  color: var(--malam);
+  font-weight: 600;
+}
+
+.all {
+  background: var(--laut-d);
+  color: var(--pasir);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 18px;
+}
+.all b {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.all svg {
+  margin-bottom: auto;
+}
+
+@media (min-width: 1024px) {
+  .city:hover img {
+    transform: scale(1.04);
+  }
+  .code {
+    top: 10px;
+    left: 10px;
+    padding: 4px 9px;
+  }
+  .plate {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    padding: 10px 12px;
+  }
+  .plate b {
+    font-size: 16px;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 4px;
+  }
+  .meta small {
+    font-size: 12px;
+  }
+  .count::before {
+    content: "\00b7\00a0";
+  }
+}
