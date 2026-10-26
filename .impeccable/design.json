@@ -1,0 +1,731 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-26T20:16:11+00:00",
+  "title": "Design System: Dolanin",
+  "extensions": {
+    "colorMeta": {
+      "jingga": {
+        "role": "primary",
+        "displayName": "Jingga Dolan",
+        "canonical": "#F26B3A",
+        "tonalRamp": [
+          "#210000",
+          "#451100",
+          "#732403",
+          "#A4390A",
+          "#D6511C",
+          "#FF7746",
+          "#FEB59D",
+          "#FEEAE3"
+        ]
+      },
+      "biru-laut": {
+        "role": "secondary",
+        "displayName": "Biru Laut",
+        "canonical": "#0E8C8C",
+        "tonalRamp": [
+          "#000F0F",
+          "#002C2C",
+          "#024C4C",
+          "#0A6F6F",
+          "#1F9494",
+          "#4EB8B8",
+          "#76DDDC",
+          "#B2FFFE"
+        ]
+      },
+      "biru-laut-tua": {
+        "role": "secondary",
+        "displayName": "Biru Laut Tua",
+        "canonical": "#0A6B6B",
+        "tonalRamp": [
+          "#000F0F",
+          "#012C2C",
+          "#074C4C",
+          "#136F6F",
+          "#3F9191",
+          "#64B5B4",
+          "#89DAD9",
+          "#B4FFFD"
+        ]
+      },
+      "kuning-senja": {
+        "role": "tertiary",
+        "displayName": "Kuning Senja",
+        "canonical": "#FFC24B",
+        "tonalRamp": [
+          "#150800",
+          "#332200",
+          "#573D03",
+          "#7E5A0B",
+          "#A97900",
+          "#D49904",
+          "#FABE46",
+          "#FFECCC"
+        ]
+      },
+      "malam": {
+        "role": "neutral",
+        "displayName": "Malam",
+        "canonical": "#1F2A37",
+        "tonalRamp": [
+          "#040C17",
+          "#1B2633",
+          "#374351",
+          "#566371",
+          "#778493",
+          "#99A7B7",
+          "#BCCBDC",
+          "#E3F0FF"
+        ]
+      },
+      "pasir": {
+        "role": "neutral",
+        "displayName": "Pasir",
+        "canonical": "#FFF6EC",
+        "tonalRamp": [
+          "#100A05",
+          "#2A241C",
+          "#484139",
+          "#676057",
+          "#898178",
+          "#ACA39A",
+          "#D0C8BE",
+          "#F6EDE3"
+        ]
+      },
+      "putih": {
+        "role": "neutral",
+        "displayName": "Putih",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#A5A5A5",
+          "#C9C9C9",
+          "#EEEEEE"
+        ]
+      },
+      "tint-jingga": {
+        "role": "primary",
+        "displayName": "Tint Jingga",
+        "canonical": "#FFEFE8",
+        "tonalRamp": [
+          "#120905",
+          "#2D221D",
+          "#4B3F39",
+          "#6B5E58",
+          "#8D7F79",
+          "#B0A19B",
+          "#D5C5BF",
+          "#FBEBE4"
+        ]
+      },
+      "tint-laut": {
+        "role": "secondary",
+        "displayName": "Tint Laut",
+        "canonical": "#E3F4F4",
+        "tonalRamp": [
+          "#030D0E",
+          "#1B2828",
+          "#374545",
+          "#566565",
+          "#778686",
+          "#99A9A9",
+          "#BCCDCD",
+          "#E1F2F2"
+        ]
+      },
+      "laut-ink": {
+        "role": "secondary",
+        "displayName": "Laut Ink",
+        "canonical": "#073F3F",
+        "tonalRamp": [
+          "#000F0F",
+          "#002C2C",
+          "#174B4B",
+          "#396B6B",
+          "#5B8D8C",
+          "#7DB0AF",
+          "#A1D5D4",
+          "#C5FAFA"
+        ]
+      },
+      "senja-ink": {
+        "role": "tertiary",
+        "displayName": "Senja Ink",
+        "canonical": "#5A3D00",
+        "tonalRamp": [
+          "#150800",
+          "#342100",
+          "#593C00",
+          "#7A5B27",
+          "#9C7D49",
+          "#C09F6B",
+          "#E6C38E",
+          "#FEECD0"
+        ]
+      },
+      "whatsapp": {
+        "role": "neutral",
+        "displayName": "WhatsApp",
+        "canonical": "#25D366",
+        "tonalRamp": [
+          "#001101",
+          "#002E0F",
+          "#025021",
+          "#0A7534",
+          "#209B4B",
+          "#2DC461",
+          "#4CEC7E",
+          "#C9FED2"
+        ]
+      },
+      "whatsapp-ink": {
+        "role": "neutral",
+        "displayName": "WhatsApp Ink",
+        "canonical": "#063D1C",
+        "tonalRamp": [
+          "#001102",
+          "#002E11",
+          "#1B4E2C",
+          "#3C6E4A",
+          "#5D906A",
+          "#80B48C",
+          "#A3D9AF",
+          "#C8FFD4"
+        ]
+      },
+      "abu": {
+        "role": "neutral",
+        "displayName": "Abu",
+        "canonical": "#6B7280",
+        "tonalRamp": [
+          "#070B15",
+          "#1F2531",
+          "#3C424F",
+          "#5B616F",
+          "#7B8291",
+          "#9EA5B4",
+          "#C2C9D9",
+          "#E7EFFF"
+        ]
+      },
+      "abu-pasir": {
+        "role": "neutral",
+        "displayName": "Abu Pasir",
+        "canonical": "#575E6B",
+        "tonalRamp": [
+          "#060B15",
+          "#1F2530",
+          "#3C424E",
+          "#5A616F",
+          "#7B8390",
+          "#9EA5B4",
+          "#C1C9D8",
+          "#E7EFFE"
+        ]
+      },
+      "garis": {
+        "role": "neutral",
+        "displayName": "Garis",
+        "canonical": "#EFE3D5",
+        "tonalRamp": [
+          "#110902",
+          "#2C2319",
+          "#4A4035",
+          "#6A5F53",
+          "#8B8074",
+          "#AEA396",
+          "#D3C7B9",
+          "#F8ECDE"
+        ]
+      },
+      "input-stroke": {
+        "role": "neutral",
+        "displayName": "Input Stroke",
+        "canonical": "#DDD5CB",
+        "tonalRamp": [
+          "#0F0A05",
+          "#2A241C",
+          "#474139",
+          "#676057",
+          "#888178",
+          "#ABA49A",
+          "#D0C8BE",
+          "#F5EDE3"
+        ]
+      },
+      "error": {
+        "role": "neutral",
+        "displayName": "Error",
+        "canonical": "#B42318",
+        "tonalRamp": [
+          "#220000",
+          "#4E0000",
+          "#800200",
+          "#B12015",
+          "#DA4A3B",
+          "#FC7664",
+          "#FCB5A9",
+          "#FFE9E5"
+        ]
+      },
+      "error-ink": {
+        "role": "neutral",
+        "displayName": "Error Ink",
+        "canonical": "#8A2F0B",
+        "tonalRamp": [
+          "#220000",
+          "#461000",
+          "#742201",
+          "#9D4020",
+          "#C36343",
+          "#EA8665",
+          "#FBB6A0",
+          "#FEE9E2"
+        ]
+      },
+      "admin-canvas": {
+        "role": "neutral",
+        "displayName": "Admin Canvas",
+        "canonical": "#FAF8F5",
+        "tonalRamp": [
+          "#0C0B09",
+          "#262523",
+          "#43423F",
+          "#63615E",
+          "#84827F",
+          "#A6A5A2",
+          "#CBC9C6",
+          "#F0EEEB"
+        ]
+      },
+      "series-pesan": {
+        "role": "primary",
+        "displayName": "Seri Pesan",
+        "canonical": "#F26B3A",
+        "tonalRamp": [
+          "#210000",
+          "#451100",
+          "#732403",
+          "#A4390A",
+          "#D6511C",
+          "#FF7746",
+          "#FEB59D",
+          "#FEEAE3"
+        ]
+      },
+      "series-wa": {
+        "role": "secondary",
+        "displayName": "Seri WA",
+        "canonical": "#00918F",
+        "tonalRamp": [
+          "#000F0F",
+          "#012C2B",
+          "#084C4B",
+          "#146F6E",
+          "#0F9593",
+          "#47B9B7",
+          "#70DEDB",
+          "#B5FFFC"
+        ]
+      },
+      "series-other": {
+        "role": "neutral",
+        "displayName": "Seri Lainnya",
+        "canonical": "#C9C2B8",
+        "tonalRamp": [
+          "#0F0A05",
+          "#29241C",
+          "#474139",
+          "#666057",
+          "#888178",
+          "#ABA49A",
+          "#CFC8BE",
+          "#F5EDE3"
+        ]
+      },
+      "chart-grid": {
+        "role": "neutral",
+        "displayName": "Chart Grid",
+        "canonical": "#EEEAE4",
+        "tonalRamp": [
+          "#0D0B07",
+          "#272520",
+          "#45413D",
+          "#64615C",
+          "#85827C",
+          "#A8A49F",
+          "#CCC8C3",
+          "#F2EEE8"
+        ]
+      },
+      "chart-text": {
+        "role": "neutral",
+        "displayName": "Chart Text",
+        "canonical": "#52514E",
+        "tonalRamp": [
+          "#0C0B09",
+          "#262522",
+          "#43423F",
+          "#62615E",
+          "#83827F",
+          "#A6A5A1",
+          "#CAC9C5",
+          "#F0EEEB"
+        ]
+      },
+      "delta-good-bg": {
+        "role": "neutral",
+        "displayName": "Delta Naik Latar",
+        "canonical": "#E5F3EA",
+        "tonalRamp": [
+          "#050E08",
+          "#1D2821",
+          "#3A453E",
+          "#59655D",
+          "#79867E",
+          "#9CA9A0",
+          "#C0CDC4",
+          "#E5F3EA"
+        ]
+      },
+      "delta-good-ink": {
+        "role": "neutral",
+        "displayName": "Delta Naik Teks",
+        "canonical": "#17663A",
+        "tonalRamp": [
+          "#001103",
+          "#002E15",
+          "#015029",
+          "#267245",
+          "#4B9465",
+          "#6FB887",
+          "#93DDAA",
+          "#C5FFD6"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Landing headline on phones; left-aligned, two lines at 390px."
+      },
+      "display-desktop": {
+        "displayName": "Display (desktop)",
+        "purpose": "Landing headline from 1024px, balanced wrap."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Catalog page titles on phones."
+      },
+      "headline-desktop": {
+        "displayName": "Headline (desktop)",
+        "purpose": "Catalog page titles from 1024px."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Listing name on detail; city name on the catalog plate."
+      },
+      "section": {
+        "displayName": "Section",
+        "purpose": "Section headings such as the promo row (28px on desktop)."
+      },
+      "card-title": {
+        "displayName": "Card title",
+        "purpose": "Listing names on cards (14px row, 16px desktop)."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text and button labels."
+      },
+      "body-small": {
+        "displayName": "Body small",
+        "purpose": "Curator notes, help text, CMS descriptions."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Chips, segments, compact links."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Stamps, tags, city codes, units; the 11px floor."
+      },
+      "price": {
+        "displayName": "Price",
+        "purpose": "Jingga prices on cards and dock; never smaller."
+      },
+      "price-large": {
+        "displayName": "Price (large)",
+        "purpose": "Detail price box and booking card."
+      },
+      "kpi": {
+        "displayName": "KPI",
+        "purpose": "Dashboard KPI values (52px on the lead tile)."
+      }
+    },
+    "shadows": [
+      {
+        "name": "sheet-lift",
+        "value": "0 -8px 24px -12px rgba(0, 0, 0, 0.35)",
+        "purpose": "Mobile detail info sheet sliding over the sticky media hero."
+      },
+      {
+        "name": "popover",
+        "value": "0 4px 16px rgba(31, 42, 55, 0.12)",
+        "purpose": "CMS row action menus."
+      },
+      {
+        "name": "tooltip",
+        "value": "0 6px 16px -6px rgba(31, 42, 55, 0.25)",
+        "purpose": "Dashboard chart tooltips."
+      },
+      {
+        "name": "control-nub",
+        "value": "0 1px 3px rgba(31, 42, 55, 0.12)",
+        "purpose": "Selected CMS segmented option and toggle knob."
+      }
+    ],
+    "overlays": [
+      {
+        "name": "media-control",
+        "value": "rgba(31, 42, 55, 0.72)",
+        "purpose": "Round controls, play badge, pager pill and duration pills over photos and video; no blur."
+      },
+      {
+        "name": "backdrop",
+        "value": "rgba(31, 42, 55, 0.5)",
+        "purpose": "Dialog and bottom-sheet backdrop."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "City tile photo scale to 1.04 on desktop hover, 0.5s."
+      },
+      {
+        "name": "city-grow",
+        "value": "shared-element view transition (React ViewTransition, share=\"city-grow\")",
+        "purpose": "City tile grows into the catalog banner; disabled under prefers-reduced-motion."
+      },
+      {
+        "name": "fast-fade",
+        "value": "0.12s",
+        "purpose": "Chart tooltip opacity and bar hover."
+      },
+      {
+        "name": "toggle",
+        "value": "0.15s",
+        "purpose": "CMS toggle knob travel."
+      },
+      {
+        "name": "story-progress",
+        "value": "0.25s linear",
+        "purpose": "Video story progress bars; off under reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "desktop",
+        "value": "1024px"
+      },
+      {
+        "name": "cms-form-stack",
+        "value": "1100px"
+      },
+      {
+        "name": "cms-kpi-2col",
+        "value": "1000px"
+      },
+      {
+        "name": "cms-sidebar-collapse",
+        "value": "800px"
+      },
+      {
+        "name": "cms-narrow",
+        "value": "600px"
+      }
+    ],
+    "icons": {
+      "library": "Tabler Icons (outline)",
+      "stroke": "1.5 to 1.75",
+      "sizes": "14 to 20px in UI, up to 32px in empty states"
+    }
+  },
+  "components": [
+    {
+      "name": "Pesan Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary action to the affiliate link; Jingga pill with a Malam label and icon.",
+      "html": "<a class=\"ds-btn-pesan\" href=\"#\">Pesan sekarang <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12l14 0\"/><path d=\"M13 18l6 -6\"/><path d=\"M13 6l6 6\"/></svg></a>",
+      "css": ".ds-btn-pesan { font-family: var(--font-poppins), Poppins, system-ui, sans-serif; display: inline-flex; align-items: center; gap: 6px; height: 46px; padding: 0 22px; border-radius: 999px; background: #F26B3A; color: #1F2A37; font-size: 14px; font-weight: 600; text-decoration: none; transition: filter 0.15s; } .ds-btn-pesan:hover { filter: brightness(1.05); } .ds-btn-pesan:active { filter: brightness(0.97); } .ds-btn-pesan:focus-visible { outline: 2px solid #0E8C8C; outline-offset: 2px; }"
+    },
+    {
+      "name": "WhatsApp Button",
+      "kind": "button",
+      "refersTo": "button-whatsapp",
+      "description": "Chat WhatsApp to the owner; the only use of WhatsApp green.",
+      "html": "<a class=\"ds-btn-wa\" href=\"#\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9\"/><path d=\"M9 10a.5 .5 0 0 0 1 0v-1a.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a.5 .5 0 0 0 0 -1h-1a.5 .5 0 0 0 0 1\"/></svg> Chat WhatsApp</a>",
+      "css": ".ds-btn-wa { font-family: var(--font-poppins), Poppins, system-ui, sans-serif; display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 999px; background: #25D366; color: #063D1C; font-size: 14px; font-weight: 600; line-height: 1; text-decoration: none; transition: filter 0.15s; } .ds-btn-wa:hover { filter: brightness(1.04); } .ds-btn-wa:focus-visible { outline: 2px solid #0E8C8C; outline-offset: 2px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary navigation such as \"Lihat semua kota\" and load more.",
+      "html": "<a class=\"ds-btn-outline\" href=\"#\">Lihat semua kota</a>",
+      "css": ".ds-btn-outline { font-family: var(--font-poppins), Poppins, system-ui, sans-serif; display: inline-flex; align-items: center; justify-content: center; padding: 11px 24px; border: 1.5px solid #0E8C8C; border-radius: 999px; color: #0A6B6B; font-size: 14px; font-weight: 600; text-decoration: none; background: transparent; transition: background 0.15s; } .ds-btn-outline:hover { background: #E3F4F4; } .ds-btn-outline:focus-visible { outline: 2px solid #0E8C8C; outline-offset: 2px; }"
+    },
+    {
+      "name": "Type Segment",
+      "kind": "nav",
+      "refersTo": "type-segment",
+      "description": "Semua / Hotel / Penginapan / Villa switcher on a white pill track.",
+      "html": "<nav class=\"ds-seg\"><a class=\"ds-on\" href=\"#\">Semua</a><a href=\"#\">Hotel</a><a href=\"#\">Penginapan</a><a href=\"#\">Villa</a></nav>",
+      "css": ".ds-seg { font-family: var(--font-poppins), Poppins, system-ui, sans-serif; display: flex; width: 358px; background: #fff; border: 1px solid #EFE3D5; border-radius: 999px; padding: 4px; } .ds-seg a { flex: 1; border-radius: 999px; padding: 8px 4px; font-size: 12px; font-weight: 500; line-height: 1; color: #575E6B; text-align: center; text-decoration: none; transition: color 0.15s; } .ds-seg a:hover { color: #1F2A37; } .ds-seg a.ds-on { background: #1F2A37; color: #FFF6EC; } .ds-seg a:focus-visible { outline: 2px solid #0E8C8C; outline-offset: 2px; }"
+    },
+    {
+      "name": "Filter Chips",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Catalog filter and sort chips; selected is Tint Laut, active sort is Malam.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip ds-chip-sort\">Termurah</button><button class=\"ds-chip ds-chip-on\">Bandung</button><button class=\"ds-chip\">Villa</button><button class=\"ds-chip\">Di bawah Rp300rb</button></div>",
+      "css": ".ds-chips { display: flex; gap: 8px; flex-wrap: wrap; } .ds-chip { font-family: var(--font-poppins), Poppins, system-ui, sans-serif; display: inline-flex; align-items: center; gap: 4px; padding: 8px 12px; border-radius: 999px; background: #fff; border: 1px solid #EFE3D5; font-size: 12px; font-weight: 500; line-height: 1; color: #1F2A37; cursor: pointer; } .ds-chip:hover { border-color: #0E8C8C; } .ds-chip-on { background: #E3F4F4; border-color: #0E8C8C; color: #073F3F; } .ds-chip-sort { background: #1F2A37; border-color: #1F2A37; color: #FFF6EC; } .ds-chip:focus-visible { outline: 2px solid #0E8C8C; outline-offset: 2px; }"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "input-search",
+      "description": "Desktop header search pill; on phones it opens a dialog with the same pill input.",
+      "html": "<label class=\"ds-search\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0\"/><path d=\"M21 21l-6 -6\"/></svg><input type=\"search\" placeholder=\"Cari kota atau penginapan\"></label>",
+      "css": ".ds-search { font-family: var(--font-poppins), Poppins, system-ui, sans-serif; display: flex; align-items: center; gap: 10px; width: 400px; background: #fff; border: 1px solid #EFE3D5; border-radius: 999px; padding: 10px 18px; color: #6B7280; } .ds-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: 14px; color: #1F2A37; } .ds-search:focus-within { outline: 2px solid #0E8C8C; outline-offset: 2px; }"
+    },
+    {
+      "name": "CMS Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Labelled CMS form field with hint and error state.",
+      "html": "<div class=\"ds-f\"><label for=\"ds-n\">Nama listing</label><input id=\"ds-n\" value=\"Villa Bukit Senja\"><small>Tampil di kartu dan halaman detail.</small></div>",
+      "css": ".ds-f { font-family: var(--font-poppins), Poppins, system-ui, sans-serif; display: flex; flex-direction: column; gap: 6px; width: 320px; } .ds-f label { font-size: 13px; font-weight: 500; color: #1F2A37; } .ds-f input { font: inherit; font-size: 14px; color: #1F2A37; background: #fff; border: 1px solid #DDD5CB; border-radius: 12px; padding: 11px 12px; } .ds-f input:hover { border-color: #C9BBAA; } .ds-f input:focus-visible { outline: 2px solid #0E8C8C; outline-offset: 0; border-color: #0E8C8C; } .ds-f input[aria-invalid=\"true\"] { border-color: #B42318; } .ds-f small { font-size: 12px; color: #6B7280; }"
+    },
+    {
+      "name": "Listing Card",
+      "kind": "card",
+      "refersTo": "card-listing",
+      "description": "Vertical catalog card: photo with promo stamp, name, location, Jingga price.",
+      "html": "<a class=\"ds-card\" href=\"#\"><div class=\"ds-card-th\"><span class=\"ds-stamp\">Promo -20%</span></div><div class=\"ds-card-bd\"><span class=\"ds-tag\">Villa</span><b class=\"ds-card-name\">Villa Bukit Senja</b><span class=\"ds-card-where\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/><path d=\"M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z\"/></svg> Lembang, Bandung</span><div class=\"ds-price\"><s>Rp450.000</s><span>Rp360.000 <small>/malam</small></span></div></div></a>",
+      "css": ".ds-card { font-family: var(--font-poppins), Poppins, system-ui, sans-serif; display: flex; flex-direction: column; width: 240px; background: #fff; border: 1px solid #EFE3D5; border-radius: 16px; overflow: hidden; color: #1F2A37; text-decoration: none; transition: border-color 0.15s; } .ds-card:hover { border-color: #DDD5CB; } .ds-card:focus-visible { outline: 2px solid #0E8C8C; outline-offset: 2px; } .ds-card-th { position: relative; aspect-ratio: 4 / 3; background: #E3F4F4; } .ds-stamp { position: absolute; top: 8px; left: 8px; background: #FFC24B; color: #5A3D00; font-size: 11px; font-weight: 600; line-height: 1.5; padding: 3px 10px; border-radius: 999px; } .ds-card-bd { display: flex; flex-direction: column; padding: 12px 14px 14px; } .ds-tag { align-self: flex-start; font-size: 11px; font-weight: 600; color: #073F3F; background: #E3F4F4; border-radius: 999px; padding: 2px 9px; } .ds-card-name { font-size: 15px; font-weight: 600; line-height: 1.3; margin-top: 4px; } .ds-card-where { display: flex; align-items: center; gap: 4px; margin-top: 2px; font-size: 11px; color: #6B7280; } .ds-price { padding-top: 8px; font-variant-numeric: tabular-nums; } .ds-price s { display: block; font-size: 12px; color: #6B7280; } .ds-price span { font-size: 20px; font-weight: 700; color: #F26B3A; letter-spacing: -0.01em; line-height: 1.2; } .ds-price small { font-size: 11px; font-weight: 400; color: #6B7280; letter-spacing: 0; }"
+    },
+    {
+      "name": "City Tile",
+      "kind": "custom",
+      "refersTo": "city-tile",
+      "description": "Signature 4:5 photo tile with a city-code badge and a solid Pasir plate; grows into the catalog banner on tap.",
+      "html": "<a class=\"ds-city\" href=\"#\"><span class=\"ds-code\">BDG</span><span class=\"ds-plate\"><b>Bandung</b><small>mulai <em>Rp185rb</em></small><small>12 pilihan</small></span></a>",
+      "css": ".ds-city { font-family: var(--font-poppins), Poppins, system-ui, sans-serif; position: relative; display: block; width: 172px; aspect-ratio: 4 / 5; border-radius: 16px; overflow: hidden; background: #0E8C8C; color: #1F2A37; text-decoration: none; } .ds-city:focus-visible { outline: 2px solid #0E8C8C; outline-offset: 2px; } .ds-code { position: absolute; top: 8px; left: 8px; background: #E3F4F4; color: #073F3F; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; padding: 4px 8px; border-radius: 999px; } .ds-plate { position: absolute; left: 8px; right: 8px; bottom: 8px; background: #FFF6EC; border-radius: 12px; padding: 8px 10px; transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); } .ds-city:hover .ds-plate { transform: translateY(-2px); } .ds-plate b { display: block; font-size: 14px; font-weight: 600; line-height: 1.25; } .ds-plate small { display: block; font-size: 11px; color: #575E6B; line-height: 1.45; font-variant-numeric: tabular-nums; } .ds-plate em { font-style: normal; color: #1F2A37; font-weight: 600; }"
+    },
+    {
+      "name": "Action Dock",
+      "kind": "custom",
+      "refersTo": "action-dock",
+      "description": "Phone-only sticky bar keeping price, WhatsApp and Pesan always reachable.",
+      "html": "<div class=\"ds-dock\"><div class=\"ds-dock-p\"><small>mulai</small><b>Rp360.000</b></div><a class=\"ds-dock-wa\" href=\"#\" aria-label=\"Chat WhatsApp\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9\"/><path d=\"M9 10a.5 .5 0 0 0 1 0v-1a.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a.5 .5 0 0 0 0 -1h-1a.5 .5 0 0 0 0 1\"/></svg></a><a class=\"ds-dock-go\" href=\"#\">Pesan <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12l14 0\"/><path d=\"M13 18l6 -6\"/><path d=\"M13 6l6 6\"/></svg></a></div>",
+      "css": ".ds-dock { font-family: var(--font-poppins), Poppins, system-ui, sans-serif; display: flex; align-items: center; gap: 8px; width: 390px; background: #fff; border-top: 1px solid #EFE3D5; padding: 12px 16px 16px; } .ds-dock-p { flex: 1; line-height: 1.2; font-variant-numeric: tabular-nums; } .ds-dock-p small { display: block; font-size: 11px; color: #6B7280; } .ds-dock-p b { font-size: 20px; font-weight: 700; color: #F26B3A; } .ds-dock-wa, .ds-dock-go { height: 46px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; text-decoration: none; } .ds-dock-wa { width: 46px; background: #25D366; color: #063D1C; } .ds-dock-go { padding: 0 22px; gap: 6px; background: #F26B3A; color: #1F2A37; } .ds-dock-wa:hover, .ds-dock-go:hover { filter: brightness(1.05); } .ds-dock-wa:focus-visible, .ds-dock-go:focus-visible { outline: 2px solid #0E8C8C; outline-offset: 2px; }"
+    },
+    {
+      "name": "Senja Highlight Headline",
+      "kind": "custom",
+      "refersTo": "display",
+      "description": "Display headline with one key word on a flat Kuning senja block.",
+      "html": "<h1 class=\"ds-hello\">Yuk, dolan! Nginepnya biar <mark>hemat</mark>, jalan-jalannya puas.</h1>",
+      "css": ".ds-hello { font-family: var(--font-poppins), Poppins, system-ui, sans-serif; isolation: isolate; margin: 0; max-width: 340px; font-size: 32px; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; color: #1F2A37; } .ds-hello mark { position: relative; background: none; color: inherit; padding: 0 6px; box-decoration-break: clone; -webkit-box-decoration-break: clone; } .ds-hello mark::before { content: \"\"; position: absolute; inset: 0; background: #FFC24B; border-radius: 8px; z-index: -1; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Papan Tujuan",
+    "overview": "Dolanin reads like a warm, sunlit departure board for a local trip: the city comes first, as a real photograph on a rounded tile with a small solid Pasir plate naming it, and everything after that is a short, honest list of cheap places to stay. The ground is warm sand (Pasir), the ink is night (Malam), and colour is spent deliberately: Jingga marks prices and the main action, Biru laut marks direction, cities and selection, Kuning senja marks promos and the one highlighted word in a headline. Nothing glows, nothing is frosted, nothing fades: every colour is flat.\n\nDensity is phone-first and calm. Cards sit on white with a sand-coloured hairline, corners are generously rounded, and every action is a pill. The path to Pesan or WhatsApp is always on screen: a sticky white dock on phones, a sticky booking card on desktop. The CMS shares the same palette and pill vocabulary but trades the sand ground for a quieter off-white canvas and a Malam sidebar.\n\nThe owner's rejections are binding and visual: no colour gradients of any kind (scrims included), no glass or blur, no emoji used as icons, and nothing that reads as a generic AI template.",
+    "keyCharacteristics": [
+      "Flat colour only; text over photos sits on solid panels, never on a gradient scrim.",
+      "Poppins at 400 to 700 everywhere, tight negative tracking on large sizes, tabular figures on every number.",
+      "16px cards, 12px inner corners, pill buttons, chips and tags.",
+      "Jingga is the price-and-action colour; text and icons on Jingga are Malam.",
+      "Real photographs and vertical 9:16 video carry the imagery; no illustration.",
+      "Light theme only."
+    ],
+    "rules": [
+      {
+        "name": "The Flat Sun Rule",
+        "body": "Every colour is a solid fill. No gradients anywhere, including scrims, fades, and image overlays; no glass, no backdrop blur.",
+        "section": "colors"
+      },
+      {
+        "name": "The Malam on Jingga Rule",
+        "body": "Text and UI icons on a Jingga fill are always Malam (#1F2A37), never white.",
+        "section": "colors"
+      },
+      {
+        "name": "The Price Voice Rule",
+        "body": "Jingga text is reserved for prices, and a Jingga price is never smaller than 20px at weight 700.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Greys Rule",
+        "body": "Secondary text on Pasir is Abu Pasir (#575E6B); Abu (#6B7280) is used only on white.",
+        "section": "colors"
+      },
+      {
+        "name": "The 11px Floor Rule",
+        "body": "No text is smaller than 11px, and 11px is used only for short tags and units.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Money Rule",
+        "body": "Every price, count, KPI and table figure uses tabular numerals.",
+        "section": "typography"
+      },
+      {
+        "name": "The Senja Mark Rule",
+        "body": "At most one key word per headline gets a flat Kuning senja highlight: a solid rounded block (8px radius, 10px on desktop) behind the text, padded 6px (8px desktop) horizontally, cloned across line breaks, never covering the descenders of the line above.",
+        "section": "typography"
+      },
+      {
+        "name": "The Always-Reachable Rule",
+        "body": "On every detail view the Pesan and WhatsApp actions stay on screen: the sticky dock on phones, the sticky booking card on desktop.",
+        "section": "layout"
+      },
+      {
+        "name": "The Solid Plate Rule",
+        "body": "Text that names or prices something over a photograph sits on a solid panel (the Pasir city plate, the Pasir banner plate). Small round controls and duration pills over media use Malam at 72% opacity with no blur. A darkening scrim or gradient is never used.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** set every surface on Pasir (#FFF6EC) or white, with Malam (#1F2A37) text, light theme only.",
+      "**Do** keep Jingga (#F26B3A) for prices and the Pesan action, and put Malam labels and icons on it.",
+      "**Do** render prices at 20px/700 or larger with tabular figures.",
+      "**Do** use Biru Laut Tua (#0A6B6B) for text links and outline-button labels on light grounds, and Biru Laut (#0E8C8C) for strokes, fills and focus rings.",
+      "**Do** use Abu Pasir (#575E6B) for secondary text on Pasir and Abu (#6B7280) only on white.",
+      "**Do** round cards to 16px and make every button, chip and tag a pill.",
+      "**Do** place names and prices over photos on a solid Pasir plate.",
+      "**Do** use Tabler outline icons at 1.5 to 1.75 stroke.",
+      "**Do** keep spacing on the 4px grid.",
+      "**Do** use the dashboard series colours exactly: Pesan #F26B3A, WA #00918F, other #C9C2B8."
+    ],
+    "donts": [
+      "**Don't** use any gradient, including scrims and photo fades.",
+      "**Don't** use glass, frosted panels or backdrop blur.",
+      "**Don't** use emoji as icons.",
+      "**Don't** put white text or UI icons on Jingga (the Pasir brand pin inside the Jingga curator disc is the logo mark, not a UI icon).",
+      "**Don't** set any text below 11px.",
+      "**Don't** use the WhatsApp green for anything except WhatsApp actions.",
+      "**Don't** add a dark theme.",
+      "**Don't** lean on shadows for hierarchy; keep them for elements that sit above other content."
+    ]
+  }
+}
