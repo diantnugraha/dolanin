@@ -77,3 +77,11 @@
   .media { grid-template-columns: repeat(3, 1fr); }
   .card { padding: 18px 16px; }
 }
+
+/* single-column forms: kota, pengaturan */
+.narrow { max-width: 640px; }
+.photo { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.photoBox { position: relative; width: 120px; aspect-ratio: 3 / 4; border-radius: 12px; overflow: hidden; background: #eee; flex: none; }
+.photoBtns { display: flex; gap: 8px; flex-wrap: wrap; }
+.ok { margin: 4px 0 0; font-size: 13px; font-weight: 500; color: #0a6b6b; }
+.actions { display: flex; gap: 10px; margin-top: 8px; }

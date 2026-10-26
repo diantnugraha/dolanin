@@ -77,3 +77,12 @@ export const listingInput = z
   });
 
 export type ListingInput = z.output<typeof listingInput>;
+
+export const cityInput = z.object({
+  name: z.string().trim().min(2, "Nama kota 2–40 karakter").max(40, "Nama kota 2–40 karakter"),
+  code: z.string().regex(/^[A-Z]{2,4}$/, "Kode 2–4 huruf besar"),
+  photoKey: z.preprocess(empty, z.string().min(1).optional()),
+  sortOrder: z.coerce.number("Urutan harus berupa angka").int("Urutan harus bilangan bulat").min(0, "Urutan minimal 0"),
+});
+
+export type CityInput = z.output<typeof cityInput>;

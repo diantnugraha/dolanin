@@ -3,8 +3,9 @@ import { db } from "@/lib/db";
 import type { ListingType, MediaKind, Prisma, VideoStatus } from "../generated/prisma/client";
 import type { Cover } from "./catalog";
 import { deleteMediaObjects, fetchBunnyVideoState } from "./media-server";
-import { isReservedSlug, uniqueSlug } from "./slug";
-import { listingInput } from "./validation";
+import { isReservedSlug, slugify, uniqueSlug } from "./slug";
+import { cityInput, listingInput } from "./validation";
+import { normalizeWaNumber } from "./wa";
 
 export type SaveResult = { ok: true; id: string } | { ok: false; errors: Record<string, string> };
 
@@ -191,4 +192,99 @@ export async function getAdminListing(id: string): Promise<AdminListingDetail | 
     extraFacilities: l.extraFacilities, affiliateUrl: l.affiliateUrl, waNumber: l.waNumber ?? "",
     published: l.published, featured: l.featured, media: l.media,
   };
+}
+
+function fieldErrors(issues: { path: PropertyKey[]; message: string }[]): Record<string, string> {
+  const errors: Record<string, string> = {};
+  for (const i of issues) errors[String(i.path[0] ?? "form")] ??= i.message;
+  return errors;
+}
+
+export type AdminCityRow = {
+  id: string;
+  name: string;
+  slug: string;
+  code: string;
+  photoKey: string | null;
+  sortOrder: number;
+  listingCount: number;
+};
+
+export async function listAdminCities(): Promise<AdminCityRow[]> {
+  const rows = await db.city.findMany({
+    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+    select: { id: true, name: true, slug: true, code: true, photoKey: true, sortOrder: true, _count: { select: { listings: true } } },
+  });
+  return rows.map(({ _count, ...r }) => ({ ...r, listingCount: _count.listings }));
+}
+
+export async function getAdminCity(id: string): Promise<AdminCityRow | null> {
+  return (await listAdminCities()).find((c) => c.id === id) ?? null;
+}
+
+export async function cityListingCount(id: string): Promise<number> {
+  return db.listing.count({ where: { cityId: id } });
+}
+
+const CITY_RESERVED = "Nama kota ini bentrok dengan halaman lain";
+const CITY_TAKEN = "Kota ini sudah ada";
+
+export async function saveCity(input: unknown, id?: string): Promise<SaveResult> {
+  const parsed = cityInput.safeParse(input);
+  if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error.issues) };
+  const v = parsed.data;
+  const slug = slugify(v.name);
+  if (!slug) return { ok: false, errors: { name: "Nama kota 2–40 karakter" } };
+  if (isReservedSlug(slug)) return { ok: false, errors: { name: CITY_RESERVED } };
+
+  const existing = id ? await db.city.findUnique({ where: { id }, select: { photoKey: true } }) : null;
+  if (id && !existing) return { ok: false, errors: { form: "Kota tidak ditemukan" } };
+  const clash = await db.city.findUnique({ where: { slug }, select: { id: true } });
+  if (clash && clash.id !== id) return { ok: false, errors: { name: CITY_TAKEN } };
+
+  const data = { name: v.name, slug, code: v.code, photoKey: v.photoKey ?? null, sortOrder: v.sortOrder };
+  let savedId: string;
+  try {
+    savedId = id
+      ? (await db.city.update({ where: { id }, data, select: { id: true } })).id
+      : (await db.city.create({ data, select: { id: true } })).id;
+  } catch (e) {
+    const err = e as { code?: string; meta?: { target?: unknown } };
+    if (err.code === "P2002") return { ok: false, errors: { name: CITY_TAKEN } };
+    throw e;
+  }
+  if (existing?.photoKey && existing.photoKey !== (v.photoKey ?? null)) {
+    await cleanup([{ kind: "PHOTO", key: existing.photoKey }]);
+  }
+  return { ok: true, id: savedId };
+}
+
+export async function deleteCity(id: string): Promise<"ok" | "has-listings"> {
+  const city = await db.city.findUnique({ where: { id }, select: { photoKey: true, _count: { select: { listings: true } } } });
+  if (!city) return "ok";
+  if (city._count.listings > 0) return "has-listings";
+  try {
+    await db.city.delete({ where: { id } });
+  } catch (e) {
+    if ((e as { code?: string }).code === "P2003") return "has-listings";
+    if ((e as { code?: string }).code !== "P2025") throw e;
+  }
+  if (city.photoKey) await cleanup([{ kind: "PHOTO", key: city.photoKey }]);
+  return "ok";
+}
+
+export async function getSettings(): Promise<{ waDefault: string }> {
+  const s = await db.setting.findUnique({ where: { id: 1 }, select: { waDefault: true } });
+  return { waDefault: s?.waDefault ?? "" };
+}
+
+export async function saveSettings(input: { waDefault: string }): Promise<SaveResult> {
+  const raw = String(input?.waDefault ?? "").trim();
+  let waDefault: string | null = null;
+  if (raw !== "") {
+    waDefault = normalizeWaNumber(raw);
+    if (!waDefault) return { ok: false, errors: { waDefault: "Nomor WhatsApp tidak valid" } };
+  }
+  await db.setting.upsert({ where: { id: 1 }, update: { waDefault }, create: { id: 1, waDefault } });
+  return { ok: true, id: "1" };
 }

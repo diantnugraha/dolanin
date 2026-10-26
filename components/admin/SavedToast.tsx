@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import s from "./admin.module.css";
 
-export function SavedToast({ show }: { show: boolean }) {
+export function SavedToast({ show, message = "Listing tersimpan" }: { show: boolean; message?: string }) {
   const [on, setOn] = useState(show);
   useEffect(() => {
     if (!show) return;
@@ -12,7 +12,7 @@ export function SavedToast({ show }: { show: boolean }) {
   }, [show]);
   return (
     <div className={on ? s.toast : "sr-only"} role="status" aria-live="polite">
-      {on ? "Listing tersimpan" : ""}
+      {on ? message : ""}
     </div>
   );
 }
