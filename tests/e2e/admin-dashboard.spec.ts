@@ -54,11 +54,14 @@ test.afterAll(async () => {
 test("shows KPI totals matching the seeded events", async ({ page }) => {
   await signIn(page);
   await expect(page.getByText("Klik tombol Pesan")).toBeVisible();
-  await expect(page.getByTestId("kpi-pesan")).toContainText("6");
-  await expect(page.getByTestId("kpi-pesan")).toContainText("100%");
-  await expect(page.getByTestId("kpi-wa")).toContainText("3");
-  await expect(page.getByTestId("kpi-views")).toContainText("20");
-  await expect(page.getByTestId("kpi-ratio")).toContainText("45%");
+  const val = (k: string) => page.locator(`[data-kpi="${k}"]`);
+  await expect(val("pesan")).toHaveText("6");
+  await expect(page.getByTestId("kpi-pesan").getByTestId("delta")).toContainText("100%");
+  await expect(val("wa")).toHaveText("3");
+  // previous period has no WA events: pctChange is null, so no delta pill
+  await expect(page.getByTestId("kpi-wa").getByTestId("delta")).toHaveCount(0);
+  await expect(val("views")).toHaveText("20");
+  await expect(val("ratio")).toHaveText("45%");
   await expect(page.getByText("Klik bukan pemesanan.")).toBeVisible();
   await expect(page.locator("body")).not.toContainText("NaN");
 });
@@ -78,9 +81,12 @@ test("rentang=7 changes the date range label", async ({ page }) => {
 test("hover on chart shows tooltip with Pesan; table view has 30 rows", async ({ page }) => {
   await signIn(page);
   const svg = page.getByRole("img", { name: /Grafik garis/ });
+  const chart = svg.locator("xpath=.."); // the line chart's own container, not the city bars
   const box = (await svg.boundingBox())!;
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await expect(page.getByRole("tooltip").first()).toContainText("Pesan");
+  const tip = chart.getByRole("tooltip");
+  await expect(tip).toContainText(/\d{1,2} \p{L}{3}/u);
+  await expect(tip).toContainText("Pesan");
   await page.getByText("Lihat sebagai tabel").click();
   await expect(page.locator("details table tbody tr")).toHaveCount(30);
 });
@@ -90,15 +96,16 @@ test("keyboard arrows move the chart tooltip", async ({ page }) => {
   const svg = page.getByRole("img", { name: /Grafik garis/ });
   await svg.focus();
   await page.keyboard.press("ArrowLeft");
-  await expect(page.getByRole("tooltip").first()).toContainText("Chat WA");
+  await expect(svg.locator("xpath=..").getByRole("tooltip")).toContainText("Chat WA");
 });
 
 test("empty events: zeros, ratio dash, empty message, no NaN", async ({ page }) => {
   await withDb((c) => c.query(`DELETE FROM "Event"`));
   await signIn(page);
   await page.goto("/admin?rentang=7");
-  await expect(page.getByTestId("kpi-pesan")).toContainText("0");
-  await expect(page.getByTestId("kpi-ratio")).toContainText("–");
+  await expect(page.locator('[data-kpi="pesan"]')).toHaveText("0");
+  await expect(page.locator('[data-kpi="ratio"]')).toHaveText("–");
+  await expect(page.getByTestId("delta")).toHaveCount(0);
   await expect(page.getByText("Belum ada data untuk periode ini.").first()).toBeVisible();
   await expect(page.locator("body")).not.toContainText("NaN");
   await expect(page.getByRole("img", { name: /Grafik garis/ })).toBeVisible();

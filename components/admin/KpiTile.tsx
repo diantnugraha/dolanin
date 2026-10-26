@@ -22,13 +22,13 @@ export function KpiTile({
         {keyColor && <i className={d.key} style={{ background: keyColor }} />}
         {label}
       </span>
-      <span className={d.v}>{value}</span>
+      <span className={d.v} data-kpi={id}>{value}</span>
       {showDelta && (
-        <span className={`${d.delta} ${delta <= 0 ? d.flat : ""}`}>
+        <span data-testid="delta" className={`${d.delta} ${delta <= 0 ? d.flat : ""}`}>
           <Icon size={14} aria-hidden="true" />
           {formatPercent(Math.abs(delta))}
           {deltaSuffix ? ` ${deltaSuffix}` : ""}
-          <span className="sr-only">{delta < 0 ? " turun" : " naik"}</span>
+          <span className="sr-only">{delta === 0 ? " tidak berubah" : delta < 0 ? " turun" : " naik"}</span>
         </span>
       )}
       {note && <small>{note}</small>}

@@ -38,7 +38,6 @@
 .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
 .chart svg:focus-visible { outline: 2px solid var(--laut); outline-offset: 4px; }
 .tt { position: absolute; pointer-events: none; background: #fff; border: 1px solid var(--garis); border-radius: 12px; padding: 10px 12px; box-shadow: 0 6px 16px -6px rgba(31, 42, 55, 0.25); font-size: 12px; min-width: 132px; opacity: 0; transition: opacity 0.12s; z-index: 5; }
-.ttFixed { position: fixed; }
 .tt .d { color: var(--abu); margin-bottom: 6px; }
 .tt .r { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
 .tt .r i { width: 12px; height: 2px; border-radius: 2px; }
@@ -53,7 +52,7 @@
 .empty { margin: 8px 0; font-size: 13px; color: var(--abu); }
 
 /* bars */
-.bars { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+.bars { position: relative; display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
 .bar { display: grid; grid-template-columns: 104px 1fr 44px; align-items: center; gap: 10px; font-size: 13px; cursor: default; border-radius: 8px; }
 .bar .tr { height: 20px; position: relative; }
 .bar .tr i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--series-pesan); border-radius: 0 4px 4px 0; transition: filter 0.12s; }

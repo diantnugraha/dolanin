@@ -10,9 +10,10 @@ export function CityBars({ rows, total }: { rows: Row[]; total: number }) {
   const [tip, setTip] = useState<{ row: Row; left: number; top: number } | null>(null);
   const max = Math.max(1, ...rows.map((r) => r.count));
   if (!rows.length) return <p className={s.empty}>Belum ada data untuk periode ini.</p>;
+  // Positioned inside the (relative) list so it scrolls with the page and can't leave the card.
   const show = (row: Row, el: HTMLElement) => {
-    const rc = el.getBoundingClientRect();
-    setTip({ row, left: rc.left + rc.width * 0.4, top: rc.top - 64 });
+    const box = el.parentElement!.clientWidth;
+    setTip({ row, left: Math.max(0, Math.min(box * 0.4, box - 150)), top: el.offsetTop + el.offsetHeight + 4 });
   };
   return (
     <>
@@ -32,18 +33,18 @@ export function CityBars({ rows, total }: { rows: Row[]; total: number }) {
             <b>{formatCount(r.count)}</b>
           </div>
         ))}
-      </div>
-      <div className={`${s.tt} ${s.ttFixed}`} role="tooltip" style={{ left: tip?.left ?? 0, top: tip?.top ?? 0, opacity: tip ? 1 : 0 }}>
-        {tip && (
-          <>
-            <div className={s.d}>{tip.row.name}</div>
-            <div className={s.r}>
-              <i style={{ background: tip.row.other ? "#C9C2B8" : "#F26B3A" }} />
-              <b>{formatCount(tip.row.count)}</b>
-              <span>klik Pesan{total > 0 ? ` · ${Math.round((tip.row.count / total) * 100)}%` : ""}</span>
-            </div>
-          </>
-        )}
+        <div className={s.tt} role="tooltip" style={{ left: tip?.left ?? 0, top: tip?.top ?? 0, opacity: tip ? 1 : 0 }}>
+          {tip && (
+            <>
+              <div className={s.d}>{tip.row.name}</div>
+              <div className={s.r}>
+                <i style={{ background: tip.row.other ? "#C9C2B8" : "#F26B3A" }} />
+                <b>{formatCount(tip.row.count)}</b>
+                <span>klik Pesan{total > 0 ? ` · ${Math.round((tip.row.count / total) * 100)}%` : ""}</span>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </>
   );
