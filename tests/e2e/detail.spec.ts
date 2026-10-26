@@ -28,6 +28,10 @@ test.describe("detail mobile", () => {
     await expect(pesan).toHaveAttribute("rel", /noopener/);
     await expect(page.locator(`a[href="/go/${id}/wa"]:visible`)).toHaveCount(1);
     await expect(page.getByRole("link", { name: "Chat WhatsApp" })).toBeVisible();
+
+    const res = await page.request.get(`/go/${id}/pesan`, { maxRedirects: 0 });
+    expect(res.status()).toBe(302);
+    expect(res.headers()["location"]).toBe("https://example.com/aff/omah-tugu-inn");
   });
 
   test("dock is in viewport after scrolling to the bottom", async ({ page }) => {
