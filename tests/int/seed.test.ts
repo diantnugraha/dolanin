@@ -30,4 +30,20 @@ describe("seed", () => {
     expect(await db.listing.count({ where: { media: { none: {} } } })).toBe(0);
     expect((await db.setting.findUnique({ where: { id: 1 } }))?.waDefault).toBe("6281200000000");
   });
+
+  it("keeps the seed contract later tests depend on", async () => {
+    const preset = ["wifi", "ac", "sarapan", "parkir-motor", "parkir-mobil", "kolam", "dapur", "air-panas"];
+    const all = await db.listing.findMany({ include: { media: true, city: true } });
+    for (const l of all) {
+      expect(l.facilities.every((f) => preset.includes(f)), l.slug).toBe(true);
+      const photos = l.media.filter((m) => m.kind === "PHOTO");
+      expect(photos.length, l.slug).toBeGreaterThanOrEqual(1);
+      expect(photos.length, l.slug).toBeLessThanOrEqual(3);
+    }
+    expect(all.filter((l) => l.featured).map((l) => l.name).sort()).toEqual(
+      ["Kamar Dago Atas", "Ndalem Prawiro", "Omah Tugu Inn", "Villa Sawah Asri"],
+    );
+    const cityCodes = new Set(all.filter((l) => l.published).map((l) => l.city.slug));
+    expect(cityCodes.size).toBe(5);
+  });
 });

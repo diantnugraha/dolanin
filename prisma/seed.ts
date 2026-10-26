@@ -37,7 +37,7 @@ const listings: SeedListing[] = [
     name: "Ndalem Prawiro", slug: "ndalem-prawiro", city: "yogyakarta", type: "PENGINAPAN",
     area: "Prawirotaman", price: 95000, normalPrice: 130000, featured: true, published: true,
     description: "Penginapan bernuansa Jawa di kawasan kafe Prawirotaman.",
-    facilities: ["wifi", "kipas"], photos: ["seed-room-1", "seed-room-2"],
+    facilities: ["wifi", "air-panas"], photos: ["seed-room-1", "seed-room-2"],
   },
   {
     name: "Kamar Kayu Malioboro", slug: "kamar-kayu-malioboro", city: "yogyakarta", type: "PENGINAPAN",
@@ -49,7 +49,7 @@ const listings: SeedListing[] = [
     name: "Villa Lereng Kaliurang", slug: "villa-lereng-kaliurang", city: "yogyakarta", type: "VILLA",
     area: "Kaliurang", price: 480000, normalPrice: null, featured: false, published: true,
     description: "Villa sejuk di lereng Merapi, cocok untuk rombongan kecil.",
-    facilities: ["wifi", "parkir", "dapur"], photos: ["seed-villa-1", "seed-bungalow-1", "seed-room-3"],
+    facilities: ["wifi", "parkir-motor", "dapur"], photos: ["seed-villa-1", "seed-bungalow-1", "seed-room-3"],
   },
   {
     name: "Hotel Gedong Kuning", slug: "hotel-gedong-kuning", city: "yogyakarta", type: "HOTEL",
@@ -61,7 +61,7 @@ const listings: SeedListing[] = [
     name: "Pondok Kaliurang", slug: "pondok-kaliurang", city: "yogyakarta", type: "PENGINAPAN",
     area: "Kaliurang", price: 260000, normalPrice: null, featured: false, published: false,
     description: "Draf: pondok sederhana dekat kawasan wisata Kaliurang.",
-    facilities: ["kipas"], photos: ["seed-room-1"],
+    facilities: ["air-panas"], photos: ["seed-room-1"],
   },
   {
     name: "Villa Sawah Asri", slug: "villa-sawah-asri", city: "bali", type: "VILLA",
@@ -79,13 +79,13 @@ const listings: SeedListing[] = [
     name: "Wisma Batu Indah", slug: "wisma-batu-indah", city: "malang-batu", type: "PENGINAPAN",
     area: "Batu", price: 140000, normalPrice: null, featured: false, published: true,
     description: "Wisma sederhana, dekat alun-alun dan wisata petik apel.",
-    facilities: ["wifi", "parkir"], photos: ["seed-room-1"],
+    facilities: ["wifi", "parkir-motor"], photos: ["seed-room-1"],
   },
   {
     name: "Bungalow Gili Meno", slug: "bungalow-gili-meno", city: "lombok", type: "VILLA",
     area: "Gili Meno", price: 175000, normalPrice: null, featured: false, published: true,
     description: "Bungalow dekat pantai di pulau yang tenang tanpa kendaraan bermotor.",
-    facilities: ["kipas", "sarapan"], photos: ["seed-bungalow-1", "seed-villa-1"],
+    facilities: ["sarapan", "air-panas"], photos: ["seed-bungalow-1", "seed-villa-1"],
   },
 ];
 
