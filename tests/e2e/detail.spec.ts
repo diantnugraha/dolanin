@@ -50,6 +50,11 @@ test.describe("detail desktop", () => {
   });
 });
 
+test("og:image is absolute", async ({ page }) => {
+  await page.goto(URL);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /^http/);
+});
+
 test("draft listing is 404", async ({ page }) => {
   const res = await page.goto("/yogyakarta/pondok-kaliurang");
   expect(res?.status()).toBe(404);

@@ -26,11 +26,9 @@ export function ShareButton({ title }: { title: string }) {
       <button type="button" className={s.btn} onClick={share} aria-label="Bagikan">
         <IconShare2 size={20} stroke={1.75} aria-hidden="true" />
       </button>
-      {toast && (
-        <div className={s.toast} role="status">
-          Tautan disalin
-        </div>
-      )}
+      <div className={toast ? s.toast : "sr-only"} role="status" aria-live="polite">
+        {toast ? "Tautan disalin" : ""}
+      </div>
     </>
   );
 }
