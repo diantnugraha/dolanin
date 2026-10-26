@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import {
-  IconChevronLeft, IconChevronRight, IconCloudUpload, IconGripVertical, IconMovie, IconPlayerPlayFilled, IconX,
+  IconAlertTriangle, IconChevronLeft, IconChevronRight, IconCloudUpload, IconGripVertical, IconMovie, IconPlayerPlayFilled, IconX,
 } from "@tabler/icons-react";
 import { photoUrl, videoPoster } from "@/lib/media";
 import { uploadPhoto, uploadVideo } from "./upload";
@@ -140,6 +140,11 @@ export function MediaManager({
               {src ? (
                 // eslint-disable-next-line @next/next/no-img-element -- local blob or CDN thumbnail
                 <img src={src} alt={`${m.kind === "VIDEO" ? "Video" : "Foto"} ${i + 1}`} draggable={false} />
+              ) : m.status === "FAILED" && !m.uploading ? (
+                <span className={`${s.wait} ${s.failed}`}>
+                  <IconAlertTriangle size={24} aria-hidden="true" />
+                  Gagal diproses — hapus lalu unggah ulang
+                </span>
               ) : (
                 <span className={s.wait}>
                   <IconMovie size={24} aria-hidden="true" />

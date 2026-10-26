@@ -6,11 +6,12 @@ import {
 } from "@tabler/icons-react";
 import { formatDuration } from "@/lib/format";
 import { mediaLabel } from "@/lib/listing";
-import { photoUrl, videoPoster, videoSrc } from "@/lib/media";
+import { photoUrl, videoPoster } from "@/lib/media";
 import { CoverImage } from "./Media";
 import { useMediaViewer, type MediaItem } from "./MediaViewer";
 import { ShareButton } from "./ShareButton";
 import { useAutoplay } from "./useAutoplay";
+import { useVideoFallback } from "./useVideoFallback";
 import s from "./MediaHero.module.css";
 
 /** Phone opener: a 9:16 video when the first media is a video, else a 4:5 swipe gallery. */
@@ -47,25 +48,33 @@ function VideoHero({
   const { open, isOpen } = useMediaViewer();
   const [muted, setMuted] = useState(true);
   const [progress, setProgress] = useState(0);
+  const { src, failed, onError } = useVideoFallback(video.guid, ref);
   // The hero is sticky, so it never leaves the screen: watch where it ends instead.
-  const { on, play, pause } = useAutoplay(ref, !isOpen, end);
+  const { on, play, pause } = useAutoplay(ref, !isOpen && !failed, end, src);
 
   return (
     <>
       <div className={s.hero} data-slot="hero" data-kind="VIDEO">
-        <video
-          ref={ref}
-          className={s.video}
-          // ponytail: hidden on desktop yet still loads poster + metadata; accepted, desktop isn't quota-bound.
-          src={videoSrc(video.guid)}
-          poster={videoPoster(video.guid)}
-          muted={muted}
-          loop
-          playsInline
-          preload="metadata"
-          onClick={() => open(0)}
-          onTimeUpdate={(e) => setProgress(e.currentTarget.currentTime / (e.currentTarget.duration || 1))}
-        />
+        {failed ? (
+          // No playable file: poster only, never a dead player.
+          // eslint-disable-next-line @next/next/no-img-element -- Bunny serves a fixed poster
+          <img className={s.video} src={videoPoster(video.guid)} alt="" onClick={() => open(0)} />
+        ) : (
+          <video
+            ref={ref}
+            className={s.video}
+            // ponytail: hidden on desktop yet still loads poster + metadata; accepted, desktop isn't quota-bound.
+            src={src}
+            poster={videoPoster(video.guid)}
+            muted={muted}
+            loop
+            playsInline
+            preload="metadata"
+            onClick={() => open(0)}
+            onError={onError}
+            onTimeUpdate={(e) => setProgress(e.currentTarget.currentTime / (e.currentTarget.duration || 1))}
+          />
+        )}
         <div className={s.prog} data-progress aria-hidden="true">
           {Array.from({ length: count }, (_, i) => (
             <i key={i}>{i === 0 && <b style={{ transform: `scaleX(${progress})` }} />}</i>
@@ -73,15 +82,19 @@ function VideoHero({
         </div>
         {bar(
           <>
-            <button type="button" className={s.cbtn} aria-label={on ? "Jeda video" : "Putar video"} onClick={on ? pause : play}>
-              {on ? <IconPlayerPauseFilled size={18} aria-hidden="true" /> : <IconPlayerPlayFilled size={18} aria-hidden="true" />}
-            </button>
-            <button
-              type="button" className={s.cbtn} aria-label={muted ? "Nyalakan suara" : "Matikan suara"}
-              onClick={() => setMuted(!muted)}
-            >
-              {muted ? <IconVolumeOff size={20} stroke={1.75} aria-hidden="true" /> : <IconVolume size={20} stroke={1.75} aria-hidden="true" />}
-            </button>
+            {!failed && (
+              <>
+                <button type="button" className={s.cbtn} aria-label={on ? "Jeda video" : "Putar video"} onClick={on ? pause : play}>
+                  {on ? <IconPlayerPauseFilled size={18} aria-hidden="true" /> : <IconPlayerPlayFilled size={18} aria-hidden="true" />}
+                </button>
+                <button
+                  type="button" className={s.cbtn} aria-label={muted ? "Nyalakan suara" : "Matikan suara"}
+                  onClick={() => setMuted(!muted)}
+                >
+                  {muted ? <IconVolumeOff size={20} stroke={1.75} aria-hidden="true" /> : <IconVolume size={20} stroke={1.75} aria-hidden="true" />}
+                </button>
+              </>
+            )}
             <button type="button" className={s.cbtn} aria-label="Layar penuh" onClick={() => open(0)}>
               <IconMaximize size={20} stroke={1.75} aria-hidden="true" />
             </button>
@@ -92,7 +105,7 @@ function VideoHero({
           Video{video.durationSec ? ` · ${formatDuration(video.durationSec)}` : ""}
         </span>
         {/* Big tap target on the poster; the labelled toggle in the bar is the accessible control. */}
-        {!on && (
+        {!on && !failed && (
           <button type="button" className={s.play} tabIndex={-1} aria-hidden="true" onClick={play}>
             <IconPlayerPlayFilled size={28} />
           </button>

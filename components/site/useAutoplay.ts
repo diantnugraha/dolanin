@@ -15,12 +15,14 @@ export const useReducedMotion = () => useSyncExternalStore(subscribe, () => matc
  * and a play button, and a video hidden by CSS never starts. `watch` lets a caller observe another
  * element than the video (the sticky hero is always "on screen", so it watches a sentinel instead).
  * `on` is false when the user paused, reduced motion is on, or the browser refused to play: the
- * observer is then disconnected, so nothing resumes until `play()`.
+ * observer is then disconnected, so nothing resumes until `play()`. `src` re-runs the effect when the
+ * source changes (720p to 480p fallback), so playback resumes on the new file.
  */
 export function useAutoplay(
   video: RefObject<HTMLVideoElement | null>,
   enabled: boolean,
   watch?: RefObject<Element | null>,
+  src?: string,
 ) {
   const reduced = useReducedMotion();
   const [choice, setChoice] = useState<"play" | "pause" | null>(null);
@@ -44,7 +46,7 @@ export function useAutoplay(
     );
     io.observe(target);
     return () => io.disconnect();
-  }, [video, watch, enabled, auto]);
+  }, [video, watch, enabled, auto, src]);
 
   return {
     on: auto,

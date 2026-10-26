@@ -17,6 +17,7 @@ async function cleanup() {
   await c.connect();
   try {
     await c.query(`DELETE FROM "Listing" WHERE name IN ('Wisma Uji', 'Wisma Foto Uji')`);
+    await c.query(`DELETE FROM "Media" WHERE key IN ('e2e-failed-guid', 'e2e-processing-guid')`);
     await c.query(`UPDATE "Listing" SET name = 'Hotel Gedong Kuning' WHERE name = 'Hotel Gedong Kuning X'`);
   } finally {
     await c.end();
@@ -163,3 +164,22 @@ test("photo upload: two WebP PUTs straight to S3, no SDK checksum, immutable cac
   }
 });
 
+test("media manager labels a FAILED video apart from a PROCESSING one", async ({ page }) => {
+  const c = new Client({ connectionString: process.env.DATABASE_URL });
+  await c.connect();
+  let id: string;
+  try {
+    id = (await c.query(`SELECT id FROM "Listing" WHERE slug = 'kamar-kayu-malioboro'`)).rows[0].id;
+    await c.query(
+      `INSERT INTO "Media" (id, "listingId", kind, key, status, "sortOrder") VALUES
+         ('e2e-failed', $1, 'VIDEO', 'e2e-failed-guid', 'FAILED', 10),
+         ('e2e-processing', $1, 'VIDEO', 'e2e-processing-guid', 'PROCESSING', 11)`,
+      [id],
+    );
+  } finally {
+    await c.end();
+  }
+  await page.goto(`/admin/listing/${id}`);
+  await expect(page.getByText("Gagal diproses — hapus lalu unggah ulang")).toHaveCount(1);
+  await expect(page.getByText("Sedang diproses")).toHaveCount(1);
+});

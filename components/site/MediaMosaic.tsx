@@ -5,10 +5,11 @@ import {
 } from "@tabler/icons-react";
 import { formatDuration } from "@/lib/format";
 import { mediaLabel } from "@/lib/listing";
-import { videoPoster, videoSrc } from "@/lib/media";
+import { videoPoster } from "@/lib/media";
 import { CoverImage } from "./Media";
 import { useMediaViewer, type MediaItem } from "./MediaViewer";
 import { useAutoplay } from "./useAutoplay";
+import { useVideoFallback } from "./useVideoFallback";
 import s from "./MediaMosaic.module.css";
 
 /**
@@ -55,7 +56,8 @@ function VideoTile({
   const ref = useRef<HTMLVideoElement>(null);
   const { isOpen } = useMediaViewer();
   const [muted, setMuted] = useState(true);
-  const { on, play, pause } = useAutoplay(ref, !isOpen);
+  const { src, failed, onError } = useVideoFallback(video.guid, ref);
+  const { on, play, pause } = useAutoplay(ref, !isOpen && !failed, undefined, src);
   return (
     <div className={s.tile}>
       <button type="button" className={s.open} aria-label={label} onClick={onOpen}>
@@ -63,25 +65,28 @@ function VideoTile({
             even under display:none, and this mosaic is hidden on phones (hemat kuota). */}
         {/* eslint-disable-next-line @next/next/no-img-element -- Bunny serves a fixed poster */}
         <img className={s.poster} src={videoPoster(video.guid)} alt="" loading="lazy" decoding="async" />
-        <video ref={ref} src={videoSrc(video.guid)} muted={muted} loop playsInline preload="none" />
+        {/* No playable file: the poster above stays, without a player. */}
+        {!failed && <video ref={ref} src={src} muted={muted} loop playsInline preload="none" onError={onError} />}
       </button>
       <span className={s.pill}>
         <IconPlayerPlayFilled size={14} aria-hidden="true" />
         Video{video.durationSec ? ` · ${formatDuration(video.durationSec)}` : ""}
       </span>
-      <div className={s.ctrl}>
-        <button type="button" className={s.cbtn} aria-label={on ? "Jeda video" : "Putar video"} onClick={on ? pause : play}>
-          {on ? <IconPlayerPauseFilled size={18} aria-hidden="true" /> : <IconPlayerPlayFilled size={18} aria-hidden="true" />}
-        </button>
-        <button
-          type="button" className={s.cbtn} aria-label={muted ? "Nyalakan suara" : "Matikan suara"}
-          onClick={() => setMuted(!muted)}
-        >
-          {muted ? <IconVolumeOff size={20} stroke={1.75} aria-hidden="true" /> : <IconVolume size={20} stroke={1.75} aria-hidden="true" />}
-        </button>
-      </div>
+      {!failed && (
+        <div className={s.ctrl}>
+          <button type="button" className={s.cbtn} aria-label={on ? "Jeda video" : "Putar video"} onClick={on ? pause : play}>
+            {on ? <IconPlayerPauseFilled size={18} aria-hidden="true" /> : <IconPlayerPlayFilled size={18} aria-hidden="true" />}
+          </button>
+          <button
+            type="button" className={s.cbtn} aria-label={muted ? "Nyalakan suara" : "Matikan suara"}
+            onClick={() => setMuted(!muted)}
+          >
+            {muted ? <IconVolumeOff size={20} stroke={1.75} aria-hidden="true" /> : <IconVolume size={20} stroke={1.75} aria-hidden="true" />}
+          </button>
+        </div>
+      )}
       {/* Big tap target on the poster; the labelled toggle above is the accessible control. */}
-      {!on && (
+      {!on && !failed && (
         <button type="button" className={`${s.cbtn} ${s.play}`} tabIndex={-1} aria-hidden="true" onClick={play}>
           <IconPlayerPlayFilled size={24} />
         </button>

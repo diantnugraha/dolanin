@@ -38,7 +38,7 @@ export async function saveListing(input: unknown, id?: string): Promise<SaveResu
   }
 
   const existing = id
-    ? await db.media.findMany({ where: { listingId: id }, select: { id: true, kind: true, key: true } })
+    ? await db.media.findMany({ where: { listingId: id }, select: { id: true, kind: true, key: true, status: true } })
     : [];
   if (id && !(await db.listing.findUnique({ where: { id }, select: { id: true } }))) {
     return { ok: false, errors: { form: "Listing tidak ditemukan" } };
@@ -54,6 +54,18 @@ export async function saveListing(input: unknown, id?: string): Promise<SaveResu
       .filter((m) => m.kind === "VIDEO" && !byKey.has(m.key))
       .map(async (m) => {
         initial.set(m.key, (await fetchBunnyVideoState(m.key)) ?? { status: "PROCESSING", durationSec: null });
+      }),
+  );
+
+  // A kept video still PROCESSING may have missed its webhook: ask Bunny again (best-effort, outside the tx).
+  const reconciled = new Map<string, { status: VideoStatus; durationSec: number | null }>();
+  await Promise.all(
+    v.media
+      .map((m) => byKey.get(m.key))
+      .filter((row) => row?.kind === "VIDEO" && row.status === "PROCESSING")
+      .map(async (row) => {
+        const st = await fetchBunnyVideoState(row!.key);
+        if (st && st.status !== "PROCESSING") reconciled.set(row!.id, st);
       }),
   );
 
@@ -73,6 +85,13 @@ export async function saveListing(input: unknown, id?: string): Promise<SaveResu
       for (const m of v.media) {
         const row = byKey.get(m.key);
         if (row) await tx.media.update({ where: { id: row.id }, data: { sortOrder: m.sortOrder } });
+      }
+      for (const [mediaId, st] of reconciled) {
+        // Monotonic: only a row still PROCESSING moves (the webhook may have set READY/FAILED meanwhile).
+        await tx.media.updateMany({
+          where: { id: mediaId, status: "PROCESSING" },
+          data: { status: st.status, ...(st.durationSec !== null ? { durationSec: st.durationSec } : {}) },
+        });
       }
     } else {
       const slug = await uniqueSlug(

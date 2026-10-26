@@ -43,6 +43,17 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
+/** Bunny without some MP4 fallback files: those answer 404 (registered later, so it wins over beforeEach). */
+const withoutMp4 = (page: Page, missing: ("720" | "480")[]) =>
+  page.route("**/bunny.test/**", (route) => {
+    const url = route.request().url();
+    const m = url.match(/\/play_(\d+)p\.mp4$/);
+    if (m) return missing.includes(m[1] as "720" | "480") ? route.fulfill({ status: 404 }) : route.fulfill({ path: "tests/e2e/fixtures/clip.mp4" });
+    if (url.endsWith("/thumbnail.jpg")) return route.fulfill({ path: "public/dev-media/seed-villa-1-800.webp" });
+    return route.abort();
+  });
+const playing = (v: HTMLVideoElement) => !v.paused;
+
 const hero = (page: Page) => page.locator('[data-slot="hero"]');
 const viewer = (page: Page) => page.locator("dialog[open]");
 // IntersectionObserver callbacks run with rendering frames: after two frames a wrong resume would have happened.
@@ -187,6 +198,34 @@ test.describe("media mobile", () => {
     expect(others.every(([, p]) => p === "none")).toBe(true);
   });
 
+  test("no 720p file: hero and viewer fall back to 480p and play", async ({ page }) => {
+    await withoutMp4(page, ["720"]);
+    await page.goto(VIDEO_URL);
+    const video = hero(page).locator("video");
+    await expect(video).toHaveAttribute("src", /test-guid\/play_480p\.mp4$/);
+    await expect.poll(() => video.evaluate(playing)).toBe(true);
+    await hero(page).getByRole("button", { name: "Layar penuh" }).click();
+    const inViewer = viewer(page).locator("video");
+    await expect(inViewer).toHaveAttribute("src", /test-guid\/play_480p\.mp4$/);
+    await expect.poll(() => inViewer.evaluate(playing)).toBe(true);
+  });
+
+  test("no MP4 at all: hero and viewer show the poster only, no player controls", async ({ page }) => {
+    await withoutMp4(page, ["720", "480"]);
+    await page.goto(VIDEO_URL);
+    await expect(hero(page).locator("video")).toHaveCount(0);
+    await expect(hero(page).locator('img[src*="test-guid/thumbnail.jpg"]')).toBeVisible();
+    for (const name of ["Jeda video", "Putar video", "Nyalakan suara", "Matikan suara"]) {
+      await expect(hero(page).getByRole("button", { name })).toHaveCount(0);
+    }
+    await hero(page).getByRole("button", { name: "Layar penuh" }).click();
+    await expect(viewer(page).locator("video")).toHaveCount(0);
+    await expect(viewer(page).getByRole("img", { name: "Villa Sawah Asri, video 1" })).toBeVisible();
+    for (const name of ["Putar video", "Nyalakan suara", "Matikan suara"]) {
+      await expect(viewer(page).getByRole("button", { name })).toHaveCount(0);
+    }
+  });
+
   test("photo-only listing: 4:5 swipe gallery with dots, back and share", async ({ page }) => {
     await page.goto(PHOTO_URL);
     await expect(hero(page).locator("video")).toHaveCount(0);
@@ -267,6 +306,25 @@ test.describe("media desktop", () => {
     expect(await video.evaluate(isPaused)).toBe(true);
     await mosaic.getByRole("button", { name: "Putar video" }).click();
     await expect.poll(() => video.evaluate(isPaused)).toBe(false);
+  });
+
+  test("no 720p file: the mosaic video falls back to 480p and plays", async ({ page }) => {
+    await withoutMp4(page, ["720"]);
+    await page.goto(VIDEO_URL);
+    const video = page.locator("[data-mosaic] video");
+    await expect(video).toHaveAttribute("src", /test-guid\/play_480p\.mp4$/);
+    await expect.poll(() => video.evaluate(playing)).toBe(true);
+  });
+
+  test("no MP4 at all: the mosaic keeps the poster without a player", async ({ page }) => {
+    await withoutMp4(page, ["720", "480"]);
+    await page.goto(VIDEO_URL);
+    const mosaic = page.locator("[data-mosaic]");
+    await expect(mosaic.locator("video")).toHaveCount(0);
+    await expect(mosaic.locator('img[src*="test-guid/thumbnail.jpg"]')).toBeVisible();
+    for (const name of ["Jeda video", "Putar video", "Nyalakan suara"]) {
+      await expect(mosaic.getByRole("button", { name })).toHaveCount(0);
+    }
   });
 
   test("photo-only mosaic", async ({ page }) => {

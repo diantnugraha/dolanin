@@ -1,11 +1,14 @@
 "use client";
-import { createContext, useContext, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode,
+} from "react";
 import {
   IconChevronLeft, IconChevronRight, IconPlayerPlayFilled, IconVolume, IconVolumeOff, IconX,
 } from "@tabler/icons-react";
 import type { ListingDetail } from "@/lib/catalog";
-import { photoUrl, videoPoster, videoSrc } from "@/lib/media";
+import { photoUrl, videoPoster } from "@/lib/media";
 import { useAutoplay, useReducedMotion } from "./useAutoplay";
+import { useVideoFallback } from "./useVideoFallback";
 import s from "./MediaViewer.module.css";
 
 export type MediaItem = ListingDetail["media"][number];
@@ -55,6 +58,8 @@ export function MediaViewer({
   const [current, setCurrent] = useState(startIndex);
   const [muted, setMuted] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [dead, setDead] = useState<ReadonlySet<string>>(new Set()); // videos with no playable file
+  const markDead = useCallback((guid: string) => setDead((d) => new Set(d).add(guid)), []);
   const reduced = useReducedMotion();
   const n = media.length;
 
@@ -122,6 +127,7 @@ export function MediaViewer({
                         active={i === current}
                         muted={muted}
                         onProgress={setProgress}
+                        onFailed={markDead}
                       />
                     )}
                   </div>
@@ -138,7 +144,7 @@ export function MediaViewer({
                 <button type="button" className={s.cbtn} aria-label="Tutup" onClick={() => dialog.current?.close()}>
                   <IconX size={20} stroke={1.75} aria-hidden="true" />
                 </button>
-                {item?.kind === "VIDEO" && (
+                {item?.kind === "VIDEO" && !dead.has(item.guid) && (
                   <button
                     type="button" className={s.cbtn} aria-label={muted ? "Nyalakan suara" : "Matikan suara"}
                     onClick={() => setMuted(!muted)}
@@ -174,16 +180,25 @@ export function MediaViewer({
 }
 
 function ViewerVideo({
-  guid, label, active, muted, onProgress,
-}: { guid: string; label: string; active: boolean; muted: boolean; onProgress: (p: number) => void }) {
+  guid, label, active, muted, onProgress, onFailed,
+}: {
+  guid: string; label: string; active: boolean; muted: boolean; onProgress: (p: number) => void; onFailed: (guid: string) => void;
+}) {
   const ref = useRef<HTMLVideoElement>(null);
-  const { on, play, pause } = useAutoplay(ref, active);
+  const { src, failed, onError } = useVideoFallback(guid, ref);
+  const { on, play, pause } = useAutoplay(ref, active && !failed, undefined, src);
+  useEffect(() => {
+    if (failed) onFailed(guid); // hides the viewer's sound button for this slide
+  }, [failed, guid, onFailed]);
+  // No playable file: poster only, never a dead player.
+  // eslint-disable-next-line @next/next/no-img-element -- Bunny serves a fixed poster
+  if (failed) return <img className={s.video} src={videoPoster(guid)} alt={label} />;
   return (
     <>
       <video
         ref={ref}
         className={s.video}
-        src={videoSrc(guid)}
+        src={src}
         poster={videoPoster(guid)}
         aria-label={label}
         muted={muted}
@@ -191,6 +206,7 @@ function ViewerVideo({
         playsInline
         preload="none"
         onClick={() => (ref.current?.paused ? play() : pause())}
+        onError={onError}
         onTimeUpdate={active ? (e) => onProgress(e.currentTarget.currentTime / (e.currentTarget.duration || 1)) : undefined}
       />
       {/* Off-screen slides get no button: it would be an invisible tab stop. */}

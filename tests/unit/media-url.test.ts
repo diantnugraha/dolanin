@@ -14,6 +14,7 @@ describe("media urls", () => {
   });
   it("builds video src and poster", () => {
     expect(videoSrc("g-1")).toBe("https://vz-abc.b-cdn.net/g-1/play_720p.mp4");
+    expect(videoSrc("g-1", 480)).toBe("https://vz-abc.b-cdn.net/g-1/play_480p.mp4");
     expect(videoPoster("g-1")).toBe("https://vz-abc.b-cdn.net/g-1/thumbnail.jpg");
   });
 });

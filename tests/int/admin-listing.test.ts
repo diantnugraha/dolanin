@@ -97,6 +97,61 @@ describe("saveListing", () => {
   });
 });
 
+describe("saveListing reconciles existing PROCESSING videos with Bunny", () => {
+  const video = (status: "PROCESSING" | "READY" | "FAILED", durationSec: number | null = null) =>
+    async () => {
+      const id = okId(await saveListing(input({ media: [{ kind: "PHOTO", key: "p/a", sortOrder: 0 }] })));
+      await db.media.create({ data: { listingId: id, kind: "VIDEO", key: "gv", sortOrder: 1, status, durationSec } });
+      return id;
+    };
+  const media = [{ kind: "PHOTO", key: "p/a", sortOrder: 0 }, { kind: "VIDEO", key: "gv", sortOrder: 1 }];
+  const bunny = (status: number, length: number) => {
+    vi.stubEnv("BUNNY_LIBRARY_ID", "42");
+    vi.stubEnv("BUNNY_API_KEY", "k");
+    return vi.spyOn(global, "fetch").mockResolvedValue(new Response(JSON.stringify({ status, length }), { status: 200 }));
+  };
+
+  it("missed webhook: PROCESSING becomes READY with duration after the next save", async () => {
+    const id = await video("PROCESSING")();
+    const f = bunny(4, 21.6);
+    expect((await saveListing(input({ media }), id)).ok).toBe(true);
+    expect(f.mock.calls[0][0]).toBe("https://video.bunnycdn.com/library/42/videos/gv");
+    expect(await db.media.findFirstOrThrow({ where: { listingId: id, kind: "VIDEO" } })).toMatchObject({
+      status: "READY", durationSec: 22, sortOrder: 1,
+    });
+  });
+
+  it("Bunny error: PROCESSING becomes FAILED", async () => {
+    const id = await video("PROCESSING")();
+    bunny(5, 0);
+    await saveListing(input({ media }), id);
+    expect((await db.media.findFirstOrThrow({ where: { listingId: id, kind: "VIDEO" } })).status).toBe("FAILED");
+  });
+
+  it("monotonic: READY and FAILED are never downgraded by a stale Bunny answer", async () => {
+    const ready = await video("READY", 12)();
+    bunny(2, 0);
+    await saveListing(input({ media }), ready);
+    expect(await db.media.findFirstOrThrow({ where: { listingId: ready, kind: "VIDEO" } })).toMatchObject({
+      status: "READY", durationSec: 12,
+    });
+    await resetDb();
+    cityId = (await db.city.create({ data: { name: "Yogyakarta", slug: "yogyakarta", code: "YK" } })).id;
+    const failed = await video("FAILED")();
+    await saveListing(input({ media }), failed);
+    expect((await db.media.findFirstOrThrow({ where: { listingId: failed, kind: "VIDEO" } })).status).toBe("FAILED");
+  });
+
+  it("Bunny unreachable: save still succeeds and the video stays PROCESSING", async () => {
+    const id = await video("PROCESSING")();
+    vi.stubEnv("BUNNY_LIBRARY_ID", "42");
+    vi.stubEnv("BUNNY_API_KEY", "k");
+    vi.spyOn(global, "fetch").mockRejectedValue(new Error("net"));
+    expect((await saveListing(input({ media }), id)).ok).toBe(true);
+    expect((await db.media.findFirstOrThrow({ where: { listingId: id, kind: "VIDEO" } })).status).toBe("PROCESSING");
+  });
+});
+
 describe("fetchBunnyVideoState", () => {
   it("maps statuses", async () => {
     vi.stubEnv("BUNNY_LIBRARY_ID", "42");

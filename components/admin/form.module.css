@@ -33,6 +33,7 @@
 .m img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .over { outline: 2px solid var(--laut); outline-offset: 2px; }
 .wait { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: var(--malam); color: var(--pasir); font-size: 12px; font-weight: 500; text-align: center; padding: 8px; }
+.failed { background: #FFEFE8; color: #b42318; font-weight: 600; }
 .tag { position: absolute; left: 6px; top: 6px; background: var(--malam); color: #fff; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
 .cover { background: var(--senja); color: #5a3d00; }
 .vtag { position: absolute; left: 6px; bottom: 6px; display: inline-flex; align-items: center; gap: 3px; background: var(--malam); color: #fff; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
