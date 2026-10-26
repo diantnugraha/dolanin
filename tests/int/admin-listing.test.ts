@@ -33,6 +33,12 @@ describe("saveListing", () => {
     expect((await db.listing.findUniqueOrThrow({ where: { id: b } })).slug).toBe("omah-tugu-inn-2");
   });
 
+  it("concurrent creates of the same name both succeed with distinct slugs", async () => {
+    const rs = await Promise.all([saveListing(input()), saveListing(input())]);
+    const slugs = (await Promise.all(rs.map((r) => db.listing.findUniqueOrThrow({ where: { id: okId(r) } })))).map((l) => l.slug);
+    expect(slugs.sort()).toEqual(["omah-tugu-inn", "omah-tugu-inn-2"]);
+  });
+
   it("edit keeps slug and removes dropped photo objects after commit", async () => {
     const id = okId(
       await saveListing(input({ media: [{ kind: "PHOTO", key: "p/a", sortOrder: 0 }, { kind: "PHOTO", key: "p/b", sortOrder: 1 }] })),

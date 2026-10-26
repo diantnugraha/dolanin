@@ -61,7 +61,7 @@ export async function saveListing(input: unknown, id?: string): Promise<SaveResu
     waNumber: v.waNumber ?? null, published: v.published, featured: v.featured,
   };
 
-  const savedId = await db.$transaction(async (tx) => {
+  const run = () => db.$transaction(async (tx) => {
     let listingId: string;
     if (id) {
       await tx.listing.update({ where: { id }, data });
@@ -90,6 +90,17 @@ export async function saveListing(input: unknown, id?: string): Promise<SaveResu
     }
     return listingId;
   });
+
+  // A concurrent create can grab the same free slug; the loser hits P2002. Retry the whole tx (it is aborted).
+  let savedId: string | undefined;
+  for (let attempt = 0; attempt < 3 && savedId === undefined; attempt++) {
+    try {
+      savedId = await run();
+    } catch (e) {
+      if (id || (e as { code?: string }).code !== "P2002") throw e;
+    }
+  }
+  if (savedId === undefined) return { ok: false, errors: { form: "Gagal menyimpan, coba lagi." } };
 
   await cleanup(removed);
   return { ok: true, id: savedId };
