@@ -1,0 +1,45 @@
+:root {
+  --jingga: #F26B3A;
+  --laut: #0E8C8C;
+  --laut-d: #0A6B6B;
+  --senja: #FFC24B;
+  --malam: #1F2A37;
+  --pasir: #FFF6EC;
+  --tint-j: #FFEFE8;
+  --tint-l: #E3F4F4;
+  --wa: #25D366;
+  --abu: #6B7280;
+  --abu-pasir: #575E6B;
+  --garis: #EFE3D5;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--pasir);
+  color: var(--malam);
+  font-family: var(--font-poppins), system-ui, sans-serif;
+}
+
+::selection {
+  background: var(--senja);
+  color: var(--malam);
+}
+
+:focus-visible {
+  outline: 2px solid var(--laut);
+  outline-offset: 2px;
+}
+
+.tab {
+  font-variant-numeric: tabular-nums;
+}
