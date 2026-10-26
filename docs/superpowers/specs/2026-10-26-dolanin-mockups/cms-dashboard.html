@@ -1,0 +1,243 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dolanin mockup: cms-dashboard</title><style>body{margin:0;padding:24px;background:#24272c;color:#eee;font-family:Poppins,system-ui,sans-serif}.subtitle{opacity:.7}</style></head><body><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+.db{--jingga:#F26B3A;--laut:#0E8C8C;--senja:#FFC24B;--malam:#1F2A37;--pasir:#FFF6EC;--tint-l:#E3F4F4;--abu:#6B7280;--garis:#E8E2DA;--bg:#FAF8F5;
+  --series-pesan:#F26B3A;--series-wa:#00918F;--grid:#EEEAE4;--text-2:#52514E;--good-bg:#E5F3EA;--good-tx:#17663A}
+.win{zoom:.78;width:1280px;margin:0 auto;border-radius:14px;overflow:hidden;border:1px solid #3a3f46}
+.chrome{height:40px;background:#2A2F36;display:flex;align-items:center;gap:8px;padding:0 14px}
+.chrome i{width:12px;height:12px;border-radius:999px;background:#555b63}
+.chrome span{margin-left:16px;flex:1;max-width:520px;height:24px;border-radius:999px;background:#1E2227;color:#AEB5BE;font:400 12px/24px 'Poppins',sans-serif;padding:0 14px}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:900px;background:var(--bg);font-family:'Poppins',sans-serif;color:var(--malam);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.app *{box-sizing:border-box;margin:0}
+.app ::selection{background:var(--senja);color:var(--malam)}
+.app :focus-visible{outline:2px solid var(--laut);outline-offset:2px}
+.app .ti{font-size:20px;line-height:1}
+.tab{font-variant-numeric:tabular-nums}
+.sb{background:var(--malam);color:#C9D0D9;padding:22px 14px;display:flex;flex-direction:column;gap:4px}
+.sb .logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:20px;letter-spacing:-.02em;color:var(--pasir);padding:0 8px 22px}
+.sb .logo span span{color:var(--senja)}
+.sb .logo small{font-size:11px;font-weight:600;color:#9AA4B0;border:1px solid #3A4553;border-radius:999px;padding:1px 7px}
+.sb a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;font-size:14px;font-weight:500;color:inherit;text-decoration:none}
+.sb a.on{background:#2C3949;color:#fff}
+.sb a .ti{font-size:19px}
+.sb a span.c{margin-left:auto;font-size:12px;color:#9AA4B0}
+.sb .me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px;border-top:1px solid #2F3B4A;font-size:13px}
+.sb .me i.av{width:32px;height:32px;border-radius:999px;background:var(--jingga);display:grid;place-items:center;color:#fff;font-style:normal;font-weight:600}
+.main{padding:28px 36px 40px;min-width:0}
+.top h1{font-size:26px;font-weight:600;letter-spacing:-.02em}
+.top p{font-size:13px;color:var(--abu)}
+.filters{display:flex;gap:10px;align-items:center;margin:18px 0 20px}
+.seg{display:flex;background:#fff;border:1px solid var(--garis);border-radius:12px;padding:3px}
+.seg button{border:0;background:transparent;border-radius:9px;padding:8px 14px;font:500 13px/1 'Poppins',sans-serif;color:var(--abu);cursor:pointer}
+.seg button.on{background:var(--malam);color:#fff}
+.sel{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--garis);border-radius:12px;padding:9px 12px;font-size:13px}
+.sel .ti{font-size:16px;color:var(--abu)}
+.filters .upd{margin-left:auto;font-size:12px;color:var(--abu)}
+
+/* KPI */
+.kpi{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.tile{background:#fff;border:1px solid var(--garis);border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;gap:6px}
+.tile .lb{font-size:13px;color:var(--text-2);display:flex;align-items:center;gap:8px}
+.tile .lb i.key{width:10px;height:10px;border-radius:3px;display:inline-block}
+.tile .v{font-size:30px;font-weight:600;letter-spacing:-.02em;line-height:1.15}
+.tile.hero .v{font-size:52px;letter-spacing:-.03em}
+.delta{align-self:flex-start;display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;background:var(--good-bg);color:var(--good-tx);border-radius:999px;padding:3px 9px 3px 6px}
+.delta .ti{font-size:14px}
+.tile small{font-size:12px;color:var(--abu)}
+
+/* cards */
+.row{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+.card{background:#fff;border:1px solid var(--garis);border-radius:16px;padding:20px 22px}
+.card .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+.card h2{font-size:16px;font-weight:600}
+.card .sub{font-size:12px;color:var(--abu)}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--text-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:16px;height:2px;border-radius:2px;display:inline-block}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.tt{position:absolute;pointer-events:none;background:#fff;border:1px solid var(--garis);border-radius:12px;padding:10px 12px;box-shadow:0 6px 16px -6px rgba(31,42,55,.25);font-size:12px;min-width:132px;opacity:0;transition:opacity .12s}
+.tt .d{color:var(--abu);margin-bottom:6px}
+.tt .r{display:flex;align-items:center;gap:8px;margin-top:2px}
+.tt .r i{width:12px;height:2px;border-radius:2px}
+.tt .r b{font-weight:600;font-size:14px;min-width:24px}
+.tt .r span{color:var(--text-2)}
+.tview{margin-top:10px;font-size:12px}
+.tview summary{cursor:pointer;color:#0A6B6B;font-weight:600;list-style:none;display:inline-flex;gap:4px;align-items:center}
+.tview summary::-webkit-details-marker{display:none}
+.tview table{margin-top:8px;border-collapse:collapse;width:100%}
+.tview td,.tview th{padding:4px 8px;border-bottom:1px solid var(--grid);text-align:right}
+.tview th:first-child,.tview td:first-child{text-align:left}
+
+/* bars (per kota) */
+.bars{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.bar{display:grid;grid-template-columns:104px 1fr 44px;align-items:center;gap:10px;font-size:13px;cursor:default;border-radius:8px}
+.bar .tr{height:20px;position:relative}
+.bar .tr i{position:absolute;left:0;top:0;bottom:0;background:var(--series-pesan);border-radius:0 4px 4px 0;transition:filter .12s}
+.bar:hover .tr i,.bar:focus .tr i{filter:brightness(1.1)}
+.bar b{font-weight:600;text-align:right}
+.bar span{color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar.other .tr i{background:#C9C2B8}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{white-space:nowrap;text-align:right;font-size:12px;font-weight:600;color:var(--abu);padding:8px 10px;border-bottom:1px solid var(--garis)}
+.tbl th:first-child{text-align:left}
+.tbl td{padding:10px;border-bottom:1px solid #F1ECE6;font-size:13px;text-align:right;vertical-align:middle}
+.tbl td:first-child{text-align:left}
+.tbl tr:last-child td{border-bottom:0}
+.it{display:flex;align-items:center;gap:10px}
+.it img{width:36px;height:36px;border-radius:10px;object-fit:cover}
+.it b{display:block;font-weight:600;font-size:13px;line-height:1.3}
+.it small{font-size:11px;color:var(--abu)}
+.ib{display:grid;grid-template-columns:1fr 34px;gap:8px;align-items:center;min-width:150px}
+.ib .tr{height:8px;position:relative}
+.ib .tr i{position:absolute;left:0;top:0;bottom:0;background:var(--series-pesan);border-radius:0 4px 4px 0}
+.ib b{font-weight:600}
+.zero li{list-style:none;display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F1ECE6}
+.zero li:last-child{border-bottom:0}
+.zero{padding:0}
+.zero img{width:40px;height:40px;border-radius:10px;object-fit:cover}
+.zero b{display:block;font-size:13px;font-weight:600;line-height:1.3}
+.zero small{font-size:11px;color:var(--abu)}
+.zero a{margin-left:auto;font-size:12px;font-weight:600;color:#0A6B6B;text-decoration:none;border:1px solid var(--garis);border-radius:999px;padding:6px 12px}
+.tip{margin-top:12px;font-size:12px;color:var(--text-2);background:#FCFBF9;border:1px solid var(--garis);border-radius:12px;padding:10px 12px;display:flex;gap:8px}
+.tip .ti{font-size:16px;color:var(--laut);flex:none}
+.note{display:flex;gap:10px;align-items:flex-start;font-size:12px;color:var(--text-2);margin-top:4px}
+.note .ti{font-size:16px;flex:none;margin-top:1px}
+.db-notes{max-width:1000px;margin:24px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;font:400 13px/1.6 'Poppins',sans-serif}
+.db-notes div{border:1px solid rgba(128,128,128,.3);border-radius:12px;padding:14px 16px}
+.db-notes b{font-weight:600}
+</style>
+
+<h2>Dashboard CMS</h2>
+<p class="subtitle">Statistik klik dipindah dari tabel listing ke halaman sendiri. Semua angka di bawah adalah contoh.</p>
+
+<div class="db">
+<div class="win">
+  <div class="chrome"><i></i><i></i><i></i><span>dolanin.id/admin</span></div>
+  <div class="app">
+    <nav class="sb">
+      <div class="logo"><svg width="26" height="26" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3C14.6 3 7 10.6 7 20c0 12 17 25 17 25s17-13 17-25C41 10.6 33.4 3 24 3Z" fill="#F26B3A"/><circle cx="24" cy="20" r="7" fill="#FFC24B"/><path d="M14 33q10-6 20 0" stroke="#7FD6D6" stroke-width="3" fill="none" stroke-linecap="round"/></svg><span>dolan<span>in</span></span><small>Admin</small></div>
+      <a class="on" href="#"><i class="ti ti-chart-line"></i>Dashboard</a>
+      <a href="#"><i class="ti ti-building"></i>Listing<span class="c">106</span></a>
+      <a href="#"><i class="ti ti-map-pin"></i>Kota<span class="c">17</span></a>
+      <a href="#"><i class="ti ti-settings"></i>Pengaturan</a>
+      <a href="#"><i class="ti ti-external-link"></i>Lihat web</a>
+      <div class="me"><i class="av">A</i><div>Admin<br><span style="font-size:11px;color:#9AA4B0">Keluar</span></div></div>
+    </nav>
+    <div class="main">
+      <div class="top"><h1>Dashboard</h1><p>Seberapa sering pengunjung menekan tombol Pesan dan WhatsApp.</p></div>
+
+      <div class="filters">
+        <div class="seg" role="group" aria-label="Rentang waktu"><button>7 hari</button><button class="on">30 hari</button><button>90 hari</button></div>
+        <div class="sel">Semua kota <i class="ti ti-chevron-down"></i></div>
+        <div class="sel">Semua tipe <i class="ti ti-chevron-down"></i></div>
+        <span class="upd">27 Sep – 26 Okt 2026</span>
+      </div>
+
+      <div class="kpi">
+        <div class="tile hero"><span class="lb"><i class="key" style="background:var(--series-pesan)"></i>Klik tombol Pesan</span><span class="v">1.284</span><span class="delta"><i class="ti ti-arrow-up-right"></i>18% dari 30 hari sebelumnya</span></div>
+        <div class="tile"><span class="lb"><i class="key" style="background:var(--series-wa)"></i>Chat WhatsApp</span><span class="v">268</span><span class="delta"><i class="ti ti-arrow-up-right"></i>6%</span></div>
+        <div class="tile"><span class="lb">Kunjungan halaman detail</span><span class="v">9.840</span><span class="delta"><i class="ti ti-arrow-up-right"></i>11%</span></div>
+        <div class="tile"><span class="lb">Rasio klik</span><span class="v">15,8%</span><small>(Pesan + WA) ÷ kunjungan detail</small></div>
+      </div>
+
+      <div class="row">
+        <div class="card">
+          <div class="hd"><div><h2>Klik per hari</h2><p class="sub">Arahkan kursor ke grafik untuk melihat angka per tanggal</p></div>
+            <div class="legend"><span><i style="background:var(--series-pesan)"></i>Pesan</span><span><i style="background:var(--series-wa)"></i>Chat WA</span></div></div>
+          <div class="chart" id="lc"><svg id="lsvg" viewBox="0 0 640 250" role="img" aria-label="Grafik garis klik Pesan dan Chat WA per hari, 27 September sampai 26 Oktober 2026"></svg><div class="tt" id="ltt"></div></div>
+          <details class="tview"><summary><i class="ti ti-table" style="font-size:15px"></i>Lihat sebagai tabel</summary><table id="ltab"><thead><tr><th>Tanggal</th><th>Pesan</th><th>Chat WA</th></tr></thead><tbody></tbody></table></details>
+        </div>
+        <div class="card">
+          <div class="hd"><div><h2>Klik Pesan per kota</h2><p class="sub">30 hari terakhir</p></div></div>
+          <div class="bars" id="bars"></div>
+          <div class="tt" id="btt" style="position:fixed"></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="card">
+          <div class="hd"><div><h2>Listing paling banyak diklik</h2><p class="sub">Urut dari klik Pesan terbanyak</p></div><a href="#" style="font-size:13px;font-weight:600;color:#0A6B6B;text-decoration:none">Lihat semua</a></div>
+          <table class="tbl tab">
+            <thead><tr><th>Listing</th><th>Kunjungan</th><th style="text-align:left;padding-left:10px">Klik Pesan</th><th>Chat WA</th><th>Rasio klik</th></tr></thead>
+            <tbody id="top"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="hd"><div><h2>Belum ada klik</h2><p class="sub">Tayang, tapi 0 klik dalam 30 hari</p></div></div>
+          <ul class="zero">
+            <li><img src="room-2.jpg" alt=""><div><b>Kamar Dago Atas</b><small>Bandung · 212 kunjungan</small></div><a href="#">Ubah</a></li>
+            <li><img src="bungalow-1.jpg" alt=""><div><b>Pondok Kaliurang</b><small>Yogyakarta · 96 kunjungan</small></div><a href="#">Ubah</a></li>
+            <li><img src="room-1.jpg" alt=""><div><b>Wisma Batu Indah</b><small>Malang &amp; Batu · 41 kunjungan</small></div><a href="#">Ubah</a></li>
+          </ul>
+          <p class="tip"><i class="ti ti-bulb"></i>Banyak dikunjungi tapi tidak diklik biasanya berarti harganya kalah bersaing atau foto pembukanya kurang menarik.</p>
+        </div>
+      </div>
+
+      <p class="note"><i class="ti ti-info-circle"></i>Klik bukan pemesanan. Jumlah booking dan komisi yang benar-benar masuk tetap dilihat di dashboard masing-masing program affiliate (Traveloka, Tiket.com, dan lainnya).</p>
+    </div>
+  </div>
+</div>
+
+<div class="db-notes">
+  <div><b>Angka utama di atas.</b> Klik Pesan jadi angka terbesar karena tombol ini yang menghasilkan komisi. Di sebelahnya Chat WA, kunjungan halaman detail, dan rasio klik. Semua dibandingkan dengan periode sebelumnya.</div>
+  <div><b>Tren &amp; kota.</b> Grafik garis klik per hari (Pesan dan WA dalam satu sumbu) dan klik Pesan per kota. Filter waktu, kota, dan tipe di atas berlaku untuk semua panel sekaligus.</div>
+  <div><b>Bahan kurasi.</b> Listing terlaris dan listing yang "belum ada klik" membantu klien memutuskan mana yang perlu diperbaiki atau diturunkan.</div>
+</div>
+</div>
+
+<script>
+(function(){
+var D={"d": ["2026-09-27", "2026-09-28", "2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10", "2026-10-11", "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16", "2026-10-17", "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23", "2026-10-24", "2026-10-25", "2026-10-26"], "p": [37, 35, 34, 29, 29, 43, 48, 38, 38, 38, 42, 41, 47, 50, 40, 40, 40, 35, 42, 52, 54, 51, 39, 43, 46, 49, 57, 54, 45, 48], "w": [7, 5, 7, 7, 7, 9, 12, 8, 10, 7, 6, 7, 9, 13, 10, 8, 6, 7, 8, 12, 11, 11, 10, 11, 8, 8, 14, 13, 12, 5]};
+var M=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],H=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+function fmt(s,long){var d=new Date(s+'T00:00:00');return (long?H[d.getDay()]+', ':'')+d.getDate()+' '+M[d.getMonth()];}
+var svg=document.getElementById('lsvg'),NS='http://www.w3.org/2000/svg';
+var W=640,L=32,R=12,T=10,B=30,PH=250-T-B,PW=W-L-R,ymax=60,n=D.p.length;
+function x(i){return L+PW*i/(n-1)}function y(v){return T+PH*(1-v/ymax)}
+function el(t,a,p){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);(p||svg).appendChild(e);return e}
+[0,20,40,60].forEach(function(v){el('line',{x1:L,x2:W-R,y1:y(v),y2:y(v),stroke:'#EEEAE4','stroke-width':1});var t=el('text',{x:L-8,y:y(v)+4,'text-anchor':'end','font-size':11,fill:'#6B7280','font-family':'Poppins'});t.textContent=v;});
+[0,7,14,21,29].forEach(function(i){var t=el('text',{x:x(i),y:250-8,'text-anchor':i==0?'start':i==n-1?'end':'middle','font-size':11,fill:'#6B7280','font-family':'Poppins'});t.textContent=fmt(D.d[i]);});
+function path(a){return a.map(function(v,i){return (i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)}).join(' ')}
+el('path',{d:path(D.p)+' L'+x(n-1)+' '+y(0)+' L'+x(0)+' '+y(0)+' Z',fill:'#F26B3A','fill-opacity':.08});
+el('path',{d:path(D.w),fill:'none',stroke:'#00918F','stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'});
+el('path',{d:path(D.p),fill:'none',stroke:'#F26B3A','stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'});
+var hx=el('line',{y1:T,y2:T+PH,stroke:'#9AA0A8','stroke-width':1,opacity:0});
+var dp=el('circle',{r:4.5,fill:'#F26B3A',stroke:'#fff','stroke-width':2,opacity:0}),dw=el('circle',{r:4.5,fill:'#00918F',stroke:'#fff','stroke-width':2,opacity:0});
+// end markers + direct labels on the endpoint only
+el('circle',{cx:x(n-1),cy:y(D.p[n-1]),r:4,fill:'#F26B3A',stroke:'#fff','stroke-width':2});
+el('circle',{cx:x(n-1),cy:y(D.w[n-1]),r:4,fill:'#00918F',stroke:'#fff','stroke-width':2});
+var tt=document.getElementById('ltt'),box=document.getElementById('lc');
+function show(i){var X=x(i);hx.setAttribute('x1',X);hx.setAttribute('x2',X);hx.setAttribute('opacity',1);
+  dp.setAttribute('cx',X);dp.setAttribute('cy',y(D.p[i]));dp.setAttribute('opacity',1);dw.setAttribute('cx',X);dw.setAttribute('cy',y(D.w[i]));dw.setAttribute('opacity',1);
+  tt.replaceChildren();var d=document.createElement('div');d.className='d';d.textContent=fmt(D.d[i],true);tt.appendChild(d);
+  [['Pesan',D.p[i],'#F26B3A'],['Chat WA',D.w[i],'#00918F']].forEach(function(r){var row=document.createElement('div');row.className='r';var k=document.createElement('i');k.style.background=r[2];var b=document.createElement('b');b.textContent=r[1];var s=document.createElement('span');s.textContent=r[0];row.append(k,b,s);tt.appendChild(row);});
+  var sc=box.clientWidth/W,px=X*sc;tt.style.left=Math.min(Math.max(px+12,0),box.clientWidth-150)+'px';if(px>box.clientWidth-170)tt.style.left=(px-150)+'px';tt.style.top='8px';tt.style.opacity=1;}
+function hide(){hx.setAttribute('opacity',0);dp.setAttribute('opacity',0);dw.setAttribute('opacity',0);tt.style.opacity=0;}
+svg.addEventListener('pointermove',function(e){var r=svg.getBoundingClientRect(),vx=(e.clientX-r.left)/r.width*W;var i=Math.round((vx-L)/PW*(n-1));show(Math.max(0,Math.min(n-1,i)));});
+svg.addEventListener('pointerleave',hide);
+svg.setAttribute('tabindex','0');var fi=n-1;svg.addEventListener('keydown',function(e){if(e.key=='ArrowLeft')fi=Math.max(0,fi-1);else if(e.key=='ArrowRight')fi=Math.min(n-1,fi+1);else return;e.preventDefault();show(fi);});svg.addEventListener('blur',hide);
+var tb=document.querySelector('#ltab tbody');D.d.forEach(function(s,i){var r=tb.insertRow();[fmt(s),D.p[i],D.w[i]].forEach(function(v){r.insertCell().textContent=v;});});
+
+// per kota bars (single series = Pesan colour; "Lainnya" folded and greyed)
+var K=[['Yogyakarta',412],['Bali',365],['Bandung',198],['Malang & Batu',146],['Lombok',88],['Kota lainnya',75]],kmax=412;
+var bars=document.getElementById('bars'),btt=document.getElementById('btt');
+K.forEach(function(k,i){var r=document.createElement('div');r.className='bar'+(i==K.length-1?' other':'');r.tabIndex=0;
+  var s=document.createElement('span');s.textContent=k[0];var tr=document.createElement('div');tr.className='tr';var f=document.createElement('i');f.style.width=(k[1]/kmax*100)+'%';tr.appendChild(f);var b=document.createElement('b');b.className='tab';b.textContent=k[1];
+  r.append(s,tr,b);bars.appendChild(r);
+  function sh(e){btt.replaceChildren();var d=document.createElement('div');d.className='d';d.textContent=k[0];var row=document.createElement('div');row.className='r';var kk=document.createElement('i');kk.style.background=i==K.length-1?'#C9C2B8':'#F26B3A';var bb=document.createElement('b');bb.textContent=k[1];var ss=document.createElement('span');ss.textContent='klik Pesan · '+Math.round(k[1]/1284*100)+'%';row.append(kk,bb,ss);btt.append(d,row);
+    var rc=r.getBoundingClientRect();btt.style.left=(rc.left+rc.width*0.4)+'px';btt.style.top=(rc.top-64)+'px';btt.style.opacity=1;}
+  r.addEventListener('pointerenter',sh);r.addEventListener('focus',sh);r.addEventListener('pointerleave',function(){btt.style.opacity=0});r.addEventListener('blur',function(){btt.style.opacity=0});
+});
+
+// top listings
+var T5=[['reel-poster.jpg','Omah Tugu Inn','Yogyakarta',1120,184,37],['villa-1.jpg','Villa Sawah Asri','Bali',890,96,21],['room-1.jpg','Ndalem Prawiro','Yogyakarta',640,142,12],['room-3.jpg','Hotel Gedong Kuning','Yogyakarta',710,88,9],['bungalow-1.jpg','Bungalow Gili Meno','Lombok',520,58,9]],tmax=184;
+var tbody=document.getElementById('top');
+T5.forEach(function(t){var r=tbody.insertRow();var c0=r.insertCell();var it=document.createElement('div');it.className='it';var im=document.createElement('img');im.src=''+t[0];im.alt='';var w=document.createElement('div');var b=document.createElement('b');b.textContent=t[1];var sm=document.createElement('small');sm.textContent=t[2];w.append(b,sm);it.append(im,w);c0.appendChild(it);
+  r.insertCell().textContent=t[3].toLocaleString('id-ID');
+  var c2=r.insertCell();c2.style.textAlign='left';var ib=document.createElement('div');ib.className='ib';var tr=document.createElement('div');tr.className='tr';var f=document.createElement('i');f.style.width=(t[4]/tmax*100)+'%';tr.appendChild(f);var bb=document.createElement('b');bb.textContent=t[4];ib.append(tr,bb);c2.appendChild(ib);
+  r.insertCell().textContent=t[5];r.insertCell().textContent=((t[4]+t[5])/t[3]*100).toFixed(1).replace('.',',')+'%';});
+})();
+</script>
+</body></html>

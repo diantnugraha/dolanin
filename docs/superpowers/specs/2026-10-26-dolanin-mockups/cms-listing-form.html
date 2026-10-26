@@ -1,0 +1,261 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dolanin mockup: cms-listing-form</title><style>body{margin:0;padding:24px;background:#24272c;color:#eee;font-family:Poppins,system-ui,sans-serif}.subtitle{opacity:.7}</style></head><body><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+.cm{--jingga:#F26B3A;--laut:#0E8C8C;--laut-d:#0A6B6B;--senja:#FFC24B;--malam:#1F2A37;--pasir:#FFF6EC;--tint-l:#E3F4F4;--wa:#25D366;--abu:#6B7280;--garis:#E8E2DA;--bg:#FAF8F5}
+.cm-cap{font:600 14px/1.4 'Poppins',sans-serif;opacity:.8;margin:28px 0 10px}
+.win{zoom:.78;width:1280px;margin:0 auto;border-radius:14px;overflow:hidden;border:1px solid #3a3f46}
+.chrome{height:40px;background:#2A2F36;display:flex;align-items:center;gap:8px;padding:0 14px}
+.chrome i{width:12px;height:12px;border-radius:999px;background:#555b63}
+.chrome span{margin-left:16px;flex:1;max-width:520px;height:24px;border-radius:999px;background:#1E2227;color:#AEB5BE;font:400 12px/24px 'Poppins',sans-serif;padding:0 14px}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:760px;background:var(--bg);font-family:'Poppins',sans-serif;color:var(--malam);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.app *{box-sizing:border-box;margin:0}
+.app ::selection{background:var(--senja);color:var(--malam)}
+.app .ti{font-size:20px;line-height:1}
+.num{font-variant-numeric:tabular-nums}
+
+/* sidebar */
+.sb{background:var(--malam);color:#C9D0D9;padding:22px 14px;display:flex;flex-direction:column;gap:4px}
+.sb .logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:20px;letter-spacing:-.02em;color:var(--pasir);padding:0 8px 22px}
+.sb .logo span span{color:var(--senja)}
+.sb .logo small{font-size:11px;font-weight:600;color:#9AA4B0;border:1px solid #3A4553;border-radius:999px;padding:1px 7px;letter-spacing:.02em}
+.sb a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;font-size:14px;font-weight:500;color:inherit;text-decoration:none}
+.sb a.on{background:#2C3949;color:#fff}
+.sb a .ti{font-size:19px}
+.sb a span.c{margin-left:auto;font-size:12px;color:#9AA4B0}
+.sb .me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px;border-top:1px solid #2F3B4A;font-size:13px}
+.sb .me i.av{width:32px;height:32px;border-radius:999px;background:var(--jingga);display:grid;place-items:center;color:#fff;font-style:normal;font-weight:600}
+
+/* main */
+.main{padding:28px 36px 40px;min-width:0}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}
+.top h1{font-size:26px;font-weight:600;letter-spacing:-.02em}
+.top p{font-size:13px;color:var(--abu)}
+.btn{text-decoration:none;border:0;border-radius:999px;font:600 14px/1 'Poppins',sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;cursor:pointer;white-space:nowrap}
+.btn.pri{background:var(--malam);color:#fff}
+.btn.go{background:var(--jingga);color:var(--malam)}
+.btn.ghost{background:#fff;border:1px solid var(--garis);color:var(--malam)}
+.bar{display:flex;gap:10px;margin-bottom:14px}
+.inp{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--garis);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--abu)}
+.inp.grow{flex:1}
+.inp .ti{font-size:18px}
+.tbl{background:#fff;border:1px solid var(--garis);border-radius:16px;overflow:hidden}
+.tbl table{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;font-size:12px;font-weight:600;color:var(--abu);padding:12px 16px;background:#FCFBF9;border-bottom:1px solid var(--garis)}
+.tbl td{padding:12px 16px;border-bottom:1px solid #F1ECE6;font-size:14px;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.it{display:flex;align-items:center;gap:12px}
+.it .th{position:relative;width:56px;height:56px;border-radius:12px;overflow:hidden;flex:none}
+.it .th img{width:100%;height:100%;object-fit:cover;display:block}
+.it .th .vd{position:absolute;right:4px;bottom:4px;background:rgba(31,42,55,.85);color:#fff;border-radius:999px;width:20px;height:20px;display:grid;place-items:center}
+.it .th .vd .ti{font-size:12px}
+.it b{display:block;font-weight:600;font-size:14px}
+.it small{font-size:12px;color:var(--abu)}
+.type{display:inline-block;font-size:12px;font-weight:600;color:#073F3F;background:var(--tint-l);border-radius:999px;padding:2px 9px}
+.pr b{font-weight:600}
+.pr s{display:block;font-size:12px;color:var(--abu)}
+.promo{display:inline-block;background:var(--senja);color:#5A3D00;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:middle}
+.st{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500}
+.st i.dot{width:8px;height:8px;border-radius:999px;background:#1F9D57}
+.st.draft i.dot{background:#B0A89E}
+.st.draft{color:var(--abu)}
+.clk{font-size:13px;color:var(--abu)}
+.clk b{color:var(--malam);font-weight:600}
+.act{display:flex;gap:6px;justify-content:flex-end}
+.ib{width:34px;height:34px;border-radius:10px;border:1px solid var(--garis);background:#fff;display:grid;place-items:center;color:var(--malam)}
+.ib .ti{font-size:17px}
+
+/* form */
+.form{display:grid;grid-template-columns:1fr 340px;gap:28px;align-items:start}
+.card{background:#fff;border:1px solid var(--garis);border-radius:16px;padding:22px 24px;margin-bottom:16px}
+.card h2{font-size:16px;font-weight:600;margin-bottom:4px}
+.card .hint{font-size:12px;color:var(--abu);margin-bottom:16px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.f{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.f label{font-size:13px;font-weight:500}
+.f label em{font-style:normal;color:var(--abu);font-weight:400}
+.f .in{background:#fff;border:1px solid #DDD5CB;border-radius:12px;padding:11px 12px;font-size:14px;color:var(--malam);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.f .in.ph{color:#9AA0A8}
+.f .in.focus{border-color:var(--laut);box-shadow:0 0 0 3px rgba(14,140,140,.15)}
+.f .in .pre{color:var(--abu)}
+.f small{font-size:12px;color:var(--abu)}
+.f textarea,.f .ta{min-height:92px;align-items:flex-start;line-height:1.6}
+.segc{display:flex;background:#F3EFEA;border-radius:12px;padding:4px}
+.segc span{flex:1;text-align:center;border-radius:9px;padding:8px;font-size:13px;font-weight:500;color:var(--abu)}
+.segc span.on{background:#fff;color:var(--malam);box-shadow:0 1px 3px rgba(31,42,55,.12)}
+.media{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.media .m{position:relative;border-radius:12px;overflow:hidden;aspect-ratio:3/4;background:#eee}
+.media .m img{width:100%;height:100%;object-fit:cover;display:block}
+.media .m .tag{position:absolute;left:6px;top:6px;background:var(--malam);color:#fff;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;display:inline-flex;gap:3px;align-items:center}
+.media .m .tag .ti{font-size:12px}
+.media .m .tag.cover{background:var(--senja);color:#5A3D00}
+.media .m .grip{position:absolute;right:6px;bottom:6px;width:24px;height:24px;border-radius:8px;background:#fff;display:grid;place-items:center}
+.media .m .grip .ti{font-size:14px}
+.media .add{border:1.5px dashed #CFC5B8;background:#FCFBF9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;font-size:12px;color:var(--abu);padding:8px}
+.media .add .ti{font-size:24px;color:var(--laut)}
+.fac{display:flex;flex-wrap:wrap;gap:8px}
+.fac span{display:inline-flex;align-items:center;gap:6px;border:1px solid #DDD5CB;border-radius:999px;padding:7px 12px;font-size:13px;background:#fff}
+.fac span .ti{font-size:16px}
+.fac span.on{background:var(--tint-l);border-color:var(--laut);color:#073F3F}
+.fac span.add{border-style:dashed;color:var(--abu)}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid #F1ECE6}
+.sw:first-of-type{border-top:0;padding-top:0}
+.sw b{font-size:14px;font-weight:500;display:block}
+.sw small{font-size:12px;color:var(--abu)}
+.tog{width:44px;height:26px;border-radius:999px;background:#D6CEC4;position:relative;flex:none}
+.tog::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:999px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.tog.on{background:var(--laut)}
+.tog.on::after{left:21px}
+.side{position:sticky;top:16px}
+.prev{background:var(--pasir);border:1px solid var(--garis);border-radius:16px;padding:16px}
+.prev h3{font-size:13px;font-weight:600;color:var(--abu);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.prev h3 .ti{font-size:16px}
+.pc{background:#fff;border:1px solid #EFE3D5;border-radius:16px;overflow:hidden}
+.pc .im{position:relative;aspect-ratio:4/3}
+.pc .im img{width:100%;height:100%;object-fit:cover;display:block}
+.pc .im .promo{position:absolute;top:10px;left:4px}
+.pc .bd{padding:12px 14px 14px}
+.pc .where{font-size:12px;color:var(--abu);display:flex;gap:4px;align-items:center}
+.pc .where .ti{font-size:14px}
+.pc .nm{font-size:15px;font-weight:600;margin:2px 0 8px}
+.pc s{font-size:12px;color:var(--abu)}
+.pc .p{font-size:20px;font-weight:700;color:var(--jingga);line-height:1.2}
+.pc .p small{font-size:11px;font-weight:400;color:var(--abu)}
+.save{display:flex;gap:10px;margin-top:14px}
+.save .btn{flex:1}
+.guess{display:inline-block;font-size:10.5px;font-weight:700;background:var(--senja);color:#5A3D00;padding:1px 7px;border-radius:999px;margin-left:6px;vertical-align:middle;letter-spacing:.01em}
+.cm-notes{max-width:1000px;margin:24px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;font:400 13px/1.6 'Poppins',sans-serif}
+.cm-notes div{border:1px solid rgba(128,128,128,.3);border-radius:12px;padding:14px 16px}
+.cm-notes b{font-weight:600}
+</style>
+
+<h2>CMS Dolanin (laptop)</h2>
+<p class="subtitle">Label kuning <span style="display:inline-block;font-size:11px;font-weight:700;background:#FFC24B;color:#5A3D00;padding:1px 7px;border-radius:999px">tebakan</span> menandai bagian yang belum kamu sebut, tapi dibutuhkan oleh desain halaman pengunjung.</p>
+
+<div class="cm">
+<div class="cm-cap">1 · Daftar listing</div>
+<div class="win">
+  <div class="chrome"><i></i><i></i><i></i><span>dolanin.id/admin/listing</span></div>
+  <div class="app">
+    <nav class="sb">
+      <div class="logo"><svg width="26" height="26" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3C14.6 3 7 10.6 7 20c0 12 17 25 17 25s17-13 17-25C41 10.6 33.4 3 24 3Z" fill="#F26B3A"/><circle cx="24" cy="20" r="7" fill="#FFC24B"/><path d="M14 33q10-6 20 0" stroke="#7FD6D6" stroke-width="3" fill="none" stroke-linecap="round"/></svg><span>dolan<span>in</span></span><small>Admin</small></div>
+      <a href="#"><i class="ti ti-chart-line"></i>Dashboard</a>
+      <a class="on" href="#"><i class="ti ti-building"></i>Listing<span class="c num">106</span></a>
+      <a href="#"><i class="ti ti-map-pin"></i>Kota<span class="c num">17</span></a>
+      <a href="#"><i class="ti ti-settings"></i>Pengaturan</a>
+      <a href="#"><i class="ti ti-external-link"></i>Lihat web</a>
+      <div class="me"><i class="av">A</i><div>Admin<br><span style="font-size:11px;color:#9AA4B0">Keluar</span></div></div>
+    </nav>
+    <div class="main">
+      <div class="top"><div><h1>Listing</h1><p class="num">106 listing · 98 tayang · 8 draf</p></div><a class="btn go" href="#"><i class="ti ti-plus"></i>Tambah listing</a></div>
+      <div class="bar">
+        <div class="inp grow"><i class="ti ti-search"></i>Cari nama listing</div>
+        <div class="inp">Semua kota <i class="ti ti-chevron-down" style="font-size:16px"></i></div>
+        <div class="inp">Semua tipe <i class="ti ti-chevron-down" style="font-size:16px"></i></div>
+        <div class="inp">Semua status <i class="ti ti-chevron-down" style="font-size:16px"></i></div>
+      </div>
+      <div class="tbl"><table>
+        <thead><tr><th>Listing</th><th>Kota</th><th>Tipe</th><th>Harga / malam</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><div class="it"><span class="th"><img src="reel-poster.jpg" alt=""><span class="vd"><i class="ti ti-player-play-filled"></i></span></span><div><b>Omah Tugu Inn</b><small>Jetis · diubah 2 jam lalu</small></div></div></td><td>Yogyakarta</td><td><span class="type">Hotel</span></td><td class="pr num"><s>Rp240.000</s><b>Rp185.000</b><span class="promo">Promo</span></td><td><span class="st"><i class="dot"></i>Tayang</span></td><td><div class="act"><span class="ib"><i class="ti ti-pencil"></i></span><span class="ib"><i class="ti ti-external-link"></i></span><span class="ib"><i class="ti ti-dots"></i></span></div></td></tr>
+          <tr><td><div class="it"><span class="th"><img src="villa-1.jpg" alt=""><span class="vd"><i class="ti ti-player-play-filled"></i></span></span><div><b>Villa Sawah Asri</b><small>Canggu · diubah kemarin</small></div></div></td><td>Bali</td><td><span class="type">Villa</span></td><td class="pr num"><s>Rp850.000</s><b>Rp650.000</b><span class="promo">Promo</span></td><td><span class="st"><i class="dot"></i>Tayang</span></td><td><div class="act"><span class="ib"><i class="ti ti-pencil"></i></span><span class="ib"><i class="ti ti-external-link"></i></span><span class="ib"><i class="ti ti-dots"></i></span></div></td></tr>
+          <tr><td><div class="it"><span class="th"><img src="room-1.jpg" alt=""></span><div><b>Ndalem Prawiro</b><small>Prawirotaman · diubah 3 hari lalu</small></div></div></td><td>Yogyakarta</td><td><span class="type">Penginapan</span></td><td class="pr num"><b>Rp95.000</b></td><td><span class="st"><i class="dot"></i>Tayang</span></td><td><div class="act"><span class="ib"><i class="ti ti-pencil"></i></span><span class="ib"><i class="ti ti-external-link"></i></span><span class="ib"><i class="ti ti-dots"></i></span></div></td></tr>
+          <tr><td><div class="it"><span class="th"><img src="room-2.jpg" alt=""></span><div><b>Kamar Dago Atas</b><small>Dago · diubah 5 hari lalu</small></div></div></td><td>Bandung</td><td><span class="type">Hotel</span></td><td class="pr num"><b>Rp245.000</b></td><td><span class="st draft"><i class="dot"></i>Draf</span></td><td><div class="act"><span class="ib"><i class="ti ti-pencil"></i></span><span class="ib"><i class="ti ti-external-link"></i></span><span class="ib"><i class="ti ti-dots"></i></span></div></td></tr>
+          <tr><td><div class="it"><span class="th"><img src="bungalow-1.jpg" alt=""></span><div><b>Bungalow Gili Meno</b><small>Gili Meno · diubah seminggu lalu</small></div></div></td><td>Lombok</td><td><span class="type">Villa</span></td><td class="pr num"><b>Rp175.000</b></td><td><span class="st"><i class="dot"></i>Tayang</span></td><td><div class="act"><span class="ib"><i class="ti ti-pencil"></i></span><span class="ib"><i class="ti ti-external-link"></i></span><span class="ib"><i class="ti ti-dots"></i></span></div></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<div class="cm-cap">2 · Tambah / ubah listing</div>
+<div class="win">
+  <div class="chrome"><i></i><i></i><i></i><span>dolanin.id/admin/listing/baru</span></div>
+  <div class="app">
+    <nav class="sb">
+      <div class="logo"><svg width="26" height="26" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3C14.6 3 7 10.6 7 20c0 12 17 25 17 25s17-13 17-25C41 10.6 33.4 3 24 3Z" fill="#F26B3A"/><circle cx="24" cy="20" r="7" fill="#FFC24B"/><path d="M14 33q10-6 20 0" stroke="#7FD6D6" stroke-width="3" fill="none" stroke-linecap="round"/></svg><span>dolan<span>in</span></span><small>Admin</small></div>
+      <a href="#"><i class="ti ti-chart-line"></i>Dashboard</a>
+      <a class="on" href="#"><i class="ti ti-building"></i>Listing<span class="c num">106</span></a>
+      <a href="#"><i class="ti ti-map-pin"></i>Kota<span class="c num">17</span></a>
+      <a href="#"><i class="ti ti-settings"></i>Pengaturan</a>
+      <a href="#"><i class="ti ti-external-link"></i>Lihat web</a>
+      <div class="me"><i class="av">A</i><div>Admin<br><span style="font-size:11px;color:#9AA4B0">Keluar</span></div></div>
+    </nav>
+    <div class="main">
+      <div class="top"><div><p><a style="color:#0A6B6B;font-weight:600;text-decoration:none" href="#">Listing</a> / Baru</p><h1>Tambah listing</h1></div></div>
+      <div class="form">
+        <div>
+          <div class="card">
+            <h2>Info dasar</h2><p class="hint">Yang tampil di kartu katalog.</p>
+            <div class="f"><label>Nama</label><div class="in focus">Omah Tugu Inn</div></div>
+            <div class="row">
+              <div class="f"><label>Kota</label><div class="in">Yogyakarta <i class="ti ti-chevron-down" style="font-size:16px"></i></div></div>
+              <div class="f"><label>Tipe</label><div class="segc"><span class="on">Hotel</span><span>Penginapan</span><span>Villa</span></div></div>
+            </div>
+            <div class="row">
+              <div class="f"><label>Area / alamat <span class="guess">tebakan</span></label><div class="in">Jetis · 600 m dari Tugu</div></div>
+              <div class="f"><label>Link Google Maps <span class="guess">tebakan</span></label><div class="in ph">https://maps.app.goo.gl/…</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Harga</h2><p class="hint">Per malam. Kalau harga normal diisi, listing otomatis diberi label Promo.</p>
+            <div class="row">
+              <div class="f"><label>Harga per malam</label><div class="in num"><span class="pre">Rp</span><span style="flex:1">185.000</span></div></div>
+              <div class="f"><label>Harga normal <em>(dicoret)</em> <span class="guess">tebakan</span></label><div class="in num"><span class="pre">Rp</span><span style="flex:1">240.000</span></div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Foto &amp; video</h2><p class="hint">Seret untuk mengurutkan. Media pertama jadi pembuka di halaman detail. Video vertikal 9:16, maksimal 60 detik.</p>
+            <div class="media">
+              <div class="m"><img src="reel-poster.jpg" alt=""><span class="tag cover"><i class="ti ti-player-play-filled"></i>Pembuka</span><span class="grip"><i class="ti ti-grip-vertical"></i></span></div>
+              <div class="m"><img src="room-3.jpg" alt=""><span class="grip"><i class="ti ti-grip-vertical"></i></span></div>
+              <div class="m"><img src="room-2.jpg" alt=""><span class="grip"><i class="ti ti-grip-vertical"></i></span></div>
+              <div class="m"><img src="room-1.jpg" alt=""><span class="grip"><i class="ti ti-grip-vertical"></i></span></div>
+              <div class="m add"><i class="ti ti-cloud-upload"></i>Tarik foto atau video ke sini<br>atau klik untuk pilih</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Deskripsi</h2><p class="hint">Tampil sebagai "Kenapa kami pilih ini". Tulis singkat, 2–3 kalimat.</p>
+            <div class="f"><div class="in ta">Kamar bersih dan dingin, jalan kaki ke Tugu dan Malioboro. Harga promo ini cuma berlaku sampai akhir bulan.</div><small style="text-align:right" class="num">108 / 300</small></div>
+          </div>
+
+          <div class="card">
+            <h2>Fasilitas</h2><p class="hint">Klik untuk memilih.</p>
+            <div class="fac">
+              <span class="on"><i class="ti ti-wifi"></i>WiFi</span><span class="on"><i class="ti ti-air-conditioning"></i>AC</span><span class="on"><i class="ti ti-coffee"></i>Sarapan</span><span class="on"><i class="ti ti-parking"></i>Parkir motor</span><span><i class="ti ti-car"></i>Parkir mobil</span><span><i class="ti ti-pool"></i>Kolam renang</span><span><i class="ti ti-tools-kitchen-2"></i>Dapur</span><span><i class="ti ti-bath"></i>Air panas</span><span class="add"><i class="ti ti-plus"></i>Lainnya</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Tombol Pesan &amp; WhatsApp</h2><p class="hint">Ke mana pengunjung diarahkan dari halaman detail.</p>
+            <div class="f"><label>Link affiliate (tombol Pesan)</label><div class="in">https://www.traveloka.com/…?aff=dolanin <i class="ti ti-circle-check" style="color:#1F9D57;font-size:18px"></i></div><small>Link dibuka di tab baru.</small></div>
+            <div class="f"><label>Nomor WhatsApp</label><div class="in num">0812-0000-0000 <span style="font-size:12px;color:#6B7280">Nomor default <span class="guess">tebakan</span></span></div><small>Kosongkan untuk memakai nomor default dari Pengaturan.</small></div>
+          </div>
+        </div>
+
+        <div class="side">
+          <div class="card" style="padding:18px 20px">
+            <div class="sw"><div><b>Tayangkan</b><small>Mati = disimpan sebagai draf</small></div><span class="tog on"></span></div>
+            <div class="sw"><div><b>Masuk "Promo minggu ini"</b><small>Tampil di landing <span class="guess">tebakan</span></small></div><span class="tog on"></span></div>
+            <div class="save"><span class="btn ghost">Simpan draf</span><span class="btn pri">Simpan</span></div>
+          </div>
+          <div class="prev">
+            <h3><i class="ti ti-eye"></i>Pratinjau kartu</h3>
+            <div class="pc"><div class="im"><img src="reel-poster.jpg" alt="" style="object-position:center 60%"><span class="promo">Promo</span></div><div class="bd"><span class="type">Hotel</span><div class="where" style="margin-top:6px"><i class="ti ti-map-pin"></i>Jetis, Yogyakarta</div><div class="nm">Omah Tugu Inn</div><s class="num">Rp240.000</s><div class="p num">Rp185.000 <small>/malam</small></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cm-notes">
+  <div><b>Daftar listing.</b> Cari, filter berdasarkan kota, tipe, dan status, lalu edit. Ikon ▶ di thumbnail menandai listing yang punya video. Statistik klik ada di menu Dashboard.</div>
+  <div><b>Form satu halaman.</b> Isinya sama persis dengan daftarmu (nama, kota, tipe, harga, foto/video, deskripsi, fasilitas, link affiliate, WA), dengan pratinjau kartu di kanan yang ikut berubah saat kamu mengetik.</div>
+  <div><b>Kota dikelola terpisah.</b> Menu "Kota" berisi nama, kode, dan foto untuk papan kota di landing. Menu "Pengaturan" berisi nomor WA default. <span style="opacity:.7">(tebakan)</span></div>
+</div>
+</div>
+</body></html>

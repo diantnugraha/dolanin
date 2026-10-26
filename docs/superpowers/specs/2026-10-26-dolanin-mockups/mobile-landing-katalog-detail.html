@@ -1,0 +1,266 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dolanin mockup: mobile-landing-katalog-detail</title><style>body{margin:0;padding:24px;background:#24272c;color:#eee;font-family:Poppins,system-ui,sans-serif}.subtitle{opacity:.7}</style></head><body><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+.dk{--jingga:#F26B3A;--laut:#0E8C8C;--senja:#FFC24B;--malam:#1F2A37;--pasir:#FFF6EC;--tint-j:#FFEFE8;--tint-l:#E3F4F4;--wa:#25D366;--abu:#6B7280;--abu-pasir:#575E6B;--garis:#EFE3D5}
+.dk-row{display:flex;gap:32px;flex-wrap:wrap;justify-content:center;align-items:flex-start;margin:20px 0 8px}
+.dk-col{display:flex;flex-direction:column;align-items:center;gap:12px}
+.dk-cap{font:600 13px/1.4 'Poppins',sans-serif;opacity:.75}
+.ph{width:376px;height:780px;border-radius:44px;border:8px solid var(--malam);background:var(--pasir);overflow:hidden;position:relative;font-family:'Poppins',sans-serif;color:var(--malam);font-size:14px;line-height:1.5;box-shadow:0 24px 48px -16px rgba(31,42,55,.35);-webkit-font-smoothing:antialiased}
+.ph *{box-sizing:border-box;margin:0}
+.ph ::selection{background:var(--senja);color:var(--malam)}
+.ph :focus-visible{outline:2px solid var(--laut);outline-offset:2px}
+.ph .ti{font-size:20px;line-height:1}
+.scr{height:100%;overflow-y:auto;scrollbar-width:none}
+.scr::-webkit-scrollbar{display:none}
+.num{font-variant-numeric:tabular-nums}
+
+/* top bar */
+.bar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 8px}
+.logo{display:flex;align-items:center;gap:6px;font-weight:700;font-size:20px;letter-spacing:-.02em}
+.logo .wm span{color:var(--jingga)}
+.icon-btn{width:40px;height:40px;border-radius:999px;border:1px solid var(--garis);background:#fff;display:grid;place-items:center;color:var(--malam);cursor:pointer}
+
+/* landing */
+.hello{padding:12px 20px 0}
+.hello h1{font-size:32px;line-height:1.15;font-weight:700;letter-spacing:-.02em}
+.hello p{margin-top:8px;color:var(--abu-pasir);font-size:14px;max-width:32ch}
+.hello h1 mark{background:var(--senja);color:var(--malam);padding:0 6px;border-radius:8px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.seg{margin:20px 20px 0;display:flex;background:#fff;border:1px solid var(--garis);border-radius:999px;padding:4px}
+.seg button{flex:1;border:0;background:transparent;border-radius:999px;padding:8px 4px;font:500 12px/1 'Poppins',sans-serif;color:var(--abu);display:flex;align-items:center;justify-content:center;gap:4px;cursor:pointer}
+.seg button .ti{font-size:16px}
+.seg button.on{background:var(--malam);color:var(--pasir)}
+.board{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:20px 20px 0}
+.city{position:relative;aspect-ratio:4/5;border-radius:16px;overflow:hidden;background:var(--tint-l);display:block;color:inherit;text-decoration:none}
+.city img{width:100%;height:100%;object-fit:cover;display:block}
+.city .code{position:absolute;top:8px;left:8px;background:var(--tint-l);color:#073F3F;font-size:11px;font-weight:700;letter-spacing:.06em;padding:4px 8px;border-radius:999px}
+.city .plate{position:absolute;left:8px;right:8px;bottom:8px;background:var(--pasir);border-radius:12px;padding:8px 10px}
+.city .plate b{display:block;font-size:14px;font-weight:600;line-height:1.25}
+.city .plate small{display:block;font-size:11px;color:var(--abu-pasir);line-height:1.45}
+.city .plate small em{font-style:normal;color:var(--malam);font-weight:600}
+.more{text-decoration:none;margin:12px 20px 0;display:flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--laut);color:#0A6B6B;border-radius:999px;padding:10px;font-weight:600;font-size:13px}
+.sec{display:flex;align-items:baseline;justify-content:space-between;padding:32px 20px 12px}
+.sec h2{font-size:18px;font-weight:600;letter-spacing:-.01em}
+.sec a{font-size:12px;font-weight:600;color:#0A6B6B;text-decoration:none}
+.hs{display:flex;gap:12px;overflow-x:auto;padding:0 20px;scroll-snap-type:x mandatory;scroll-padding:0 20px;scrollbar-width:none}
+.hs::-webkit-scrollbar{display:none}
+.deal{flex:none;width:220px;scroll-snap-align:start;background:#fff;border:1px solid var(--garis);border-radius:16px;overflow:hidden}
+.deal .ph-img{position:relative;height:132px}
+.deal .ph-img img{width:100%;height:100%;object-fit:cover;display:block}
+.stamp{position:absolute;top:8px;left:8px;background:var(--senja);color:#5A3D00;font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px}
+.deal .bd{padding:12px 14px 14px}
+.where{font-size:11px;color:var(--abu);display:flex;align-items:center;gap:4px}
+.where .ti{font-size:14px}
+.name{font-size:15px;font-weight:600;line-height:1.3;margin-top:2px}
+.was{font-size:12px;color:var(--abu);text-decoration:line-through;margin-top:8px;display:block}
+.price{font-size:20px;font-weight:700;color:var(--jingga);letter-spacing:-.01em;line-height:1.2}
+.price small{font-size:11px;font-weight:400;color:var(--abu);letter-spacing:0}
+.help{margin:32px 20px 28px;background:var(--malam);color:var(--pasir);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.help b{font-size:16px;font-weight:600}
+.help p{font-size:13px;color:#D9DEE5}
+.btn{border:0;border-radius:999px;font:600 14px/1 'Poppins',sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;cursor:pointer;text-decoration:none}
+.btn.wa{background:var(--wa);color:#063D1C}
+.btn.go{background:var(--jingga);color:var(--malam)}
+
+/* katalog */
+.cover{position:relative;z-index:3;height:176px}
+.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.cover .icon-btn{position:absolute;top:16px;left:16px;border:0}
+.cover .plate{position:absolute;left:16px;bottom:-24px;right:16px;background:var(--pasir);border-radius:16px;padding:12px 16px;border:1px solid var(--garis)}
+.cover .plate b{font-size:22px;font-weight:600;letter-spacing:-.01em;display:block;line-height:1.2}
+.cover .plate small{font-size:12px;color:var(--abu-pasir)}
+.filters{position:sticky;top:0;z-index:2;background:var(--pasir);padding:40px 0 12px;border-bottom:1px solid var(--garis)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:0 20px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;display:inline-flex;align-items:center;gap:4px;padding:8px 12px;border-radius:999px;background:#fff;border:1px solid var(--garis);font:500 12px/1 'Poppins',sans-serif;color:var(--malam)}
+.chip .ti{font-size:16px}
+.chip.on{background:var(--tint-l);border-color:var(--laut);color:#073F3F}
+.chip.sort{background:var(--malam);border-color:var(--malam);color:var(--pasir)}
+.meta{display:flex;justify-content:space-between;padding:12px 20px 4px;font-size:12px;color:var(--abu-pasir)}
+.meta a{color:#0A6B6B;font-weight:600;text-decoration:none}
+.list{display:flex;flex-direction:column;gap:12px;padding:8px 20px 28px}
+.item{display:flex;gap:12px;background:#fff;border:1px solid var(--garis);border-radius:16px;padding:8px}
+.item .th{position:relative;width:112px;flex:none;border-radius:12px;overflow:hidden;aspect-ratio:1}
+.item .th img{width:100%;height:100%;object-fit:cover;display:block}
+.item .th .stamp{top:6px;left:6px;font-size:11px;padding:3px 8px}
+.item .bd{display:flex;flex-direction:column;min-width:0;padding:2px 4px 2px 0;flex:1}
+.type{align-self:flex-start;font-size:11px;font-weight:600;color:#073F3F;background:var(--tint-l);border-radius:999px;padding:2px 8px;margin-bottom:4px}
+.item .name{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .foot{margin-top:auto;display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
+.item .was{margin-top:0;font-size:11px}
+
+/* detail */
+.gal{position:relative;height:280px}
+.gal img{width:100%;height:100%;object-fit:cover;display:block}
+.gal .tl{position:absolute;top:16px;left:16px;right:16px;display:flex;justify-content:space-between}
+.gal .tl .icon-btn{border:0}
+.gal .count{position:absolute;right:16px;bottom:16px;background:var(--malam);color:var(--pasir);font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px}
+.det{padding:20px 20px 120px}
+.det h1{font-size:22px;font-weight:600;letter-spacing:-.01em;line-height:1.25;margin-top:6px}
+.det .where{font-size:12px;margin-top:4px}
+.pricebox{margin-top:16px;display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--garis);border-radius:16px;padding:14px 16px}
+.pricebox .price{font-size:24px}
+.pricebox .was{margin:0}
+.pricebox .stamp{position:static}
+.curate{margin-top:24px;border-top:1px solid var(--garis);padding-top:20px}
+.curate h2,.fac h2,.loc h2{font-size:16px;font-weight:600;margin-bottom:8px}
+.curate p{font-size:13px;color:#3D4654;line-height:1.65}
+.curate .by{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--abu-pasir)}
+.curate .by i{width:28px;height:28px;border-radius:999px;background:var(--jingga);display:grid;place-items:center}
+.fac{margin-top:24px}
+.fac ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+.fac li{display:flex;align-items:center;gap:8px;font-size:13px}
+.fac li .ti{color:var(--laut)}
+.loc{margin-top:24px}
+.loc p{font-size:13px;color:#3D4654}
+.loc a{display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:13px;font-weight:600;color:#0A6B6B;text-decoration:none}
+.dock{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--garis);padding:12px 16px 20px;display:flex;align-items:center;gap:8px}
+.dock .p{flex:1;min-width:0;line-height:1.2}
+.dock .p small{display:block;font-size:11px;color:var(--abu)}
+.dock .p .price{font-size:20px}
+.dock .btn.wa{padding:12px;width:46px;height:46px}
+.dock .btn.go{height:46px;padding:0 22px}
+
+.dk-notes{max-width:1180px;margin:20px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;font:400 13px/1.6 'Poppins',sans-serif}
+.dk-notes div{border:1px solid rgba(128,128,128,.3);border-radius:12px;padding:14px 16px}
+.dk-notes b{font-weight:600}
+.dk-credit{max-width:1180px;margin:12px auto 0;font:400 11px/1.5 'Poppins',sans-serif;opacity:.6}
+</style>
+
+<h2>Kota Dulu: landing, katalog, detail</h2>
+<p class="subtitle">Warna flat dari design system Dolanin, tanpa gradient. Nama penginapan, harga, dan catatan kurasi masih contoh.</p>
+
+<div class="dk">
+<div class="dk-row">
+
+  <!-- 1. LANDING -->
+  <div class="dk-col">
+    <div class="dk-cap">1 · Landing: pilih kota</div>
+    <div class="ph"><div class="scr">
+      <div class="bar">
+        <div class="logo">
+          <svg width="26" height="26" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3C14.6 3 7 10.6 7 20c0 12 17 25 17 25s17-13 17-25C41 10.6 33.4 3 24 3Z" fill="#F26B3A"/><circle cx="24" cy="20" r="7" fill="#FFC24B"/><path d="M14 33q10-6 20 0" stroke="#0E8C8C" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+          <span class="wm">dolan<span>in</span></span>
+        </div>
+        <button class="icon-btn" aria-label="Cari"><i class="ti ti-search"></i></button>
+      </div>
+
+      <div class="hello">
+        <h1>Yuk, dolan! Nginepnya biar <mark>hemat</mark>, jalan‑jalannya puas.</h1>
+        <p>Bandingkan hotel, penginapan, dan villa murah per kota, lalu pesan lewat link resmi atau tanya via WhatsApp.</p>
+      </div>
+
+      <div class="seg" role="tablist">
+        <button class="on" role="tab" aria-selected="true">Semua</button>
+        <button role="tab">Hotel</button>
+        <button role="tab">Penginapan</button>
+        <button role="tab">Villa</button>
+      </div>
+
+      <div class="board">
+        <a class="city" href="#"><img src="city-jogja.jpg" alt="Tugu Yogyakarta"><span class="code">YK</span><span class="plate"><b>Yogyakarta</b><small class="num">mulai <em>Rp95rb</em></small><small class="num">32 pilihan</small></span></a>
+        <a class="city" href="#"><img src="city-bali.jpg" alt="Sawah terasering Tegallalang, Bali"><span class="code">DPS</span><span class="plate"><b>Bali</b><small class="num">mulai <em>Rp150rb</em></small><small class="num">41 pilihan</small></span></a>
+        <a class="city" href="#"><img src="city-bandung.jpg" alt="Kawah Putih, Bandung"><span class="code">BD</span><span class="plate"><b>Bandung</b><small class="num">mulai <em>Rp120rb</em></small><small class="num">18 pilihan</small></span></a>
+        <a class="city" href="#"><img src="city-malang.jpg" alt="Lampu kota Batu dan Malang"><span class="code">ML</span><span class="plate"><b>Malang &amp; Batu</b><small class="num">mulai <em>Rp110rb</em></small><small class="num">15 pilihan</small></span></a>
+      </div>
+      <a class="more" href="#">Lihat 12 kota lainnya <i class="ti ti-arrow-right"></i></a>
+
+      <div class="sec"><h2>Promo minggu ini</h2><a href="#">Semua promo</a></div>
+      <div class="hs">
+        <div class="deal"><div class="ph-img"><img src="villa-1.jpg" alt=""><span class="stamp">Promo</span></div><div class="bd"><div class="where"><i class="ti ti-map-pin"></i>Canggu, Bali</div><div class="name">Villa Sawah Asri</div><span class="was num">Rp850.000</span><div class="price num">Rp650.000 <small>/malam</small></div></div></div>
+        <div class="deal"><div class="ph-img"><img src="room-2.jpg" alt=""><span class="stamp">Promo</span></div><div class="bd"><div class="where"><i class="ti ti-map-pin"></i>Dago, Bandung</div><div class="name">Kamar Dago Atas</div><span class="was num">Rp320.000</span><div class="price num">Rp245.000 <small>/malam</small></div></div></div>
+      </div>
+
+      <div class="help">
+        <b>Bingung pilih yang mana?</b>
+        <p>Ceritakan tujuan dan budget-mu, nanti kami bantu carikan.</p>
+        <a class="btn wa" href="#"><i class="ti ti-brand-whatsapp"></i>Chat WhatsApp</a>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- 2. KATALOG -->
+  <div class="dk-col">
+    <div class="dk-cap">2 · Katalog: filter &amp; urutkan</div>
+    <div class="ph"><div class="scr">
+      <div class="cover">
+        <img src="city-jogja.jpg" alt="Tugu Yogyakarta">
+        <button class="icon-btn" aria-label="Kembali"><i class="ti ti-arrow-left"></i></button>
+        <div class="plate"><b>Yogyakarta</b><small class="num">32 penginapan pilihan</small></div>
+      </div>
+      <div class="filters">
+        <div class="chips">
+          <span class="chip sort"><i class="ti ti-arrows-sort"></i>Termurah</span>
+          <span class="chip on"><i class="ti ti-map-pin"></i>Yogyakarta<i class="ti ti-x" style="font-size:14px"></i></span>
+          <span class="chip">Harga<i class="ti ti-chevron-down"></i></span>
+          <span class="chip">Tipe<i class="ti ti-chevron-down"></i></span>
+        </div>
+      </div>
+      <div class="meta"><span class="num">32 hasil</span><a href="#">Reset</a></div>
+      <div class="list">
+        <div class="item"><div class="th"><img src="room-1.jpg" alt=""><span class="stamp">Promo</span></div><div class="bd"><span class="type">Penginapan</span><div class="name">Ndalem Prawiro</div><div class="where"><i class="ti ti-map-pin"></i>Prawirotaman</div><div class="foot"><div><span class="was num">Rp130.000</span><div class="price num">Rp95.000</div></div></div></div></div>
+        <div class="item"><div class="th"><img src="room-3.jpg" alt=""></div><div class="bd"><span class="type">Hotel</span><div class="name">Omah Tugu Inn</div><div class="where"><i class="ti ti-map-pin"></i>Jetis, dekat Tugu</div><div class="foot"><div class="price num">Rp185.000</div></div></div></div>
+        <div class="item"><div class="th"><img src="room-2.jpg" alt=""></div><div class="bd"><span class="type">Penginapan</span><div class="name">Kamar Kayu Malioboro</div><div class="where"><i class="ti ti-map-pin"></i>Sosrowijayan</div><div class="foot"><div class="price num">Rp210.000</div></div></div></div>
+        <div class="item"><div class="th"><img src="bungalow-1.jpg" alt=""></div><div class="bd"><span class="type">Villa</span><div class="name">Villa Lereng Kaliurang</div><div class="where"><i class="ti ti-map-pin"></i>Kaliurang</div><div class="foot"><div class="price num">Rp480.000</div></div></div></div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- 3. DETAIL -->
+  <div class="dk-col">
+    <div class="dk-cap">3 · Detail: Pesan atau WhatsApp</div>
+    <div class="ph"><div class="scr">
+      <div class="gal">
+        <img src="room-3.jpg" alt="Kamar Omah Tugu Inn">
+        <div class="tl"><button class="icon-btn" aria-label="Kembali"><i class="ti ti-arrow-left"></i></button><button class="icon-btn" aria-label="Bagikan"><i class="ti ti-share-2"></i></button></div>
+        <span class="count num">1 / 8</span>
+      </div>
+      <div class="det">
+        <span class="type">Hotel</span>
+        <h1>Omah Tugu Inn</h1>
+        <div class="where"><i class="ti ti-map-pin"></i>Jetis, Yogyakarta · 600 m dari Tugu</div>
+
+        <div class="pricebox">
+          <div><span class="was num">Rp240.000</span><div class="price num">Rp185.000 <small>/malam</small></div></div>
+          <span class="stamp">Promo</span>
+        </div>
+
+        <div class="curate">
+          <h2>Kenapa kami pilih ini</h2>
+          <p>Kamar bersih dan dingin, jalan kaki ke Tugu dan Malioboro. Harga promo ini cuma berlaku sampai akhir bulan.</p>
+          <div class="by"><i><svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3C14.6 3 7 10.6 7 20c0 12 17 25 17 25s17-13 17-25C41 10.6 33.4 3 24 3Z" fill="#FFF6EC"/><circle cx="24" cy="20" r="7" fill="#FFC24B"/></svg></i>Dipilih tim Dolanin</div>
+        </div>
+
+        <div class="fac">
+          <h2>Fasilitas</h2>
+          <ul>
+            <li><i class="ti ti-wifi"></i>WiFi gratis</li>
+            <li><i class="ti ti-air-conditioning"></i>AC</li>
+            <li><i class="ti ti-coffee"></i>Sarapan</li>
+            <li><i class="ti ti-parking"></i>Parkir motor</li>
+          </ul>
+        </div>
+
+        <div class="loc">
+          <h2>Lokasi</h2>
+          <p>Jl. contoh No. 12, Jetis, Yogyakarta</p>
+          <a href="#">Buka di Google Maps <i class="ti ti-external-link" style="font-size:16px"></i></a>
+        </div>
+      </div>
+      <div class="dock">
+        <div class="p"><small>mulai dari</small><div class="price num">Rp185.000</div></div>
+        <a class="btn wa" href="#" aria-label="Chat WhatsApp"><i class="ti ti-brand-whatsapp"></i></a>
+        <a class="btn go" href="#">Pesan <i class="ti ti-external-link" style="font-size:16px"></i></a>
+      </div>
+    </div></div>
+  </div>
+
+</div>
+
+<div class="dk-notes">
+  <div><b>Kota sebagai pintu masuk.</b> Setiap tile memakai foto kota asli dan menampilkan jumlah pilihan serta harga termurah sesuai tipe yang aktif (Semua / Hotel / Penginapan / Villa). Tap tile untuk membuka katalog yang sudah terfilter, lalu tap kartu untuk membuka detail.</div>
+  <div><b>Katalog mudah dipindai.</b> Kartu baris (foto di kiri) supaya lebih banyak item muat di layar HP. Filter kota, harga, dan tipe ada di bar yang menempel di atas, urutan harga di chip paling kiri.</div>
+  <div><b>Kurasi terlihat.</b> Halaman detail punya bagian "Kenapa kami pilih ini". Tombol Pesan (link affiliate) dan WA selalu ada di bar bawah.</div>
+</div>
+<p class="dk-credit">Foto: Wikimedia Commons (CC BY / CC BY-SA), hanya untuk mockup. Nanti diganti foto asli milikmu. Ikon: Tabler Icons (ikon outline, sesuai design system).</p>
+</div>
+</body></html>
