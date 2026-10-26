@@ -24,14 +24,17 @@ export const clickRatio = (pesan: number, wa: number, views: number): number | n
 type Counts = { pesan: number; wa: number; views: number };
 type Kpi = { value: number; delta: number | null };
 
-const eventWhere = (f: StatsFilter, gte: Date, lte: Date): Prisma.EventWhereInput => ({
-  createdAt: { gte, lte },
+// All windows are half-open [start, end). The current period ends at now + 1ms so an event at exactly `now` counts.
+const endOf = (now: Date) => new Date(now.getTime() + 1);
+
+const eventWhere = (f: StatsFilter, gte: Date, lt: Date): Prisma.EventWhereInput => ({
+  createdAt: { gte, lt },
   ...(f.cityId ? { cityId: f.cityId } : {}),
   ...(f.type ? { type: f.type } : {}),
 });
 
-async function totals(f: StatsFilter, gte: Date, lte: Date): Promise<Counts> {
-  const rows = await db.event.groupBy({ by: ["kind"], where: eventWhere(f, gte, lte), _count: { _all: true } });
+async function totals(f: StatsFilter, gte: Date, lt: Date): Promise<Counts> {
+  const rows = await db.event.groupBy({ by: ["kind"], where: eventWhere(f, gte, lt), _count: { _all: true } });
   const c: Counts = { pesan: 0, wa: 0, views: 0 };
   for (const r of rows) {
     if (r.kind === "PESAN") c.pesan = r._count._all;
@@ -43,14 +46,15 @@ async function totals(f: StatsFilter, gte: Date, lte: Date): Promise<Counts> {
 
 export async function getKpis(f: StatsFilter): Promise<{ pesan: Kpi; wa: Kpi; views: Kpi; ratio: number | null }> {
   const b = periodBounds(f.days, f.now ?? new Date());
-  const [cur, prev] = await Promise.all([totals(f, b.from, b.to), totals(f, b.prevFrom, b.prevTo)]);
-  // prev window is [prevFrom, from); an event exactly at `from` counts in cur only.
+  const [cur, prev] = await Promise.all([totals(f, b.from, endOf(b.to)), totals(f, b.prevFrom, b.prevTo)]);
+  // prev window is [prevFrom, from) and cur is [from, now]: an event exactly at `from` counts in cur only.
   const k = (key: keyof Counts): Kpi => ({ value: cur[key], delta: pctChange(cur[key], prev[key]) });
   return { pesan: k("pesan"), wa: k("wa"), views: k("views"), ratio: clickRatio(cur.pesan, cur.wa, cur.views) };
 }
 
 export async function getDailySeries(f: StatsFilter): Promise<{ date: string; pesan: number; wa: number }[]> {
-  const { from, to } = periodBounds(f.days, f.now ?? new Date());
+  const { from, to: now } = periodBounds(f.days, f.now ?? new Date());
+  const end = endOf(now);
   const fromDay = new Date(from.getTime() + WIB).toISOString().slice(0, 10);
   // createdAt is `timestamp without time zone` holding UTC: tag it as UTC first, then convert to WIB.
   const filters = Prisma.sql`${f.cityId ? Prisma.sql`AND "cityId" = ${f.cityId}` : Prisma.empty}
@@ -58,13 +62,13 @@ export async function getDailySeries(f: StatsFilter): Promise<{ date: string; pe
   const rows = await db.$queryRaw<{ date: string; pesan: bigint; wa: bigint }[]>`
     SELECT to_char(d.day, 'YYYY-MM-DD') AS date,
            COALESCE(c.pesan, 0) AS pesan, COALESCE(c.wa, 0) AS wa
-    FROM generate_series(${fromDay}::date, ${fromDay}::date + ${f.days - 1}::int, interval '1 day') AS d(day)
+    FROM generate_series(${fromDay}::timestamp, ${fromDay}::timestamp + ${f.days - 1}::int * interval '1 day', interval '1 day') AS d(day)
     LEFT JOIN (
       SELECT (("createdAt" AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Jakarta')::date AS day,
              count(*) FILTER (WHERE "kind" = 'PESAN') AS pesan,
              count(*) FILTER (WHERE "kind" = 'WA') AS wa
       FROM "Event"
-      WHERE "createdAt" >= ${from.toISOString()}::timestamp AND "createdAt" <= ${to.toISOString()}::timestamp
+      WHERE "createdAt" >= ${from.toISOString()}::timestamp AND "createdAt" < ${end.toISOString()}::timestamp
       ${filters}
       GROUP BY 1
     ) c ON c.day = d.day::date
@@ -73,7 +77,8 @@ export async function getDailySeries(f: StatsFilter): Promise<{ date: string; pe
 }
 
 export async function getPesanByCity(f: StatsFilter): Promise<{ name: string; count: number; other?: true }[]> {
-  const { from, to } = periodBounds(f.days, f.now ?? new Date());
+  const { from, to: now } = periodBounds(f.days, f.now ?? new Date());
+  const to = endOf(now);
   const groups = await db.event.groupBy({
     by: ["cityId"],
     where: { ...eventWhere(f, from, to), kind: "PESAN" },
@@ -97,7 +102,8 @@ export async function getTopListings(f: StatsFilter, limit = 5): Promise<{
   id: string; name: string; cityName: string; cover: Cover | null;
   views: number; pesan: number; wa: number; ratio: number | null;
 }[]> {
-  const { from, to } = periodBounds(f.days, f.now ?? new Date());
+  const { from, to: now } = periodBounds(f.days, f.now ?? new Date());
+  const to = endOf(now);
   const groups = await db.event.groupBy({
     by: ["listingId", "kind"],
     where: eventWhere(f, from, to),
@@ -132,20 +138,21 @@ export async function getTopListings(f: StatsFilter, limit = 5): Promise<{
 export async function getZeroClickListings(f: StatsFilter, limit = 5): Promise<{
   id: string; name: string; cityName: string; cover: Cover | null; views: number;
 }[]> {
-  const { from, to } = periodBounds(f.days, f.now ?? new Date());
+  const { from, to: now } = periodBounds(f.days, f.now ?? new Date());
+  const to = endOf(now);
   const listings = await db.listing.findMany({
     where: {
       published: true,
       ...(f.cityId ? { cityId: f.cityId } : {}),
       ...(f.type ? { type: f.type } : {}),
-      events: { none: { kind: { in: ["PESAN", "WA"] }, createdAt: { gte: from, lte: to } } },
+      events: { none: { kind: { in: ["PESAN", "WA"] }, createdAt: { gte: from, lt: to } } },
     },
     select: listingSelect,
   });
   if (!listings.length) return [];
   const views = await db.event.groupBy({
     by: ["listingId"],
-    where: { kind: "VIEW", createdAt: { gte: from, lte: to }, listingId: { in: listings.map((l) => l.id) } },
+    where: { kind: "VIEW", createdAt: { gte: from, lt: to }, listingId: { in: listings.map((l) => l.id) } },
     _count: { _all: true },
   });
   const v = new Map(views.map((g) => [g.listingId, g._count._all]));

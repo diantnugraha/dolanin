@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/lib/db";
+import { periodBounds } from "@/lib/stats";
 import {
   getDailySeries, getKpis, getPesanByCity, getTopListings, getZeroClickListings,
 } from "@/lib/stats";
@@ -59,6 +60,36 @@ describe("stats", () => {
     expect(k.pesan.delta).toBeCloseTo(0.5);
     expect(k.views.delta).toBeNull();
     expect(k.ratio).toBeCloseTo(0.3);
+  });
+
+  it("half-open windows: event at `from` is current only, at `prevFrom` is previous", async () => {
+    const l = await db.listing.findFirstOrThrow();
+    const b = periodBounds(7, NOW);
+    await ev(l, "PESAN", b.from.toISOString());
+    let k = await getKpis(F);
+    expect(k.pesan.value).toBe(1);
+    expect(k.pesan.delta).toBeNull(); // prev = 0
+    await resetDb();
+    await seedBasic();
+    const l2 = await db.listing.findFirstOrThrow();
+    await ev(l2, "PESAN", b.prevFrom.toISOString());
+    await ev(l2, "PESAN", b.from.toISOString());
+    k = await getKpis(F);
+    expect(k.pesan.value).toBe(1);
+    expect(k.pesan.delta).toBe(0); // prev = 1 (only the prevFrom event)
+    const s = await getDailySeries(F);
+    expect(s[0]).toMatchObject({ date: "2026-10-20", pesan: 1 });
+  });
+
+  it("type filter (enum cast)", async () => {
+    const hotel = await db.listing.findFirstOrThrow({ where: { type: "HOTEL" } });
+    const villa = await db.listing.findFirstOrThrow({ where: { type: "VILLA" } });
+    const at = "2026-10-25T10:00:00+07:00";
+    await ev(hotel, "PESAN", at, 2);
+    await ev(villa, "PESAN", at, 4);
+    expect((await getKpis({ ...F, type: "VILLA" })).pesan.value).toBe(4);
+    const s = await getDailySeries({ ...F, type: "HOTEL" });
+    expect(s.reduce((x, d) => x + d.pesan, 0)).toBe(2);
   });
 
   it("cityId filter counts only that city", async () => {
