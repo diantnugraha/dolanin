@@ -1,6 +1,7 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "@/lib/db";
 import { recordEvent, resolveGo } from "@/lib/tracking";
+import { POST } from "@/app/api/view/route";
 import { resetDb, seedBasic } from "./setup";
 
 const CHROME =
@@ -83,5 +84,45 @@ describe("recordEvent", () => {
     const l = await get("omah-tugu-inn");
     expect(await recordEvent(l.id, "VIEW")).toBe(true);
     expect(await db.event.count({ where: { kind: "VIEW" } })).toBe(1);
+  });
+});
+
+describe("best-effort tracking", () => {
+  it("resolveGo still redirects when recording throws", async () => {
+    const l = await get("omah-tugu-inn");
+    const spy = vi.spyOn(db.event, "create").mockRejectedValueOnce(new Error("db down"));
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(await resolveGo(l.id, "pesan", CHROME)).toEqual({ status: 302, location: l.affiliateUrl });
+    spy.mockRestore();
+    err.mockRestore();
+  });
+});
+
+describe("POST /api/view", () => {
+  const post = (body: string, ua = CHROME) =>
+    POST(new Request("http://x/api/view", { method: "POST", body, headers: { "user-agent": ua } }));
+
+  it("204 and records VIEW for a valid id", async () => {
+    const l = await get("omah-tugu-inn");
+    expect((await post(l.id)).status).toBe(204);
+    expect(await db.event.count({ where: { kind: "VIEW" } })).toBe(1);
+  });
+
+  it("204 when recording throws", async () => {
+    const l = await get("omah-tugu-inn");
+    const spy = vi.spyOn(db.event, "create").mockRejectedValueOnce(new Error("db down"));
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect((await post(l.id)).status).toBe(204);
+    spy.mockRestore();
+    err.mockRestore();
+  });
+
+  it("204 for empty, oversized, bot and unknown id, recording nothing", async () => {
+    const l = await get("omah-tugu-inn");
+    expect((await post("")).status).toBe(204);
+    expect((await post("x".repeat(500))).status).toBe(204);
+    expect((await post(l.id, BOT)).status).toBe(204);
+    expect((await post("tidak-ada")).status).toBe(204);
+    expect(await db.event.count()).toBe(0);
   });
 });

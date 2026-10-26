@@ -10,6 +10,10 @@ export async function POST(req: Request) {
   if (len > MAX_BODY) return noContent();
   const id = (await req.text()).trim();
   if (!id || id.length > MAX_BODY) return noContent();
-  await recordEvent(id, "VIEW");
+  try {
+    await recordEvent(id, "VIEW");
+  } catch (e) {
+    console.error("tracking: view record failed", e);
+  }
   return noContent();
 }

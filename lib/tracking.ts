@@ -42,6 +42,12 @@ export async function resolveGo(id: string, kind: string, ua: string | null): Pr
     location = waLink(number, listingWaText(l.name, url));
   }
 
-  if (!isBot(ua)) await recordEvent(id, kind === "pesan" ? "PESAN" : "WA");
+  if (!isBot(ua)) {
+    try {
+      await recordEvent(id, kind === "pesan" ? "PESAN" : "WA");
+    } catch (e) {
+      console.error("tracking: recordEvent failed", e);
+    }
+  }
   return { status: 302, location };
 }
