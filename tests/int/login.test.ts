@@ -28,4 +28,8 @@ describe("login", () => {
     expect(a.failedCount).toBe(0);
     expect(a.lockedUntil).toBeNull();
   });
+  it("cannot bypass the lockout with parallel wrong attempts", async () => {
+    await Promise.all(Array.from({ length: 10 }, () => login("admin", "salah")));
+    expect(await login("admin", "benar-benar-1")).toBe("locked");
+  });
 });

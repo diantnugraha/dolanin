@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { Client } from "pg";
 
 test.use({ viewport: { width: 1280, height: 800 } });
 
@@ -31,4 +32,25 @@ test("login shows the sidebar, logout returns to login", async ({ page }) => {
   await expect(page).toHaveURL(/\/admin\/login$/);
   await page.goto("/admin");
   await expect(page).toHaveURL(/\/admin\/login$/);
+});
+
+test("bumping sessionVersion revokes an existing session", async ({ page }) => {
+  await signIn(page);
+  await expect(page).toHaveURL(/\/admin$/);
+  const bump = async (by: number) => {
+    const c = new Client({ connectionString: process.env.DATABASE_URL });
+    await c.connect();
+    try {
+      await c.query('UPDATE "Admin" SET "sessionVersion" = "sessionVersion" + $1 WHERE id = 1', [by]);
+    } finally {
+      await c.end();
+    }
+  };
+  await bump(1);
+  try {
+    await page.goto("/admin");
+    await expect(page).toHaveURL(/\/admin\/login$/);
+  } finally {
+    await bump(-1);
+  }
 });

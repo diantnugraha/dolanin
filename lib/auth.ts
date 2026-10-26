@@ -56,20 +56,20 @@ export async function login(username: string, password: string): Promise<"ok" | 
     return "invalid";
   }
   const now = new Date();
-  if (admin.lockedUntil && admin.lockedUntil > now) return "locked";
-
-  // Kunci yang sudah lewat dianggap bersih: hitungan mulai dari nol lagi.
-  const priorFails = admin.lockedUntil ? 0 : admin.failedCount;
+  // Kunci yang sudah lewat dibersihkan secara kondisional (aman untuk request paralel).
+  await db.admin.updateMany({
+    where: { id: admin.id, lockedUntil: { lte: now } },
+    data: { failedCount: 0, lockedUntil: null },
+  });
+  const current = await db.admin.findUniqueOrThrow({ where: { id: admin.id } });
+  if (current.lockedUntil && current.lockedUntil > now) return "locked";
 
   if (!(await verifyPassword(password, admin.passwordHash))) {
-    const failedCount = priorFails + 1;
-    await db.admin.update({
-      where: { id: admin.id },
-      data: {
-        failedCount,
-        lockedUntil: failedCount >= MAX_FAILS ? new Date(now.getTime() + LOCK_MS) : null,
-      },
-    });
+    // Increment atomik: percobaan paralel tidak bisa menimpa hitungan satu sama lain.
+    const u = await db.admin.update({ where: { id: admin.id }, data: { failedCount: { increment: 1 } } });
+    if (u.failedCount >= MAX_FAILS) {
+      await db.admin.update({ where: { id: admin.id }, data: { lockedUntil: new Date(now.getTime() + LOCK_MS) } });
+    }
     return "invalid";
   }
   await db.admin.update({ where: { id: admin.id }, data: { failedCount: 0, lockedUntil: null } });
