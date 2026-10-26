@@ -16,12 +16,14 @@
   position: relative;
   background: none;
   color: inherit;
-  padding: 0;
+  padding: 0 6px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 .hello h1 mark::before {
   content: "";
   position: absolute;
-  inset: 0 -6px;
+  inset: 0;
   background: var(--senja);
   border-radius: 8px;
   z-index: -1;
@@ -117,8 +119,10 @@
     letter-spacing: -0.03em;
     text-wrap: balance;
   }
+  .hello h1 mark {
+    padding: 0 8px;
+  }
   .hello h1 mark::before {
-    inset: 0 -8px;
     border-radius: 10px;
   }
   .hello p {
