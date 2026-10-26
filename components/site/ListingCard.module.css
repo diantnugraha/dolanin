@@ -51,30 +51,67 @@
 }
 
 /* row: thumbnail left */
-.row {
+.row,
+.auto {
   gap: 12px;
   padding: 8px;
 }
-.row .th {
+.row .th,
+.auto .th {
   width: 112px;
   aspect-ratio: 1;
   border-radius: 12px;
 }
-.row .bd {
+.row .bd,
+.auto .bd {
   padding: 2px 4px 2px 0;
 }
-.row .name {
+.row .name,
+.auto .name {
   font-size: 14px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.row .th > :global(span) {
+.row .th > :global(span),
+.auto .th > :global(span) {
   top: 6px;
   left: 6px;
 }
 
+@media (max-width: 1023px) {
+  .auto .price small {
+    display: none;
+  }
+}
+
 @media (min-width: 1024px) {
+  .auto {
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+  }
+  .auto .th {
+    width: auto;
+    border-radius: 0;
+  }
+  .auto .th > :global(span) {
+    top: 10px;
+    left: 10px;
+  }
+  .auto .bd {
+    padding: 12px 14px 14px;
+  }
+  .auto .name {
+    font-size: 16px;
+    white-space: normal;
+  }
+  .auto .where {
+    font-size: 12px;
+  }
+  .auto .th {
+    aspect-ratio: 4 / 3;
+  }
   .card .th {
     height: auto;
     aspect-ratio: 4 / 3;

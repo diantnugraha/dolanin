@@ -50,7 +50,12 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
 
       {featured.length > 0 && (
         <section className={s.promo}>
-          <h2>Promo minggu ini</h2>
+          <div className={s.promoHd}>
+            <h2>Promo minggu ini</h2>
+            <Link href="/promo" className={s.all}>
+              Semua promo
+            </Link>
+          </div>
           <div className={s.deals}>
             {featured.map((l) => (
               <ListingCard key={l.id} data={l} variant="card" />

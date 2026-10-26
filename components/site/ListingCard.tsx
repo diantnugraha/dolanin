@@ -8,14 +8,15 @@ import { PromoStamp } from "./PromoStamp";
 import { TypeTag } from "./TypeTag";
 import s from "./ListingCard.module.css";
 
-export function ListingCard({ data, variant }: { data: ListingCardData; variant: "row" | "card" }) {
+export function ListingCard({ data, variant }: { data: ListingCardData; variant: "row" | "card" | "auto" }) {
   const isRow = variant === "row";
   return (
-    <Link href={`/${data.citySlug}/${data.slug}`} className={`${s.item} ${isRow ? s.row : s.card}`}>
+    <Link href={`/${data.citySlug}/${data.slug}`} className={`${s.item} ${s[variant]}`}
+      data-price={data.price}>
       <div className={s.th}>
         <CoverImage
           cover={data.cover}
-          sizes={isRow ? "112px" : "(min-width: 1024px) 280px, 220px"}
+          sizes={variant === "card" ? "(min-width: 1024px) 280px, 220px" : variant === "auto" ? "(min-width: 1024px) 280px, 112px" : "112px"}
         />
         {isPromo(data) && <PromoStamp />}
       </div>

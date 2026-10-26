@@ -51,8 +51,21 @@
 .promo {
   padding-top: 32px;
 }
+.promoHd {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.all {
+  color: var(--laut-d);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
 .promo h2 {
-  margin: 0 0 12px;
+  margin: 0;
   font-size: 18px;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -122,8 +135,13 @@
   .promo {
     padding-top: 24px;
   }
-  .promo h2 {
+  .promoHd {
     margin-bottom: 20px;
+  }
+  .all {
+    font-size: 15px;
+  }
+  .promo h2 {
     font-size: 28px;
     letter-spacing: -0.02em;
   }
