@@ -57,3 +57,23 @@ export function formatDuration(sec: number): string {
   const s = Math.round(sec)
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 }
+
+const DAY_TZ = 'Asia/Jakarta'
+
+/** "27 Sep – 26 Okt 2026"; the year is shown once at the end when both ends share it. */
+export function formatDateRange(from: Date, to: Date): string {
+  const f = (d: Date, year: boolean) =>
+    new Intl.DateTimeFormat('id-ID', {
+      day: 'numeric', month: 'short', timeZone: DAY_TZ, ...(year ? { year: 'numeric' as const } : {}),
+    }).format(d)
+  const y = (d: Date) => new Intl.DateTimeFormat('id-ID', { year: 'numeric', timeZone: DAY_TZ }).format(d)
+  return `${f(from, y(from) !== y(to))} – ${f(to, true)}`
+}
+
+/** A calendar day "YYYY-MM-DD" as "27 Sep", or "Sab, 27 Sep" when long. */
+export function formatDay(ymd: string, long = false): string {
+  const d = new Date(`${ymd}T00:00:00Z`)
+  const base = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(d)
+  if (!long) return base
+  return `${new Intl.DateTimeFormat('id-ID', { weekday: 'short', timeZone: 'UTC' }).format(d)}, ${base}`
+}
