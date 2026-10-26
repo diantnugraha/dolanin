@@ -58,11 +58,12 @@ export function FilterPanel({
         {TYPES.map((t) => {
           const on = params.types.includes(t);
           return (
-            <Link key={t} href={hrefFor({ types: toggle(t) })} className={s.chk} aria-current={on ? "true" : undefined}>
+            <Link key={t} href={hrefFor({ types: toggle(t) })} className={s.chk}>
               <i className={`${s.box} ${on ? s.boxOn : ""}`} aria-hidden="true">
                 {on && <IconCheck size={13} stroke={2.5} />}
               </i>
               {TYPE_LABEL[t]}
+              {on && <span className="sr-only"> (dipilih)</span>}
               <span>{typeCounts[t]}</span>
             </Link>
           );

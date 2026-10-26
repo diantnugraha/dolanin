@@ -17,6 +17,7 @@ export function FilterBar({ params, hrefFor, cityName, panel }: { params: Catalo
     { label: "Tipe", icon: undefined, on: params.types.length > 0 },
   ];
   return (
+    <>
     <div className={s.filters}>
       <div className={s.chips}>
         <Link href={hrefFor({ sort: params.sort === "asc" ? "desc" : "asc" })} className={`${s.chip} ${s.chipSort}`}>
@@ -28,5 +29,11 @@ export function FilterBar({ params, hrefFor, cityName, panel }: { params: Catalo
         </FilterSheet>
       </div>
     </div>
+    <noscript>
+      <div className={s.inline}>
+        <FilterPanel {...panel} />
+      </div>
+    </noscript>
+    </>
   );
 }

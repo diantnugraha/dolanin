@@ -57,6 +57,7 @@ test.describe("catalog desktop", () => {
     await expect(villa).toContainText("1");
     await villa.click();
     await expect(page).toHaveURL(/tipe=villa/);
+    await expect(page.locator("aside").getByRole("link", { name: /Villa/ })).toHaveAccessibleName(/dipilih/);
     await expect(page.locator("a[data-price]")).toHaveCount(1);
   });
 
@@ -114,5 +115,17 @@ test.describe("catalog mobile", () => {
   test("no horizontal scroll", async ({ page }) => {
     await page.goto("/yogyakarta");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+});
+
+test.describe("catalog mobile without JS", () => {
+  test.use({ viewport: { width: 390, height: 844 }, javaScriptEnabled: false });
+
+  test("noscript fallback exposes type and price filters", async ({ page }) => {
+    await page.goto("/yogyakarta");
+    await page.getByRole("link", { name: /^Villa\s*1$/ }).click();
+    await expect(page).toHaveURL(/tipe=villa/);
+    await page.getByRole("link", { name: "< Rp150rb" }).click();
+    await expect(page).toHaveURL(/harga=lt150/);
   });
 });

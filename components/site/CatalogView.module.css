@@ -98,6 +98,9 @@
   border-color: var(--malam);
   color: var(--pasir);
 }
+.inline {
+  padding: 16px 20px 0;
+}
 .sheet {
   width: 100%;
   max-width: 100%;
