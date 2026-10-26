@@ -2,7 +2,7 @@
 import { useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
-  IconArrowLeft, IconMaximize, IconPlayerPlayFilled, IconVolume, IconVolumeOff,
+  IconArrowLeft, IconMaximize, IconPlayerPauseFilled, IconPlayerPlayFilled, IconVolume, IconVolumeOff,
 } from "@tabler/icons-react";
 import { formatDuration } from "@/lib/format";
 import { mediaLabel } from "@/lib/listing";
@@ -48,7 +48,7 @@ function VideoHero({
   const [muted, setMuted] = useState(true);
   const [progress, setProgress] = useState(0);
   // The hero is sticky, so it never leaves the screen: watch where it ends instead.
-  const { showPlay, play } = useAutoplay(ref, !isOpen, end);
+  const { on, play, pause } = useAutoplay(ref, !isOpen, end);
 
   return (
     <>
@@ -56,6 +56,7 @@ function VideoHero({
         <video
           ref={ref}
           className={s.video}
+          // ponytail: hidden on desktop yet still loads poster + metadata; accepted, desktop isn't quota-bound.
           src={videoSrc(video.guid)}
           poster={videoPoster(video.guid)}
           muted={muted}
@@ -72,6 +73,9 @@ function VideoHero({
         </div>
         {bar(
           <>
+            <button type="button" className={s.cbtn} aria-label={on ? "Jeda video" : "Putar video"} onClick={on ? pause : play}>
+              {on ? <IconPlayerPauseFilled size={18} aria-hidden="true" /> : <IconPlayerPlayFilled size={18} aria-hidden="true" />}
+            </button>
             <button
               type="button" className={s.cbtn} aria-label={muted ? "Nyalakan suara" : "Matikan suara"}
               onClick={() => setMuted(!muted)}
@@ -87,9 +91,10 @@ function VideoHero({
           <IconPlayerPlayFilled size={14} aria-hidden="true" />
           Video{video.durationSec ? ` · ${formatDuration(video.durationSec)}` : ""}
         </span>
-        {showPlay && (
-          <button type="button" className={s.play} aria-label="Putar video" onClick={play}>
-            <IconPlayerPlayFilled size={28} aria-hidden="true" />
+        {/* Big tap target on the poster; the labelled toggle in the bar is the accessible control. */}
+        {!on && (
+          <button type="button" className={s.play} tabIndex={-1} aria-hidden="true" onClick={play}>
+            <IconPlayerPlayFilled size={28} />
           </button>
         )}
       </div>
@@ -118,7 +123,8 @@ function Gallery({ media, name }: { media: MediaItem[]; name: string }) {
               <img
                 src={photoUrl(m.key, 800)}
                 srcSet={`${photoUrl(m.key, 800)} 800w, ${photoUrl(m.key, 1600)} 1600w`}
-                // Hidden on desktop: ask for the small file the mosaic reuses instead of 1600w.
+                // ponytail: the hero is hidden on desktop but this eager LCP image still downloads there;
+                // accepted (desktop isn't quota-bound). `sizes` asks for the 800w file the mosaic reuses.
                 sizes="(min-width: 1024px) 304px, 100vw"
                 alt={`${name}, foto ${i + 1}`}
                 loading={i === 0 ? "eager" : "lazy"}

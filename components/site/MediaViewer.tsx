@@ -65,9 +65,12 @@ export function MediaViewer({
     track.current?.scrollTo({ left: startIndex * track.current.clientWidth, behavior: "instant" });
   }, [open, startIndex]);
 
+  /** Scrolls to item i; false when i is past either end (nothing to do). */
   const go = (i: number) => {
     const t = track.current;
-    if (t && i >= 0 && i < n) t.scrollTo({ left: i * t.clientWidth, behavior: reduced ? "instant" : "smooth" });
+    if (!t || i < 0 || i >= n) return false;
+    t.scrollTo({ left: i * t.clientWidth, behavior: reduced ? "instant" : "smooth" });
+    return true;
   };
   const onScroll = () => {
     const t = track.current;
@@ -90,9 +93,8 @@ export function MediaViewer({
       onClose={onClose}
       onKeyDown={(e) => {
         const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
-        if (!step) return;
-        e.preventDefault(); // the focused track would also scroll natively
-        go(current + step);
+        // Only swallow the key when we move; the focused track would also scroll natively.
+        if (step && go(current + step)) e.preventDefault();
       }}
     >
       {open && (
@@ -175,7 +177,7 @@ function ViewerVideo({
   guid, label, active, muted, onProgress,
 }: { guid: string; label: string; active: boolean; muted: boolean; onProgress: (p: number) => void }) {
   const ref = useRef<HTMLVideoElement>(null);
-  const { showPlay, play, pause } = useAutoplay(ref, active);
+  const { on, play, pause } = useAutoplay(ref, active);
   return (
     <>
       <video
@@ -191,7 +193,8 @@ function ViewerVideo({
         onClick={() => (ref.current?.paused ? play() : pause())}
         onTimeUpdate={active ? (e) => onProgress(e.currentTarget.currentTime / (e.currentTarget.duration || 1)) : undefined}
       />
-      {showPlay && (
+      {/* Off-screen slides get no button: it would be an invisible tab stop. */}
+      {active && !on && (
         <button type="button" className={s.play} aria-label="Putar video" onClick={play}>
           <IconPlayerPlayFilled size={28} aria-hidden="true" />
         </button>

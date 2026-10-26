@@ -1,6 +1,8 @@
 "use client";
 import { useRef, useState } from "react";
-import { IconLayoutGrid, IconPlayerPlayFilled, IconVolume, IconVolumeOff } from "@tabler/icons-react";
+import {
+  IconLayoutGrid, IconPlayerPauseFilled, IconPlayerPlayFilled, IconVolume, IconVolumeOff,
+} from "@tabler/icons-react";
 import { formatDuration } from "@/lib/format";
 import { mediaLabel } from "@/lib/listing";
 import { videoPoster, videoSrc } from "@/lib/media";
@@ -53,28 +55,35 @@ function VideoTile({
   const ref = useRef<HTMLVideoElement>(null);
   const { isOpen } = useMediaViewer();
   const [muted, setMuted] = useState(true);
-  const { showPlay, play } = useAutoplay(ref, !isOpen);
+  const { on, play, pause } = useAutoplay(ref, !isOpen);
   return (
     <div className={s.tile}>
       <button type="button" className={s.open} aria-label={label} onClick={onOpen}>
-        <video
-          ref={ref} src={videoSrc(video.guid)} poster={videoPoster(video.guid)}
-          muted={muted} loop playsInline preload="none"
-        />
+        {/* Poster as a lazy <img> under the video, not a `poster` attribute: browsers fetch a poster
+            even under display:none, and this mosaic is hidden on phones (hemat kuota). */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- Bunny serves a fixed poster */}
+        <img className={s.poster} src={videoPoster(video.guid)} alt="" loading="lazy" decoding="async" />
+        <video ref={ref} src={videoSrc(video.guid)} muted={muted} loop playsInline preload="none" />
       </button>
       <span className={s.pill}>
         <IconPlayerPlayFilled size={14} aria-hidden="true" />
         Video{video.durationSec ? ` · ${formatDuration(video.durationSec)}` : ""}
       </span>
-      <button
-        type="button" className={`${s.cbtn} ${s.sound}`} aria-label={muted ? "Nyalakan suara" : "Matikan suara"}
-        onClick={() => setMuted(!muted)}
-      >
-        {muted ? <IconVolumeOff size={20} stroke={1.75} aria-hidden="true" /> : <IconVolume size={20} stroke={1.75} aria-hidden="true" />}
-      </button>
-      {showPlay && (
-        <button type="button" className={`${s.cbtn} ${s.play}`} aria-label="Putar video" onClick={play}>
-          <IconPlayerPlayFilled size={24} aria-hidden="true" />
+      <div className={s.ctrl}>
+        <button type="button" className={s.cbtn} aria-label={on ? "Jeda video" : "Putar video"} onClick={on ? pause : play}>
+          {on ? <IconPlayerPauseFilled size={18} aria-hidden="true" /> : <IconPlayerPlayFilled size={18} aria-hidden="true" />}
+        </button>
+        <button
+          type="button" className={s.cbtn} aria-label={muted ? "Nyalakan suara" : "Matikan suara"}
+          onClick={() => setMuted(!muted)}
+        >
+          {muted ? <IconVolumeOff size={20} stroke={1.75} aria-hidden="true" /> : <IconVolume size={20} stroke={1.75} aria-hidden="true" />}
+        </button>
+      </div>
+      {/* Big tap target on the poster; the labelled toggle above is the accessible control. */}
+      {!on && (
+        <button type="button" className={`${s.cbtn} ${s.play}`} tabIndex={-1} aria-hidden="true" onClick={play}>
+          <IconPlayerPlayFilled size={24} />
         </button>
       )}
     </div>

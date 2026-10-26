@@ -14,6 +14,8 @@ export const useReducedMotion = () => useSyncExternalStore(subscribe, () => matc
  * Playback is driven here, not by the `autoplay` attribute, so reduced-motion users get the poster
  * and a play button, and a video hidden by CSS never starts. `watch` lets a caller observe another
  * element than the video (the sticky hero is always "on screen", so it watches a sentinel instead).
+ * `on` is false when the user paused, reduced motion is on, or the browser refused to play: the
+ * observer is then disconnected, so nothing resumes until `play()`.
  */
 export function useAutoplay(
   video: RefObject<HTMLVideoElement | null>,
@@ -45,7 +47,7 @@ export function useAutoplay(
   }, [video, watch, enabled, auto]);
 
   return {
-    showPlay: !auto,
+    on: auto,
     play: () => {
       setChoice("play");
       video.current?.play().catch(() => {});

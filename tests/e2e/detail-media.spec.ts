@@ -45,6 +45,9 @@ test.beforeEach(async ({ page }) => {
 
 const hero = (page: Page) => page.locator('[data-slot="hero"]');
 const viewer = (page: Page) => page.locator("dialog[open]");
+// IntersectionObserver callbacks run with rendering frames: after two frames a wrong resume would have happened.
+const frames = (page: Page) => page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+const isPaused = (v: HTMLVideoElement) => v.paused;
 
 test.describe("media mobile", () => {
   test.use({ viewport: { width: 390, height: 844 } });
@@ -92,6 +95,21 @@ test.describe("media mobile", () => {
     await expect.poll(playing).toBe(true);
   });
 
+  test("Jeda video pauses the hero and it stays paused after scrolling away and back", async ({ page }) => {
+    await page.goto(VIDEO_URL);
+    const video = hero(page).locator("video");
+    await expect.poll(() => video.evaluate(isPaused)).toBe(false);
+    await hero(page).getByRole("button", { name: "Jeda video" }).click();
+    expect(await video.evaluate(isPaused)).toBe(true);
+    await page.evaluate(() => window.scrollTo(0, 1000));
+    await frames(page);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await frames(page);
+    expect(await video.evaluate(isPaused)).toBe(true);
+    await hero(page).getByRole("button", { name: "Putar video" }).click();
+    await expect.poll(() => video.evaluate(isPaused)).toBe(false);
+  });
+
   test("hero share copies the link; its toast shows above the info sheet", async ({ page, context }) => {
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await page.addInitScript(() => Object.defineProperty(navigator, "share", { value: undefined }));
@@ -114,6 +132,17 @@ test.describe("media mobile", () => {
     expect(await hero(page).locator("video").evaluate((v: HTMLVideoElement) => v.paused)).toBe(true);
     await play.click();
     await expect.poll(() => hero(page).locator("video").evaluate((v: HTMLVideoElement) => !v.paused)).toBe(true);
+  });
+
+  test("reduced motion: only the active viewer slide has a play button", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto(VIDEO_URL);
+    await hero(page).getByRole("button", { name: "Layar penuh" }).click();
+    const play = viewer(page).getByRole("button", { name: "Putar video" });
+    await expect(play).toHaveCount(1);
+    await viewer(page).locator("[data-track]").evaluate((el) => el.scrollTo({ left: el.clientWidth, behavior: "instant" }));
+    await expect(viewer(page)).toContainText(`2 dari ${total}`);
+    await expect(play).toHaveCount(0);
   });
 
   test("Layar penuh opens the viewer at 1; Esc and ✕ close it; dock stays", async ({ page }) => {
@@ -193,14 +222,19 @@ test.describe("media desktop", () => {
     expect(h1!.y + h1!.height).toBeLessThan(m!.y);
     await expect(page.getByRole("button", { name: "Bagikan" })).toBeVisible();
 
-    const video = mosaic.locator('video[poster*="test-guid/thumbnail.jpg"]');
+    const video = mosaic.locator("video");
     await expect(video).toHaveAttribute("muted");
     await expect(video).toHaveAttribute("preload", "none");
+    await expect(video).not.toHaveAttribute("poster"); // a poster attribute is fetched even under display:none
+    await expect(mosaic.locator('img[src*="test-guid/thumbnail.jpg"]')).toHaveAttribute("loading", "lazy");
     await expect(mosaic.getByText("Video · 0:12")).toBeVisible();
 
     await page.getByRole("button", { name: `Lihat semua (${total})` }).click();
     await expect(viewer(page)).toContainText(`1 dari ${total}`);
     await expect(viewer(page).locator('a[href$="/pesan"]')).toBeVisible(); // dock shown at desktop width too
+    await page.keyboard.press("ArrowLeft"); // already first: nothing moves
+    await frames(page);
+    await expect(viewer(page)).toContainText(`1 dari ${total}`);
     await viewer(page).getByRole("button", { name: "Berikutnya" }).click();
     await expect(viewer(page)).toContainText(`2 dari ${total}`);
     await page.keyboard.press("ArrowLeft");
@@ -219,6 +253,22 @@ test.describe("media desktop", () => {
     await expect.poll(async () => (await card.boundingBox())!.y).toBe(a);
   });
 
+  test("Jeda video pauses the mosaic video and it stays paused after scrolling away and back", async ({ page }) => {
+    await page.goto(VIDEO_URL);
+    const mosaic = page.locator("[data-mosaic]");
+    const video = mosaic.locator("video");
+    await expect.poll(() => video.evaluate(isPaused)).toBe(false);
+    await mosaic.getByRole("button", { name: "Jeda video" }).click();
+    expect(await video.evaluate(isPaused)).toBe(true);
+    await page.evaluate(() => window.scrollTo(0, 600));
+    await frames(page);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await frames(page);
+    expect(await video.evaluate(isPaused)).toBe(true);
+    await mosaic.getByRole("button", { name: "Putar video" }).click();
+    await expect.poll(() => video.evaluate(isPaused)).toBe(false);
+  });
+
   test("photo-only mosaic", async ({ page }) => {
     await page.goto(PHOTO_URL);
     const mosaic = page.locator("[data-mosaic]");
@@ -227,4 +277,39 @@ test.describe("media desktop", () => {
     await page.getByRole("button", { name: "Lihat semua (3)" }).click();
     await expect(viewer(page)).toContainText("1 dari 3");
   });
+});
+
+// The mosaic is desktop-only. On phones it must cost no data (hemat kuota).
+// Signal: a 5th media item with a unique key is shown only by the mosaic (the grid stops at 4 and the
+// video hero shows the first item only), so any request containing that key on a phone came from the
+// mosaic. Element state (img.currentSrc) is no signal: a lazy <img> adopts an already-cached URL
+// without a request, and mosaic photos share URLs with the grid.
+test.describe("mosaic on phones", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  for (const kind of ["VIDEO", "PHOTO"] as const) {
+    test(`the hidden mosaic fetches nothing (mosaic-only ${kind.toLowerCase()})`, async ({ page }) => {
+      const key = `mosaic-only-${kind.toLowerCase()}`;
+      await withDb((c) =>
+        c.query(
+          `INSERT INTO "Media" (id, "listingId", kind, key, status, "durationSec", "sortOrder")
+           SELECT $1, id, $2::"MediaKind", $3, $4::"VideoStatus", $5::int, 99 FROM "Listing" WHERE slug = 'villa-sawah-asri'`,
+          [`e2e-${key}`, kind, key, kind === "VIDEO" ? "READY" : null, kind === "VIDEO" ? 30 : null],
+        ),
+      );
+      try {
+        const hits: string[] = [];
+        page.on("request", (r) => r.url().includes(key) && hits.push(r.url()));
+        await page.goto(VIDEO_URL, { waitUntil: "networkidle" });
+        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+        await page.waitForLoadState("networkidle");
+        // the item really is in the mosaic markup
+        const inMosaic = kind === "VIDEO" ? `video[src*="${key}"]` : `img[src*="${key}"]`;
+        await expect(page.locator(`[data-mosaic] ${inMosaic}`)).toHaveCount(1);
+        expect(hits).toEqual([]);
+      } finally {
+        await withDb((c) => c.query(`DELETE FROM "Media" WHERE key = $1`, [key]));
+      }
+    });
+  }
 });
