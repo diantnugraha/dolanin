@@ -19,6 +19,9 @@ import type { MediaKind, VideoStatus } from "@/generated/prisma/client";
  *   3 Finished, 4 Resolution finished (playable, not complete), 5 Failed, 6/7/8 presigned upload
  *   started/finished/failed, 9 CaptionsGenerated, 10 TitleOrDescriptionGenerated. Payload has no
  *   duration, so we GET the video. https://bunny.net/docs/stream/webhooks
+ * - Get video: GET /library/{libraryId}/videos/{guid}; the video object `status` is a DIFFERENT enum from the
+ *   webhook codes: 0 Created, 1 Uploaded, 2 Processing, 3 Transcoding, 4 Finished, 5 Error, 6 UploadFailed,
+ *   7 JitSegmenting, 8 JitPlaylistsCreated; `length` is int seconds. https://bunny.net/docs/reference/video_getvideo
  * - NOT verified from official pages (404/unreachable; only search snippets + community examples):
  *   MP4 fallback `https://{stream-cdn-host}/{guid}/play_720p.mp4` and `.../{guid}/thumbnail.jpg`;
  *   the library must have "MP4 Fallback" enabled (Stream > Library > Encoding), and only videos uploaded
@@ -89,6 +92,27 @@ export async function fetchBunnyVideoLength(guid: string): Promise<number | null
     if (!res.ok) return null;
     const { length } = (await res.json()) as { length?: unknown };
     return typeof length === "number" && Number.isFinite(length) ? Math.round(length) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Initial state for a video saved after Bunny's webhook may already have fired. Null on any failure. */
+export async function fetchBunnyVideoState(
+  guid: string,
+): Promise<{ status: VideoStatus; durationSec: number | null } | null> {
+  try {
+    const { libraryId, apiKey } = bunnyConfig();
+    const res = await fetch(`${BUNNY_API}/library/${libraryId}/videos/${encodeURIComponent(guid)}`, {
+      headers: { AccessKey: apiKey, Accept: "application/json" },
+    });
+    if (!res.ok) return null;
+    const { status, length } = (await res.json()) as { status?: unknown; length?: unknown };
+    if (typeof status !== "number") return null;
+    return {
+      status: status === 4 ? "READY" : status === 5 || status === 6 ? "FAILED" : "PROCESSING",
+      durationSec: typeof length === "number" && Number.isFinite(length) ? Math.round(length) : null,
+    };
   } catch {
     return null;
   }
