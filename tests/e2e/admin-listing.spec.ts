@@ -17,6 +17,7 @@ async function cleanup() {
   await c.connect();
   try {
     await c.query(`DELETE FROM "Listing" WHERE name = 'Wisma Uji'`);
+    await c.query(`UPDATE "Listing" SET name = 'Hotel Gedong Kuning' WHERE name = 'Hotel Gedong Kuning X'`);
   } finally {
     await c.end();
   }
@@ -83,4 +84,22 @@ test("create draft, edit price, validation, preview, delete", async ({ page }) =
   await expect(dialog).toContainText("Hapus Wisma Uji? Foto, video, dan statistiknya ikut terhapus.");
   await dialog.getByRole("button", { name: "Ya, hapus" }).click();
   await expect(page.getByRole("row", { name: /Wisma Uji/ })).toHaveCount(0);
+});
+
+test("Enter in a text field saves normally and keeps the listing published", async ({ page }) => {
+  await page.getByRole("row", { name: /Hotel Gedong Kuning/ }).getByRole("link", { name: /Ubah/ }).click();
+  const name = page.getByLabel("Nama", { exact: true });
+  await name.fill("Hotel Gedong Kuning X");
+  await name.press("Enter");
+  await expect(page).toHaveURL(/\/admin\/listing\?tersimpan=1$/);
+  await expect(page.getByRole("row", { name: /Hotel Gedong Kuning X/ })).toContainText("Tayang");
+});
+
+test("a failed save keeps the form and shows an error", async ({ page }) => {
+  await page.goto("/admin/listing/baru");
+  await page.route("**/admin/listing/baru", (r) => (r.request().method() === "POST" ? r.abort() : r.continue()));
+  await page.getByLabel("Nama", { exact: true }).fill("Wisma Gagal");
+  await page.getByRole("button", { name: "Simpan draf" }).click();
+  await expect(page.getByText("Gagal menyimpan. Periksa koneksi lalu coba lagi.")).toBeVisible();
+  await expect(page.getByLabel("Nama", { exact: true })).toHaveValue("Wisma Gagal");
 });

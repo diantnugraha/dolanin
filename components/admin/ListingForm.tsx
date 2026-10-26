@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useActionState, type ReactNode } from "react";
+import { unstable_rethrow } from "next/navigation";
 import { IconPlus, IconX } from "@tabler/icons-react";
 import type { AdminListingDetail } from "@/lib/admin";
 import type { Cover, ListingCardData } from "@/lib/catalog";
@@ -50,14 +51,15 @@ export function ListingForm({ cities, initial }: { cities: { id: string; name: s
   const [published, setPublished] = useState(initial?.published ?? true);
   const [featured, setFeatured] = useState(initial?.featured ?? false);
   const [items, setItems] = useState<MediaItem[]>(() =>
-    (initial?.media ?? []).map((m, i) => ({ id: `db-${i}`, kind: m.kind, key: m.key, status: m.status })),
+    (initial?.media ?? []).map((m, i) => ({ id: `db-${i}`, n: i + 1, kind: m.kind, key: m.key, status: m.status })),
   );
   const draft = useRef(false);
 
   const uploading = items.some((i) => i.uploading);
 
   const [errors, submit, pending] = useActionState<Errors, FormData>(async () => {
-    const res = await saveListingAction(
+    try {
+      const res = await saveListingAction(
       {
         name, cityId, type, area, mapsUrl, price, normalPrice, description,
         facilities, extraFacilities: extras, affiliateUrl, waNumber,
@@ -67,7 +69,11 @@ export function ListingForm({ cities, initial }: { cities: { id: string; name: s
       },
       initial?.id,
     );
-    return res.errors;
+      return res.errors;
+    } catch (e) {
+      unstable_rethrow(e);
+      return { form: "Gagal menyimpan. Periksa koneksi lalu coba lagi." };
+    }
   }, {});
 
   function addExtra() {
@@ -94,6 +100,9 @@ export function ListingForm({ cities, initial }: { cities: { id: string; name: s
 
   return (
     <form action={submit} noValidate className={s.form}>
+      {/* Enter in a text field must run the normal "Simpan", not "Simpan draf". */}
+      <button type="submit" className="sr-only" tabIndex={-1} aria-hidden="true" disabled={pending || uploading}
+        onClick={() => { draft.current = false; }} />
       <div>
         <section className={s.card}>
           <h2>Info dasar</h2>
