@@ -16,7 +16,7 @@ async function cleanup() {
   const c = new Client({ connectionString: process.env.DATABASE_URL });
   await c.connect();
   try {
-    await c.query(`DELETE FROM "Listing" WHERE name = 'Wisma Uji'`);
+    await c.query(`DELETE FROM "Listing" WHERE name IN ('Wisma Uji', 'Wisma Foto Uji')`);
     await c.query(`UPDATE "Listing" SET name = 'Hotel Gedong Kuning' WHERE name = 'Hotel Gedong Kuning X'`);
   } finally {
     await c.end();
@@ -103,3 +103,63 @@ test("a failed save keeps the form and shows an error", async ({ page }) => {
   await expect(page.getByText("Gagal menyimpan. Periksa koneksi lalu coba lagi.")).toBeVisible();
   await expect(page.getByLabel("Nama", { exact: true })).toHaveValue("Wisma Gagal");
 });
+
+async function fillRequired(page: Page, name: string) {
+  await page.getByLabel("Nama", { exact: true }).fill(name);
+  await page.getByLabel("Kota").selectOption({ label: "Bandung" });
+  await page.getByLabel("Area / alamat").fill("Dago");
+  await page.getByLabel("Harga per malam").fill("150000");
+  await page.getByLabel("Deskripsi").fill("Penginapan uji coba.");
+  await page.getByLabel(/Link affiliate/).fill("https://example.com/aff");
+}
+
+test("photo upload: two WebP PUTs straight to S3, no SDK checksum, immutable cache; saved as one PHOTO", async ({ page }) => {
+  const puts: { url: string; headers: Record<string, string> }[] = [];
+  // No real AWS: answer the bucket host ourselves (preflight included).
+  await page.route("https://test-bucket.s3.ap-southeast-1.amazonaws.com/**", async (route) => {
+    const r = route.request();
+    const cors = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "PUT",
+      "Access-Control-Allow-Headers": "Content-Type, Cache-Control",
+    };
+    if (r.method() === "OPTIONS") return route.fulfill({ status: 204, headers: cors });
+    if (r.method() === "PUT") puts.push({ url: r.url(), headers: await r.allHeaders() });
+    return route.fulfill({ status: 200, headers: cors });
+  });
+
+  await page.goto("/admin/listing/baru");
+  await fillRequired(page, "Wisma Foto Uji");
+  await page.getByLabel("Pilih foto atau video").setInputFiles("tests/e2e/fixtures/photo.png");
+  await expect.poll(() => puts.length).toBe(2);
+  await expect(page.getByRole("button", { name: "Simpan", exact: true })).toBeEnabled(); // upload finished
+  await expect(page.getByAltText("Foto 1")).toBeVisible();
+
+  expect(puts.map((p) => new URL(p.url).pathname)).toEqual([
+    expect.stringMatching(/^\/p\/[0-9a-f-]{36}-800\.webp$/),
+    expect.stringMatching(/^\/p\/[0-9a-f-]{36}-1600\.webp$/),
+  ]);
+  for (const p of puts) {
+    expect(p.url).not.toMatch(/x-amz-checksum/i);
+    expect(p.url).not.toMatch(/x-amz-sdk-checksum-algorithm/i);
+    expect(p.headers["content-type"]).toBe("image/webp");
+    expect(p.headers["cache-control"]).toBe("public, max-age=31536000, immutable");
+  }
+
+  await page.getByRole("button", { name: "Simpan", exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/listing\?tersimpan=1$/);
+  const c = new Client({ connectionString: process.env.DATABASE_URL });
+  await c.connect();
+  try {
+    const { rows } = await c.query(
+      `SELECT m.kind, m.key FROM "Media" m JOIN "Listing" l ON l.id = m."listingId" WHERE l.name = 'Wisma Foto Uji'`,
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0].kind).toBe("PHOTO");
+    expect(rows[0].key).toMatch(/^p\//);
+    expect(new URL(puts[0].url).pathname).toBe(`/${rows[0].key}-800.webp`);
+  } finally {
+    await c.end();
+  }
+});
+

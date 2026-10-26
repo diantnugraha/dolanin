@@ -6,7 +6,7 @@ import { IconCloudUpload, IconTrash } from "@tabler/icons-react";
 import type { AdminCityRow } from "@/lib/admin";
 import { CoverImage } from "@/components/site/Media";
 import { saveCityAction } from "./actions";
-import { uploadPhoto } from "./upload";
+import { uploadPhoto, WEBP_UNSUPPORTED } from "./upload";
 import a from "./admin.module.css";
 import s from "./form.module.css";
 
@@ -36,8 +36,8 @@ export function CityForm({ initial }: { initial?: AdminCityRow }) {
     setUploading(true);
     try {
       setPhotoKey((await uploadPhoto(f)).key);
-    } catch {
-      setPhotoErr("Gagal mengunggah foto. Coba lagi.");
+    } catch (e) {
+      setPhotoErr(e instanceof Error && e.message === WEBP_UNSUPPORTED ? WEBP_UNSUPPORTED : "Gagal mengunggah foto. Coba lagi.");
     } finally {
       setUploading(false);
     }

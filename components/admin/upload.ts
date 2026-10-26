@@ -22,6 +22,9 @@ export function validateVideoMeta(m: VideoMeta): VideoProblem | null {
   return null;
 }
 
+export const WEBP_UNSUPPORTED =
+  "Browser ini tidak bisa membuat foto WebP. Pakai Chrome atau Firefox untuk mengunggah foto.";
+
 export async function resizeToWebp(file: File, maxW: 800 | 1600): Promise<Blob> {
   const bmp = await createImageBitmap(file);
   const scale = Math.min(1, maxW / bmp.width);
@@ -31,15 +34,25 @@ export async function resizeToWebp(file: File, maxW: 800 | 1600): Promise<Blob> 
   canvas.getContext("2d")!.drawImage(bmp, 0, 0, canvas.width, canvas.height);
   bmp.close();
   return new Promise((resolve, reject) =>
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Gagal memproses foto."))), "image/webp", 0.82),
+    canvas.toBlob(
+      (b) => {
+        if (!b) return reject(new Error("Gagal memproses foto."));
+        // Safari cannot encode WebP and silently returns a (huge) PNG instead.
+        if (b.type !== "image/webp") return reject(new Error(WEBP_UNSUPPORTED));
+        resolve(b);
+      },
+      "image/webp",
+      0.82,
+    ),
   );
 }
 
 export async function uploadPhoto(file: File): Promise<{ key: string }> {
-  const { key, urls } = await createPhotoUpload();
+  const { key, urls, headers } = await createPhotoUpload();
   for (const w of [800, 1600] as const) {
     const body = await resizeToWebp(file, w);
-    const res = await fetch(urls[w], { method: "PUT", headers: { "Content-Type": "image/webp" }, body });
+    // Content-Type and Cache-Control are signed into the URL: send exactly what the server signed.
+    const res = await fetch(urls[w], { method: "PUT", headers, body });
     if (!res.ok) throw new Error("Gagal mengunggah foto.");
   }
   return { key };

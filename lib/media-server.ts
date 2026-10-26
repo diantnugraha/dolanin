@@ -47,7 +47,14 @@ export function mapBunnyStatus(code: number): VideoStatus | null {
 function s3Config() {
   const { S3_BUCKET: bucket, S3_REGION: region, AWS_ACCESS_KEY_ID: id, AWS_SECRET_ACCESS_KEY: secret } = process.env;
   if (!bucket || !region || !id || !secret) throw new Error("Penyimpanan foto belum dikonfigurasi (S3_*).");
-  return { bucket, client: new S3Client({ region, credentials: { accessKeyId: id, secretAccessKey: secret } }) };
+  // WHEN_REQUIRED: by default the SDK adds an empty-body CRC32 checksum to presigned PUT URLs, so S3
+  // rejects every real upload (aws-sdk-js-v3 #6810). DeleteObjects still gets its required checksum.
+  const client = new S3Client({
+    region,
+    credentials: { accessKeyId: id, secretAccessKey: secret },
+    requestChecksumCalculation: "WHEN_REQUIRED",
+  });
+  return { bucket, client };
 }
 
 export function bunnyConfig() {
@@ -56,15 +63,27 @@ export function bunnyConfig() {
   return { libraryId, apiKey };
 }
 
-export async function createPhotoUploadFor(): Promise<{ key: string; urls: { 800: string; 1600: string } }> {
+/** Photo keys are never overwritten (new upload = new uuid), so the CDN and browsers may cache forever. */
+export const PHOTO_CACHE_CONTROL = "public, max-age=31536000, immutable";
+
+export async function createPhotoUploadFor(): Promise<{
+  key: string;
+  urls: { 800: string; 1600: string };
+  /** Signed into the URLs: the browser PUT must send exactly these. */
+  headers: { "Content-Type": string; "Cache-Control": string };
+}> {
   const { bucket, client } = s3Config();
   const key = `p/${randomUUID()}`;
   const put = (w: 800 | 1600) =>
-    getSignedUrl(client, new PutObjectCommand({ Bucket: bucket, Key: `${key}-${w}.webp`, ContentType: "image/webp" }), {
-      expiresIn: PHOTO_PUT_EXPIRES_SEC,
-    });
+    getSignedUrl(
+      client,
+      new PutObjectCommand({
+        Bucket: bucket, Key: `${key}-${w}.webp`, ContentType: "image/webp", CacheControl: PHOTO_CACHE_CONTROL,
+      }),
+      { expiresIn: PHOTO_PUT_EXPIRES_SEC, signableHeaders: new Set(["content-type", "cache-control"]) },
+    );
   const [u800, u1600] = await Promise.all([put(800), put(1600)]);
-  return { key, urls: { 800: u800, 1600: u1600 } };
+  return { key, urls: { 800: u800, 1600: u1600 }, headers: { "Content-Type": "image/webp", "Cache-Control": PHOTO_CACHE_CONTROL } };
 }
 
 export async function createVideoUploadFor(
