@@ -15,7 +15,7 @@ export const VIDEO_ERRORS: Record<VideoProblem, string> = {
 
 export function validateVideoMeta(m: VideoMeta): VideoProblem | null {
   if (!m.mime.startsWith("video/")) return "format";
-  if (m.durationSec > 60.5) return "durasi";
+  if (!(m.durationSec <= 60.5)) return "durasi";
   const ratio = m.height > 0 ? m.width / m.height : 0;
   if (ratio < 0.54 || ratio > 0.585) return "rasio";
   if (m.sizeBytes > 300e6) return "ukuran";

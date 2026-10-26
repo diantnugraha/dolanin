@@ -29,11 +29,24 @@ export async function POST(req: Request) {
   const rows = await db.media.findMany({ where: { kind: "VIDEO", key: guid }, select: { id: true } });
   if (!rows.length) return ok();
 
-  const data: { status: typeof status; durationSec?: number } = { status };
+  // Monotonic: READY and FAILED are terminal against in-progress codes; FAILED never overwrites READY;
+  // READY is idempotent (a duplicate does not refetch or touch durationSec).
+  const base = { kind: "VIDEO" as const, key: guid };
   if (status === "READY") {
+    const where = { ...base, OR: [{ status: null }, { status: { not: "READY" as const } }] };
+    if (!(await db.media.count({ where }))) return ok();
     const length = await fetchBunnyVideoLength(guid);
-    if (length !== null) data.durationSec = length;
+    await db.media.updateMany({ where, data: { status, ...(length !== null && { durationSec: length }) } });
+  } else if (status === "FAILED") {
+    await db.media.updateMany({
+      where: { ...base, OR: [{ status: null }, { status: { not: "READY" } }] },
+      data: { status },
+    });
+  } else {
+    await db.media.updateMany({
+      where: { ...base, OR: [{ status: null }, { status: { notIn: ["READY", "FAILED"] } }] },
+      data: { status },
+    });
   }
-  await db.media.updateMany({ where: { kind: "VIDEO", key: guid }, data });
   return ok();
 }

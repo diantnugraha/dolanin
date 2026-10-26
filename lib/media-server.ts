@@ -101,7 +101,12 @@ export async function deleteMediaObjects(items: { kind: MediaKind; key: string }
     const { bucket, client } = s3Config();
     const Objects = photos.flatMap((p) => [{ Key: `${p.key}-800.webp` }, { Key: `${p.key}-1600.webp` }]);
     for (let i = 0; i < Objects.length; i += 1000) {
-      await client.send(new DeleteObjectsCommand({ Bucket: bucket, Delete: { Objects: Objects.slice(i, i + 1000), Quiet: true } }));
+      const out = await client.send(
+        new DeleteObjectsCommand({ Bucket: bucket, Delete: { Objects: Objects.slice(i, i + 1000), Quiet: true } }),
+      );
+      if (out.Errors?.length) {
+        throw new Error(`Gagal menghapus objek S3: ${out.Errors.map((e) => e.Key).join(", ")}`);
+      }
     }
   }
   if (videos.length) {

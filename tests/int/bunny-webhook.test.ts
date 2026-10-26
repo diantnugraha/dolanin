@@ -40,7 +40,7 @@ describe("bunny webhook", () => {
 
   it("missing env token fails closed", async () => {
     vi.stubEnv("BUNNY_WEBHOOK_TOKEN", "");
-    expect((await call({ VideoGuid: "guid-1", Status: 3 }, "")).status).toBe(401);
+    expect((await call({ VideoGuid: "guid-1", Status: 3 }, "something")).status).toBe(401);
   });
 
   it("finished -> READY with durationSec from Bunny", async () => {
@@ -73,6 +73,31 @@ describe("bunny webhook", () => {
     expect((await call(null, TOKEN, "{not json")).status).toBe(200);
     expect((await call({ VideoGuid: "guid-1", Status: 99 })).status).toBe(200);
     expect((await db.media.findUniqueOrThrow({ where: { id: mediaId } })).status).toBe("PROCESSING");
+  });
+
+  it("late in-progress status after READY keeps READY", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue(new Response(JSON.stringify({ length: 10 }), { status: 200 }));
+    await call({ VideoGuid: "guid-1", Status: 3 });
+    expect((await call({ VideoGuid: "guid-1", Status: 1 })).status).toBe(200);
+    expect((await db.media.findUniqueOrThrow({ where: { id: mediaId } })).status).toBe("READY");
+  });
+
+  it("FAILED does not overwrite READY; late in-progress does not overwrite FAILED", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue(new Response(JSON.stringify({ length: 10 }), { status: 200 }));
+    await call({ VideoGuid: "guid-1", Status: 3 });
+    await call({ VideoGuid: "guid-1", Status: 5 });
+    expect((await db.media.findUniqueOrThrow({ where: { id: mediaId } })).status).toBe("READY");
+    await db.media.update({ where: { id: mediaId }, data: { status: "FAILED" } });
+    await call({ VideoGuid: "guid-1", Status: 2 });
+    expect((await db.media.findUniqueOrThrow({ where: { id: mediaId } })).status).toBe("FAILED");
+  });
+
+  it("duplicate READY is a no-op: no error, duration unchanged", async () => {
+    const f = vi.spyOn(global, "fetch").mockResolvedValue(new Response(JSON.stringify({ length: 10 }), { status: 200 }));
+    await call({ VideoGuid: "guid-1", Status: 3 });
+    f.mockResolvedValue(new Response(JSON.stringify({ length: 99 }), { status: 200 }));
+    expect((await call({ VideoGuid: "guid-1", Status: 3 })).status).toBe(200);
+    expect(await db.media.findUniqueOrThrow({ where: { id: mediaId } })).toMatchObject({ status: "READY", durationSec: 10 });
   });
 
   it("only POST", () => {
