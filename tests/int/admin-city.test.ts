@@ -90,6 +90,12 @@ describe("deleteCity", () => {
     expect(del).toHaveBeenCalledWith([{ kind: "PHOTO", key: "p/a" }]);
   });
 
+  it("is idempotent: deleting twice returns ok both times", async () => {
+    const id = okId(await saveCity(city({ photoKey: "p/a" })));
+    expect(await deleteCity(id)).toEqual("ok");
+    expect(await deleteCity(id)).toEqual("ok");
+  });
+
   it("photo delete failure is swallowed", async () => {
     const id = okId(await saveCity(city({ photoKey: "p/a" })));
     del.mockRejectedValue(new Error("boom"));

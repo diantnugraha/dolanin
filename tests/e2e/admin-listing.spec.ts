@@ -164,6 +164,32 @@ test("photo upload: two WebP PUTs straight to S3, no SDK checksum, immutable cac
   }
 });
 
+// A file dropped outside the media zone must not make the browser open it (that loses the form).
+async function dropFileOn(page: Page, selector: string) {
+  return page.evaluate((sel) => {
+    const target = document.querySelector(sel)!;
+    const dt = new DataTransfer();
+    dt.items.add(new File(["x"], "foto.png", { type: "image/png" }));
+    const fire = (type: string) => {
+      const e = new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer: dt });
+      target.dispatchEvent(e);
+      return e.defaultPrevented;
+    };
+    return { dragover: fire("dragover"), drop: fire("drop") };
+  }, selector);
+}
+
+for (const [form, path] of [["listing", "/admin/listing/baru"], ["kota", "/admin/kota/baru"]] as const) {
+  test(`${form} form: a file dropped on the Nama field is swallowed, the form stays`, async ({ page }) => {
+    await page.goto(path);
+    const name = page.locator("#name");
+    await name.fill("Nama Belum Disimpan");
+    expect(await dropFileOn(page, "#name")).toEqual({ dragover: true, drop: true });
+    await expect(page).toHaveURL(new RegExp(`${path}$`));
+    await expect(name).toHaveValue("Nama Belum Disimpan");
+  });
+}
+
 test("media manager labels a FAILED video apart from a PROCESSING one", async ({ page }) => {
   const c = new Client({ connectionString: process.env.DATABASE_URL });
   await c.connect();

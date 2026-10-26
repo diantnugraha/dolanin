@@ -1,9 +1,20 @@
 "use client";
 
 import { useId, useRef } from "react";
+import { useFormStatus } from "react-dom";
 import { IconDots } from "@tabler/icons-react";
 import { deleteListingAction } from "./actions";
 import s from "./listing.module.css";
+
+/** Disabled while the delete runs, so a double click sends one request. */
+function ConfirmButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button type="submit" className={s.danger} disabled={pending}>
+      Ya, hapus
+    </button>
+  );
+}
 
 export function DeleteMenu({ id, name }: { id: string; name: string }) {
   const menuId = useId();
@@ -41,9 +52,7 @@ export function DeleteMenu({ id, name }: { id: string; name: string }) {
           <button type="button" className={s.cancel} onClick={() => dialog.current?.close()}>
             Batal
           </button>
-          <button type="submit" className={s.danger}>
-            Ya, hapus
-          </button>
+          <ConfirmButton />
         </form>
       </dialog>
     </>

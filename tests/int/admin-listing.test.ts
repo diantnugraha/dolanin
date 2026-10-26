@@ -178,6 +178,13 @@ describe("deleteListing / list", () => {
     expect(ms.deleteMediaObjects).toHaveBeenCalledWith([{ kind: "PHOTO", key: "p/a" }]);
   });
 
+  it("is idempotent: a double-submitted delete resolves the second time", async () => {
+    const id = okId(await saveListing(input()));
+    await deleteListing(id);
+    await expect(deleteListing(id)).resolves.toBeUndefined();
+    expect(await db.listing.count({ where: { id } })).toBe(0);
+  });
+
   it("filters and rows", async () => {
     const before = await db.listing.count();
     await saveListing(input({ published: false, name: "Draf Satu", media: [] }));

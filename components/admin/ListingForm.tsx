@@ -10,6 +10,7 @@ import { FACILITIES, TYPE_LABEL } from "@/lib/listing";
 import { saveListingAction } from "./actions";
 import { CardPreview } from "./CardPreview";
 import { MediaManager, type MediaItem } from "./MediaManager";
+import { useBlockFileDrop } from "./useBlockFileDrop";
 import a from "./admin.module.css";
 import s from "./form.module.css";
 
@@ -54,6 +55,7 @@ export function ListingForm({ cities, initial }: { cities: { id: string; name: s
     (initial?.media ?? []).map((m, i) => ({ id: `db-${i}`, n: i + 1, kind: m.kind, key: m.key, status: m.status })),
   );
   const draft = useRef(false);
+  useBlockFileDrop();
 
   const uploading = items.some((i) => i.uploading);
 

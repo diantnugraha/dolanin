@@ -128,7 +128,26 @@ export async function seedData(db: PrismaClient) {
   return { cities: cityRows, listings: listingRows };
 }
 
+const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"]);
+
+/** The seed resets the admin to a public dev password: only local DBs, unless ALLOW_SEED=1. */
+export function canSeed(url: string | undefined, env: Record<string, string | undefined>): boolean {
+  if (env.ALLOW_SEED === "1") return true;
+  try {
+    return LOCAL_HOSTS.has(new URL(url ?? "").hostname);
+  } catch {
+    return false;
+  }
+}
+
 async function main() {
+  if (!canSeed(process.env.DATABASE_URL, process.env)) {
+    console.error(
+      "Seed ditolak: DATABASE_URL bukan database lokal (localhost/127.0.0.1). Seed menimpa admin dengan password dev publik.\n" +
+        "Seed refused: DATABASE_URL is not a local database. Set ALLOW_SEED=1 only if you really mean it.",
+    );
+    process.exit(1);
+  }
   const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
   try {
     await seedData(db);

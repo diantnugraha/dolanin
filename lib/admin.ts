@@ -137,9 +137,10 @@ async function cleanup(items: { kind: MediaKind; key: string }[]) {
   }
 }
 
+/** Idempotent: a second (double-submitted) delete of the same listing is a no-op. */
 export async function deleteListing(id: string): Promise<void> {
   const media = await db.media.findMany({ where: { listingId: id }, select: { kind: true, key: true } });
-  await db.listing.delete({ where: { id } });
+  await db.listing.deleteMany({ where: { id } });
   await cleanup(media);
 }
 

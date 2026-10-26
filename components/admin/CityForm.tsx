@@ -7,6 +7,7 @@ import type { AdminCityRow } from "@/lib/admin";
 import { CoverImage } from "@/components/site/Media";
 import { saveCityAction } from "./actions";
 import { uploadPhoto, WEBP_UNSUPPORTED } from "./upload";
+import { useBlockFileDrop } from "./useBlockFileDrop";
 import a from "./admin.module.css";
 import s from "./form.module.css";
 
@@ -19,6 +20,7 @@ export function CityForm({ initial }: { initial?: AdminCityRow }) {
   const [photoKey, setPhotoKey] = useState(initial?.photoKey ?? "");
   const [uploading, setUploading] = useState(false);
   const [photoErr, setPhotoErr] = useState("");
+  useBlockFileDrop();
 
   const [errors, submit, pending] = useActionState<Errors, FormData>(async () => {
     try {
