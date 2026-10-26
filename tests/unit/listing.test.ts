@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  FACILITIES, PAGE_SIZE, type CatalogParams, TYPE_LABEL, catalogHref, isPromo, parseCatalogParams, priceRange,
+  FACILITIES, PAGE_SIZE, type CatalogParams, TYPE_LABEL, catalogHref, isPromo, mediaLabel, parseCatalogParams, priceRange,
 } from "@/lib/listing";
 
 describe("listing", () => {
@@ -38,6 +38,11 @@ describe("listing", () => {
     expect(catalogHref("/yogyakarta", { types: [], sort: "asc", page: 3 }, { page: 4 })).toBe("/yogyakarta?hal=4");
     expect(catalogHref("/x", { types: [], sort: "asc", page: 1 }, {})).toBe("/x");
   });
+  it("labels media for the viewer buttons", () => {
+    expect(mediaLabel({ kind: "PHOTO" }, 1, 3)).toBe("Lihat foto 2 dari 3");
+    expect(mediaLabel({ kind: "VIDEO" }, 0, 4)).toBe("Lihat video 1 dari 4");
+  });
+
   it("exposes constants", () => {
     expect(PAGE_SIZE).toBe(12);
     expect(TYPE_LABEL).toEqual({ HOTEL: "Hotel", PENGINAPAN: "Penginapan", VILLA: "Villa" });

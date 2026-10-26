@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ActionDock } from "@/components/site/ActionDock";
 import { BookingCard } from "@/components/site/BookingCard";
-import { DetailInfo } from "@/components/site/DetailInfo";
-import { CoverImage } from "@/components/site/Media";
+import { DetailHead, DetailInfo } from "@/components/site/DetailInfo";
+import { MediaHero } from "@/components/site/MediaHero";
+import { MediaMosaic } from "@/components/site/MediaMosaic";
+import { MediaViewerProvider } from "@/components/site/MediaViewer";
 import { ViewBeacon } from "@/components/site/ViewBeacon";
 import { getListingDetail, getSiteSettings } from "@/lib/catalog";
 import { photoUrl, videoPoster } from "@/lib/media";
@@ -29,22 +32,32 @@ export default async function ListingPage({ params }: Props) {
   const [l, settings] = await Promise.all([getListingDetail(kota, slug), getSiteSettings()]);
   if (!l) notFound();
   const showWa = (l.waNumber ?? settings.waDefault) !== null;
+  // One dock: pinned under the page on phones, and again inside the fullscreen viewer.
+  const dock = <ActionDock id={l.id} price={l.price} showWa={showWa} />;
   return (
     <div className={s.page}>
       <ViewBeacon id={l.id} />
-      <div className={s.cols}>
-        <div className={s.main}>
-          {/* Task 8 replaces this static cover with the media hero. */}
-          <div className={s.hero} data-slot="hero">
-            <CoverImage cover={l.cover} sizes="(min-width: 1024px) 800px, 100vw" alt={l.name} />
+      <MediaViewerProvider media={l.media} name={l.name} dockSlot={dock}>
+        <div className={s.layout} data-hero={l.media[0]?.kind ?? "NONE"}>
+          <nav className={s.crumb} aria-label="Breadcrumb">
+            <Link href="/">Beranda</Link>
+            <span aria-hidden="true">/</span>
+            <Link href={`/${l.citySlug}`}>{l.cityName}</Link>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">{l.name}</span>
+          </nav>
+          <MediaHero media={l.media} name={l.name} backHref={`/${l.citySlug}`} />
+          <MediaMosaic media={l.media} name={l.name} />
+          <div className={s.sheet}>
+            <DetailHead l={l} />
+            <DetailInfo l={l} />
           </div>
-          <DetailInfo l={l} />
+          <div className={s.side}>
+            <BookingCard id={l.id} price={l.price} normalPrice={l.normalPrice} showWa={showWa} />
+          </div>
         </div>
-        <div className={s.side}>
-          <BookingCard id={l.id} price={l.price} normalPrice={l.normalPrice} showWa={showWa} />
-        </div>
-      </div>
-      <ActionDock id={l.id} price={l.price} showWa={showWa} />
+      </MediaViewerProvider>
+      {dock}
     </div>
   );
 }

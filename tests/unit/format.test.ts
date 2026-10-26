@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   formatCount,
+  formatDuration,
   formatPercent,
   formatRupiah,
   formatRupiahShort,
@@ -34,6 +35,12 @@ describe('format', () => {
     expect(formatCount(1284)).toBe('1.284')
     expect(formatPercent(0.158)).toBe('15,8%')
     expect(formatPercent(null)).toBe('–')
+  })
+
+  it('formatDuration as m:ss', () => {
+    expect(formatDuration(12)).toBe('0:12')
+    expect(formatDuration(65)).toBe('1:05')
+    expect(formatDuration(59.6)).toBe('1:00')
   })
 
   it('relativeTimeId', () => {

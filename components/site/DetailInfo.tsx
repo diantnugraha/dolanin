@@ -1,29 +1,42 @@
 import { IconExternalLink, IconMapPin, IconPlayerPlayFilled } from "@tabler/icons-react";
 import type { ListingDetail } from "@/lib/catalog";
-import { isPromo } from "@/lib/listing";
+import { formatDuration } from "@/lib/format";
+import { isPromo, mediaLabel } from "@/lib/listing";
 import { Facilities } from "./Facilities";
 import { CoverImage } from "./Media";
+import { MediaOpen } from "./MediaViewer";
 import { PriceTag } from "./PriceTag";
 import { PromoStamp } from "./PromoStamp";
 import { ShareButton } from "./ShareButton";
 import { TypeTag } from "./TypeTag";
 import s from "./DetailInfo.module.css";
 
+/** Type, name, area. Top of the info sheet on phones, the title row above the mosaic on desktop. */
+export function DetailHead({ l }: { l: ListingDetail }) {
+  return (
+    <header className={s.head}>
+      <div className={s.titles}>
+        <TypeTag type={l.type} />
+        <h1>{l.name}</h1>
+        <div className={s.where}>
+          <IconMapPin size={14} stroke={1.5} aria-hidden="true" />
+          {l.area}, {l.cityName}
+        </div>
+      </div>
+      {/* Phones share from the media hero. */}
+      <div className={s.share}>
+        <ShareButton title={l.name} />
+      </div>
+    </header>
+  );
+}
+
+const GRID_MAX = 4;
+
 export function DetailInfo({ l }: { l: ListingDetail }) {
+  const rest = l.media.length - GRID_MAX;
   return (
     <div className={s.info}>
-      <header className={s.head}>
-        <div className={s.titles}>
-          <TypeTag type={l.type} />
-          <h1>{l.name}</h1>
-          <div className={s.where}>
-            <IconMapPin size={14} stroke={1.5} aria-hidden="true" />
-            {l.area}, {l.cityName}
-          </div>
-        </div>
-        <ShareButton title={l.name} />
-      </header>
-
       {/* Mobile price box; desktop shows the price in BookingCard. */}
       <div className={s.pricebox}>
         <PriceTag price={l.price} normalPrice={l.normalPrice} size="lg" perNight />
@@ -44,25 +57,40 @@ export function DetailInfo({ l }: { l: ListingDetail }) {
         </div>
       </section>
 
+      {/* Phones only: desktop shows the mosaic. Each tile opens the viewer at its index. */}
       {l.media.length > 0 && (
-        <section className={s.sec}>
-          <h2>Foto &amp; video</h2>
-          <ul className={s.grid}>
-            {l.media.map((m, i) => (
-              <li key={m.kind === "PHOTO" ? m.key : m.guid} className={s.cell}>
+        <section className={`${s.sec} ${s.mediaSec}`}>
+          <div className={s.secHead}>
+            <h2>Foto &amp; video</h2>
+            <MediaOpen index={0} className={s.all}>Lihat semua</MediaOpen>
+          </div>
+          <div className={s.grid}>
+            {l.media.slice(0, GRID_MAX).map((m, i) => (
+              <MediaOpen
+                key={m.kind === "PHOTO" ? m.key : m.guid}
+                index={i}
+                className={m.kind === "VIDEO" ? `${s.cell} ${s.v}` : s.cell}
+                label={mediaLabel(m, i, l.media.length)}
+              >
                 <CoverImage
                   cover={m.kind === "PHOTO" ? { kind: "PHOTO", key: m.key } : { kind: "VIDEO", guid: m.guid }}
-                  sizes="(min-width: 1024px) 200px, 33vw"
-                  alt={`${l.name}, ${m.kind === "VIDEO" ? "video" : "foto"} ${i + 1}`}
+                  sizes="33vw"
+                  alt=""
                 />
                 {m.kind === "VIDEO" && (
-                  <span className={s.play} aria-hidden="true">
-                    <IconPlayerPlayFilled size={16} />
+                  <span className={s.dur} aria-hidden="true">
+                    <IconPlayerPlayFilled size={14} />
+                    {m.durationSec ? formatDuration(m.durationSec) : "Video"}
                   </span>
                 )}
-              </li>
+              </MediaOpen>
             ))}
-          </ul>
+            {rest > 0 && (
+              <MediaOpen index={GRID_MAX} className={s.more}>
+                +{rest} {l.media.slice(GRID_MAX).every((m) => m.kind === "PHOTO") ? "foto" : "media"}
+              </MediaOpen>
+            )}
+          </div>
         </section>
       )}
 

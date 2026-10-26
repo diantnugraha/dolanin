@@ -5,7 +5,7 @@
   .book {
     display: block;
     position: sticky;
-    top: 88px;
+    top: 24px;
     background: #fff;
     border: 1px solid var(--garis);
     border-radius: 20px;

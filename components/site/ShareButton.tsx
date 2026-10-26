@@ -1,10 +1,15 @@
 "use client";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import { IconShare2 } from "@tabler/icons-react";
 import s from "./ShareButton.module.css";
 
-export function ShareButton({ title }: { title: string }) {
+const subscribeNever = () => () => {};
+
+export function ShareButton({ title, className }: { title: string; className?: string }) {
   const [toast, setToast] = useState(false);
+  // The toast lives in <body>: inside the sticky media hero it would sit under the info sheet.
+  const mounted = useSyncExternalStore(subscribeNever, () => true, () => false);
 
   async function share() {
     const url = window.location.href;
@@ -23,12 +28,16 @@ export function ShareButton({ title }: { title: string }) {
 
   return (
     <>
-      <button type="button" className={s.btn} onClick={share} aria-label="Bagikan">
+      <button type="button" className={className ?? s.btn} onClick={share} aria-label="Bagikan">
         <IconShare2 size={20} stroke={1.75} aria-hidden="true" />
       </button>
-      <div className={toast ? s.toast : "sr-only"} role="status" aria-live="polite">
-        {toast ? "Tautan disalin" : ""}
-      </div>
+      {mounted &&
+        createPortal(
+          <div className={toast ? s.toast : "sr-only"} role="status" aria-live="polite">
+            {toast ? "Tautan disalin" : ""}
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

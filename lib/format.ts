@@ -51,3 +51,9 @@ export function relativeTimeId(date: Date, now: Date = new Date()): string {
   }
   return rtf.format(Math.trunc(diff), 'second')
 }
+
+/** Video length as m:ss, e.g. 12 → "0:12". */
+export function formatDuration(sec: number): string {
+  const s = Math.round(sec)
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+}

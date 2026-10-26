@@ -34,6 +34,10 @@ export type CatalogParams = {
   page: number;
 };
 
+/** Accessible name of a button that opens the media viewer at item i. */
+export const mediaLabel = (m: { kind: "PHOTO" | "VIDEO" }, i: number, n: number) =>
+  `Lihat ${m.kind === "VIDEO" ? "video" : "foto"} ${i + 1} dari ${n}`;
+
 export function isPromo(l: { price: number; normalPrice: number | null }): boolean {
   return l.normalPrice !== null && l.normalPrice > l.price;
 }
