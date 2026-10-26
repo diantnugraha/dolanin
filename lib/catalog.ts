@@ -46,7 +46,7 @@ const PUBLIC_MEDIA: Prisma.MediaWhereInput = {
 
 type MediaRow = { kind: "PHOTO" | "VIDEO"; key: string; durationSec: number | null };
 
-const toCover = (m?: MediaRow): Cover | null =>
+export const toCover = (m?: MediaRow): Cover | null =>
   !m ? null : m.kind === "PHOTO" ? { kind: "PHOTO", key: m.key } : { kind: "VIDEO", guid: m.key };
 
 const card = (l: {
@@ -57,13 +57,16 @@ const card = (l: {
   type: l.type, area: l.area, price: l.price, normalPrice: l.normalPrice, cover: toCover(l.media[0]),
 });
 
+// First public media by sortOrder — the cover rule, shared with admin stats.
+export const coverMediaSelect = {
+  where: PUBLIC_MEDIA, orderBy: { sortOrder: "asc" }, take: 1,
+  select: { kind: true, key: true, durationSec: true },
+} satisfies Prisma.Listing$mediaArgs;
+
 const cardSelect = {
   id: true, name: true, slug: true, type: true, area: true, price: true, normalPrice: true,
   city: { select: { slug: true, name: true } },
-  media: {
-    where: PUBLIC_MEDIA, orderBy: { sortOrder: "asc" }, take: 1,
-    select: { kind: true, key: true, durationSec: true },
-  },
+  media: coverMediaSelect,
 } satisfies Prisma.ListingSelect;
 
 export async function getCityBoard(type?: ListingType): Promise<CityTile[]> {
