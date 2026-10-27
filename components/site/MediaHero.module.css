@@ -1,0 +1,190 @@
+/* Sticky opener on phones; the info sheet (page.module.css) slides over it. Desktop uses the mosaic. */
+.hero {
+  position: sticky;
+  top: 0;
+  overflow: hidden;
+  background: var(--tint-l);
+}
+.hero[data-kind="PHOTO"] {
+  aspect-ratio: 4 / 5;
+}
+/* 9:16, but never taller than the screen minus the 75px ActionDock. */
+.hero[data-kind="VIDEO"] {
+  height: min(calc(100svh - 75px), 177.8vw);
+  background: #111;
+}
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  cursor: pointer;
+}
+.end {
+  height: 1px;
+  margin-bottom: -1px;
+}
+
+.track {
+  display: flex;
+  height: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.track::-webkit-scrollbar {
+  display: none;
+}
+.slide {
+  position: relative;
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.slide:focus-visible {
+  outline-offset: -4px;
+}
+.badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: rgba(31, 42, 55, 0.72);
+  color: #fff;
+  display: grid;
+  place-items: center;
+}
+
+.prog {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  gap: 4px;
+  pointer-events: none;
+}
+.prog i {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.4);
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+.prog b {
+  display: block;
+  height: 100%;
+  background: #fff;
+  transform-origin: left;
+  transition: transform 0.25s linear;
+}
+.tbar {
+  position: absolute;
+  top: 28px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.hero[data-kind="PHOTO"] .tbar {
+  top: 16px;
+}
+.group {
+  display: flex;
+  gap: 8px;
+}
+.cbtn {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(31, 42, 55, 0.72);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.vtag {
+  position: absolute;
+  left: 16px;
+  top: 84px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(31, 42, 55, 0.72);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px 4px 8px;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+.play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(31, 42, 55, 0.72);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+/* Solid pill instead of a scrim keeps the dots readable on bright photos. */
+.dots {
+  position: absolute;
+  left: 50%;
+  bottom: 44px;
+  translate: -50% 0;
+  display: flex;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: rgba(31, 42, 55, 0.72);
+}
+.dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  transition: width 0.2s ease;
+}
+.dots i[data-active] {
+  width: 18px;
+  background: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prog b,
+  .dots i {
+    transition: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero,
+  .end {
+    display: none;
+  }
+}

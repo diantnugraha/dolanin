@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Satu aplikasi Next.js (App Router) yang berjalan di Node.js, dengan Prisma + PostgreSQL. Halaman publik, CMS `/admin`, dan API ada di aplikasi yang sama. Hosting di Vercel Pro, video di Bunny Stream, foto di S3 + CloudFront. Mobile-first, lalu responsif ke desktop.
+Satu aplikasi Next.js (App Router) yang berjalan di Node.js, dengan Prisma + PostgreSQL. Halaman publik, CMS `/admin`, dan API ada di aplikasi yang sama. Hosting di satu VPS (Caddy + Node.js + PostgreSQL), video di Bunny Stream, foto di Bunny Storage (API S3-compatible) + Pull Zone. Mobile-first, lalu responsif ke desktop.
 
 ## Users
 

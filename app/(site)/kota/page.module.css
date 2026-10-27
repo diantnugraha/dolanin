@@ -1,0 +1,21 @@
+.h1 {
+  margin: 24px 0 16px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (min-width: 1024px) {
+  .h1 {
+    margin-top: 40px;
+    font-size: 40px;
+  }
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+}

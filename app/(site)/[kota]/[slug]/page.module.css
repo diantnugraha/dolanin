@@ -1,0 +1,91 @@
+/* Phones: sticky media hero, then the info sheet slides over it (mobile-detail-video.html).
+   Desktop: breadcrumb, title row, mosaic + sticky booking card (desktop.html, bagian 3). */
+.crumb {
+  display: none;
+}
+.sheet {
+  position: relative;
+  z-index: 2;
+  margin-top: -28px;
+  padding-top: 10px;
+  background: var(--pasir);
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -8px 24px -12px rgba(0, 0, 0, 0.35);
+}
+/* A video hero lets more of the sheet peek: name and price show on first paint. */
+.layout[data-hero="VIDEO"] .sheet {
+  margin-top: -148px;
+}
+.sheet::before {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 4px;
+  margin: 0 auto 14px;
+  border-radius: 999px;
+  background: #d9cbbb;
+}
+
+/* The hero carries back and share on phones, as in the mockup; the header returns on desktop. */
+@media (max-width: 1023.98px) {
+  :global(body):has(.page) > :global(header) {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    grid-template-rows: auto auto auto 1fr;
+    grid-template-areas:
+      "crumb crumb"
+      "head head"
+      "media side"
+      "body side";
+    column-gap: 40px;
+  }
+  .crumb {
+    grid-area: crumb;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 24px;
+    font-size: 13px;
+    color: var(--abu-pasir);
+  }
+  .crumb a {
+    color: var(--laut-d);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .crumb a:hover {
+    text-decoration: underline;
+  }
+  .sheet {
+    display: contents;
+  }
+  .sheet::before {
+    display: none;
+  }
+  .sheet > :first-child {
+    grid-area: head;
+  }
+  .sheet > :last-child {
+    grid-area: body;
+  }
+  .layout > [data-mosaic] {
+    grid-area: media;
+    margin-top: 24px;
+  }
+  /* Spans the media and body rows so the booking card can stay pinned while scrolling. */
+  .side {
+    grid-area: side;
+    margin-top: 24px;
+  }
+}

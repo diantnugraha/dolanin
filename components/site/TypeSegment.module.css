@@ -1,0 +1,32 @@
+.seg {
+  display: flex;
+  background: #fff;
+  border: 1px solid var(--garis);
+  border-radius: 999px;
+  padding: 4px;
+}
+.seg a {
+  flex: 1;
+  border-radius: 999px;
+  padding: 8px 4px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--abu-pasir);
+  text-align: center;
+  text-decoration: none;
+}
+.seg a.on {
+  background: var(--malam);
+  color: var(--pasir);
+}
+@media (min-width: 1024px) {
+  .seg {
+    display: inline-flex;
+  }
+  .seg a {
+    flex: none;
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
