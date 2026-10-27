@@ -18,7 +18,7 @@ VPS hanya melayani halaman web; foto dan video tidak pernah lewat VPS.
 |---|---|
 | `ubuntu` | user bawaan VPS (Tencent Lighthouse Ubuntu memakai `ubuntu`) |
 | `IP_VPS` | IP publik VPS |
-| `dolanin.id` | domain produksi |
+| `dolanin.my.id` | domain produksi |
 | `~/dolanin` | folder aplikasi di server (`/home/ubuntu/dolanin`) |
 
 Urutan: 1 Persiapan, 2 Server, 3 Software, 4 Database, 5 Bunny Storage, 6 Bunny Stream, 7 Kode dan `.env`, 8 Build dan admin pertama, 9 Service, 10 Domain dan HTTPS, 11 Sambungkan Bunny ke domain, 12 Smoke test, 13 Update aplikasi, 14 Backup dan restore, 15 Operasional.
@@ -201,7 +201,7 @@ Kalau repo publik: `git clone https://github.com/diantnugraha/dolanin.git ~/dola
 DATABASE_URL=<URL Transaction Pooler, diakhiri ?sslmode=require>
 DIRECT_URL=<URL Direct Connection, diakhiri ?sslmode=require>
 SESSION_SECRET=<hasil openssl rand -hex 32>
-NEXT_PUBLIC_SITE_URL=https://dolanin.id
+NEXT_PUBLIC_SITE_URL=https://dolanin.my.id
 NEXT_PUBLIC_MEDIA_CDN_URL=https://<pull-zone-foto>.b-cdn.net
 S3_ENDPOINT=https://sg-s3.storage.bunnycdn.com
 S3_REGION=sg
@@ -286,21 +286,21 @@ Hasil yang benar: `HTTP/1.1 200 OK`. Aplikasi hanya mendengarkan `127.0.0.1`, ja
 
 ## 10. Domain dan HTTPS
 
-Pastikan DNS sudah mengarah ke VPS: `getent hosts dolanin.id` harus menampilkan `IP_VPS`. Lalu:
+Pastikan DNS sudah mengarah ke VPS: `getent hosts dolanin.my.id` harus menampilkan `IP_VPS`. Lalu:
 
 ```bash
 sudo tee /etc/caddy/Caddyfile > /dev/null <<'EOF'
-dolanin.id {
+dolanin.my.id {
 	encode zstd gzip
 	reverse_proxy 127.0.0.1:3000
 }
 
-www.dolanin.id {
-	redir https://dolanin.id{uri} permanent
+www.dolanin.my.id {
+	redir https://dolanin.my.id{uri} permanent
 }
 EOF
 sudo systemctl reload caddy
-curl -sI https://dolanin.id/ | head -1
+curl -sI https://dolanin.my.id/ | head -1
 ```
 
 Caddy mengambil sertifikat HTTPS sendiri (Let's Encrypt) dan memperpanjangnya otomatis. Kalau gagal, lihat `journalctl -u caddy -n 50`: biasanya DNS belum mengarah ke VPS, atau port 80/443 belum dibuka di firewall provider.
@@ -311,18 +311,18 @@ HTTPS wajib: cookie login admin hanya dikirim lewat HTTPS. Caddy meneruskan head
 
 Di Bunny Stream, library-mu:
 
-1. Bagian **API**, kolom **Webhook URL**: `https://dolanin.id/api/bunny/webhook?token=<BUNNY_WEBHOOK_TOKEN>`. Webhook mengubah status video dari "Sedang diproses" ke siap tayang secara otomatis.
-2. Bagian **Security**, **Allowed domains**: tambahkan `dolanin.id` (tanpa `https://`). `localhost:3000` boleh tetap ada untuk tes lokal.
+1. Bagian **API**, kolom **Webhook URL**: `https://dolanin.my.id/api/bunny/webhook?token=<BUNNY_WEBHOOK_TOKEN>`. Webhook mengubah status video dari "Sedang diproses" ke siap tayang secara otomatis.
+2. Bagian **Security**, **Allowed domains**: tambahkan `dolanin.my.id` (tanpa `https://`). `localhost:3000` boleh tetap ada untuk tes lokal.
 
 Bunny Storage tidak perlu diubah.
 
 ## 12. Smoke test
 
-- [ ] `curl -sI https://dolanin.id/` mengembalikan 200, dan `http://dolanin.id` dialihkan ke HTTPS.
-- [ ] Login di `https://dolanin.id/admin`, buat kota (`/admin/kota`) dan satu listing dengan foto dan video.
+- [ ] `curl -sI https://dolanin.my.id/` mengembalikan 200, dan `http://dolanin.my.id` dialihkan ke HTTPS.
+- [ ] Login di `https://dolanin.my.id/admin`, buat kota (`/admin/kota`) dan satu listing dengan foto dan video.
 - [ ] **Foto**: file muncul di Storage Zone sebagai `p/...-800.webp` dan `p/...-1600.webp` dan tampil di situs. Hapus satu foto di CMS; kedua file ikut hilang dari Storage Zone.
 - [ ] **Video**: setelah encode selesai, status di CMS berubah sendiri jadi siap (tanpa klik Simpan ulang; ini bukti webhook jalan). Video terputar di HP sungguhan. Kalau 403, cek bagian 6 langkah 3 dan Allowed domains.
-- [ ] **Klik**: `curl -sI https://dolanin.id/go/{id}/pesan` mengembalikan `302` ke link affiliate. `curl -sI` mengirim HEAD, yang sengaja tidak dihitung sebagai klik; untuk menguji hitungan, klik tombol Pesan sungguhan di browser, lalu cek dashboard admin.
+- [ ] **Klik**: `curl -sI https://dolanin.my.id/go/{id}/pesan` mengembalikan `302` ke link affiliate. `curl -sI` mengirim HEAD, yang sengaja tidak dihitung sebagai klik; untuk menguji hitungan, klik tombol Pesan sungguhan di browser, lalu cek dashboard admin.
 - [ ] Overlay poster pada mosaik tampil benar di Safari (baru diuji di Chromium).
 - [ ] Backup pertama berhasil (bagian 14).
 
