@@ -68,10 +68,10 @@ Biarkan zona waktu server UTC. Statistik dashboard sudah dihitung dalam WIB oleh
 
 ## 3. Pasang software
 
-**Node.js 22** ([NodeSource](https://github.com/nodesource/distributions)):
+**Node.js 24 LTS** (didukung sampai April 2028; seluruh tes lolos di Node 24; [NodeSource](https://github.com/nodesource/distributions)):
 
 ```bash
-curl -fsSL https://deb.nodesource.com/setup_22.x -o nodesource_setup.sh
+curl -fsSL https://deb.nodesource.com/setup_24.x -o nodesource_setup.sh
 sudo -E bash nodesource_setup.sh
 sudo apt install -y nodejs git
 node -v
