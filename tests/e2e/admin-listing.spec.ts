@@ -19,6 +19,7 @@ async function cleanup() {
     await c.query(`DELETE FROM "Listing" WHERE name IN ('Wisma Uji', 'Wisma Foto Uji')`);
     await c.query(`DELETE FROM "Media" WHERE key IN ('e2e-failed-guid', 'e2e-processing-guid')`);
     await c.query(`UPDATE "Listing" SET name = 'Hotel Gedong Kuning' WHERE name = 'Hotel Gedong Kuning X'`);
+    await c.query(`UPDATE "Listing" SET facilities = '{wifi,ac,sarapan}' WHERE slug = 'kamar-dago-atas'`);
   } finally {
     await c.end();
   }
@@ -94,6 +95,27 @@ test("Enter in a text field saves normally and keeps the listing published", asy
   await name.press("Enter");
   await expect(page).toHaveURL(/\/admin\/listing\?tersimpan=1$/);
   await expect(page.getByRole("row", { name: /Hotel Gedong Kuning X/ })).toContainText("Tayang");
+});
+
+test("a stored facility key that is no longer offered is dropped on save, not a hidden error", async ({ page }) => {
+  const c = new Client({ connectionString: process.env.DATABASE_URL });
+  await c.connect();
+  let id: string;
+  try {
+    id = (await c.query(`UPDATE "Listing" SET facilities = '{wifi,kipas}' WHERE slug = 'kamar-dago-atas' RETURNING id`)).rows[0].id;
+  } finally {
+    await c.end();
+  }
+  await page.goto(`/admin/listing/${id}`);
+  await page.getByRole("button", { name: "Simpan", exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/listing\?tersimpan=1$/);
+  const c2 = new Client({ connectionString: process.env.DATABASE_URL });
+  await c2.connect();
+  try {
+    expect((await c2.query(`SELECT facilities FROM "Listing" WHERE id = $1`, [id])).rows[0].facilities).toEqual(["wifi"]);
+  } finally {
+    await c2.end();
+  }
 });
 
 test("a failed save keeps the form and shows an error", async ({ page }) => {

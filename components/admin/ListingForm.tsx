@@ -43,7 +43,10 @@ export function ListingForm({ cities, initial }: { cities: { id: string; name: s
   const [price, setPrice] = useState(num(initial?.price));
   const [normalPrice, setNormalPrice] = useState(num(initial?.normalPrice));
   const [description, setDescription] = useState(initial?.description ?? "");
-  const [facilities, setFacilities] = useState<string[]>(initial?.facilities ?? []);
+  // Keys dropped from FACILITIES have no chip to untick; keep them and the save fails with no way out.
+  const [facilities, setFacilities] = useState<string[]>(
+    (initial?.facilities ?? []).filter((k) => FACILITIES.some((f) => f.key === k)),
+  );
   const [extras, setExtras] = useState<string[]>(initial?.extraFacilities ?? []);
   const [extraOpen, setExtraOpen] = useState(false);
   const [extraDraft, setExtraDraft] = useState("");
