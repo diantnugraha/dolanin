@@ -4,9 +4,12 @@ import { canSeed } from "@/prisma/seed";
 const NEON = "postgresql://u:p@ep-cool-name-123456-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require";
 
 describe("canSeed", () => {
-  it("allows local databases", () => {
+  it("allows local dev/test databases", () => {
     expect(canSeed("postgresql://diantnugraha@localhost:5432/dolanin_dev", {})).toBe(true);
-    expect(canSeed("postgresql://u@127.0.0.1:5432/x", {})).toBe(true);
+    expect(canSeed("postgresql://u@127.0.0.1:5432/dolanin_test", {})).toBe(true);
+  });
+  it("refuses a production database on the same machine (VPS)", () => {
+    expect(canSeed("postgresql://dolanin:p@localhost:5432/dolanin", {})).toBe(false);
   });
   it("refuses a remote (production) database", () => {
     expect(canSeed(NEON, {})).toBe(false);

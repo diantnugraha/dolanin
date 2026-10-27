@@ -130,11 +130,15 @@ export async function seedData(db: PrismaClient) {
 
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"]);
 
-/** The seed resets the admin to a public dev password: only local DBs, unless ALLOW_SEED=1. */
+/**
+ * The seed resets the admin to a public dev password: only local `*_dev` / `*_test` DBs, unless ALLOW_SEED=1.
+ * The name check matters on a VPS, where the production DB is also on localhost.
+ */
 export function canSeed(url: string | undefined, env: Record<string, string | undefined>): boolean {
   if (env.ALLOW_SEED === "1") return true;
   try {
-    return LOCAL_HOSTS.has(new URL(url ?? "").hostname);
+    const u = new URL(url ?? "");
+    return LOCAL_HOSTS.has(u.hostname) && /_(dev|test)$/.test(u.pathname);
   } catch {
     return false;
   }
@@ -143,8 +147,8 @@ export function canSeed(url: string | undefined, env: Record<string, string | un
 async function main() {
   if (!canSeed(process.env.DATABASE_URL, process.env)) {
     console.error(
-      "Seed ditolak: DATABASE_URL bukan database lokal (localhost/127.0.0.1). Seed menimpa admin dengan password dev publik.\n" +
-        "Seed refused: DATABASE_URL is not a local database. Set ALLOW_SEED=1 only if you really mean it.",
+      "Seed ditolak: DATABASE_URL bukan database lokal berakhiran _dev/_test. Seed menimpa admin dengan password dev publik.\n" +
+        "Seed refused: DATABASE_URL is not a local *_dev/*_test database. Set ALLOW_SEED=1 only if you really mean it.",
     );
     process.exit(1);
   }
