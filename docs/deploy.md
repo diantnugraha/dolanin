@@ -1,11 +1,11 @@
 # Panduan deploy produksi Dolanin (VPS)
 
-Panduan ini membawa Dolanin dari VPS kosong sampai online dengan HTTPS, backup harian, dan cara update. Tidak ada nilai rahasia di file ini. Semua rahasia hanya ditulis di `.env` di server, tidak pernah di-commit.
+Panduan ini membawa Dolanin dari VPS kosong sampai online dengan HTTPS, backup harian, dan cara update. Database PostgreSQL ada di server terpisah yang sudah kamu punya. Tidak ada nilai rahasia di file ini. Semua rahasia hanya ditulis di `.env` di server, tidak pernah di-commit.
 
 **Susunan produksi**
 
 ```
-Pengunjung ──HTTPS──> Caddy (port 443) ──> Next.js (127.0.0.1:3000) ──> PostgreSQL (localhost:5432)
+Pengunjung ──HTTPS──> Caddy (port 443) ──> Next.js (127.0.0.1:3000) ──> PostgreSQL (server terpisah)
 Browser admin ──upload langsung──> Bunny Storage (foto) dan Bunny Stream (video)
 Pengunjung <──foto dan video dari CDN── Bunny
 ```
@@ -27,7 +27,8 @@ Urutan: 1 Persiapan, 2 Server, 3 Software, 4 Database, 5 Bunny Storage, 6 Bunny 
 
 - **VPS**: Ubuntu **24.04 LTS**, lokasi Jakarta (atau Singapura), minimal **2 vCPU / 4 GB RAM**. `next build` butuh sekitar 1,5–2 GB RAM.
 - **Domain**: buat DNS record **A** `@` dan `www` ke `IP_VPS` sekarang, karena perubahan DNS butuh waktu. Untuk tes tanpa domain berbayar, subdomain DuckDNS (`dolanin.duckdns.org`) juga bisa.
-- **Firewall VPS** (di console provider, Tencent: Lighthouse, Firewall): hanya buka **TCP 22, 80, 443**. Jangan buka 3000 atau 5432.
+- **Firewall VPS** (di console provider, Tencent: Lighthouse, Firewall): hanya buka **TCP 22, 80, 443**. Jangan buka 3000.
+- **Database**: PostgreSQL di server terpisah (Sumobase), dengan URL Transaction Pooler dan Direct Connection (bagian 4).
 - **Kode di branch `main`**. Server mengambil kode dari `main`, jadi gabungkan perubahan ke `main` dulu.
 - **Biaya**: VPS bulanan, domain tahunan, dan Bunny (Storage + Stream) bayar sesuai pemakaian.
 
@@ -77,13 +78,13 @@ sudo apt install -y nodejs git
 node -v
 ```
 
-**PostgreSQL 17** (repo resmi PostgreSQL, versi yang sama dengan pengembangan; [postgresql.org](https://www.postgresql.org/download/linux/ubuntu/)). Script kedua meminta tekan Enter:
+**Klien PostgreSQL** (`psql` untuk tes koneksi, `pg_dump` untuk backup). Server database-nya tidak dipasang di VPS. Pakai repo resmi PostgreSQL ([postgresql.org](https://www.postgresql.org/download/linux/ubuntu/)) supaya versi klien sama dengan server database (Sumobase: PostgreSQL 16; `pg_dump` harus sama atau lebih baru dari server). Script kedua meminta tekan Enter:
 
 ```bash
 sudo apt install -y postgresql-common
 sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
 sudo apt update
-sudo apt install -y postgresql-17
+sudo apt install -y postgresql-client-16
 ```
 
 **Caddy** (web server dengan HTTPS otomatis; [caddyserver.com](https://caddyserver.com/docs/install)):
@@ -100,19 +101,43 @@ sudo apt install -y caddy
 
 ## 4. Database
 
-Buat password database lalu catat di password manager:
+Database ada di server terpisah (Sumobase, Jakarta). Aplikasi memakai dua URL dari halaman **Database Connection Methods** Sumobase, keduanya diakhiri `?sslmode=require`:
+
+| Env | Tab di Sumobase | Dipakai untuk |
+|---|---|---|
+| `DATABASE_URL` | **Transaction Pooler** (port 6432) | aplikasi saat berjalan |
+| `DIRECT_URL` | **Direct Connection** (port 65432) | migrasi (`prisma migrate deploy`) dan backup (`pg_dump`) |
+
+Kenapa dua: mesin migrasi Prisma memakai *prepared statement* bernama yang tidak didukung transaction pooler (error `prepared statement "s1" already exists`, atau macet bila lewat SSL). Aplikasinya sendiri berjalan normal lewat pooler. `prisma.config.ts` otomatis memakai `DIRECT_URL` untuk migrasi, dan `scripts/backup-db.sh` juga. Teruji 27 Oktober 2026 (PostgreSQL 16.14): migrasi, backup, dan aplikasi (termasuk transaksi) berjalan.
+
+Setelah mengganti password di Sumobase, perbarui password di **kedua** URL.
+
+**Syarat di server database:**
+- **Database khusus Dolanin**, tidak dipakai bersama aplikasi lain. User di `DATABASE_URL` harus pemilik database itu (atau punya hak `CREATE` di schema `public`), karena migrasi membuat tabelnya sendiri. Kalau belum ada, jalankan di server database:
+
+  ```sql
+  CREATE ROLE dolanin LOGIN PASSWORD '<password-acak>';
+  CREATE DATABASE dolanin OWNER dolanin;
+  ```
+
+- **Nama database tidak berakhiran `_dev`/`_test`.** Seed (data contoh yang mengganti password admin dengan password dev di repo) hanya mau jalan di database berakhiran itu.
+- **PostgreSQL 14 ke atas.**
+- **Hanya IP VPS yang boleh terhubung** (firewall atau allowlist di server database). Port 5432 jangan terbuka untuk semua IP.
+- **Lokasi berdekatan dengan VPS** (data center sama atau satu kota). Setiap halaman menjalankan beberapa query; jarak jauh langsung terasa lambat.
+- **SSL**: koneksi lewat internet, jadi kedua URL wajib `?sslmode=require`. Sertifikat Sumobase (Let's Encrypt) dipercaya Node, jadi aplikasi memverifikasinya penuh.
+
+**Tes dari VPS** (URL ditempel lalu Enter; tidak tampil di layar dan tidak masuk history):
 
 ```bash
-DB_PASS=$(openssl rand -hex 24); echo "$DB_PASS"
-sudo -u postgres psql -c "CREATE ROLE dolanin LOGIN PASSWORD '$DB_PASS';"
-sudo -u postgres psql -c "CREATE DATABASE dolanin OWNER dolanin;"
+read -s DATABASE_URL
+psql "$DATABASE_URL" -c 'select version();'
+read -s DIRECT_URL
+psql "$DIRECT_URL" -c 'select version();'
 ```
 
-Nilai untuk `.env` (bagian 7): `DATABASE_URL=postgresql://dolanin:<DB_PASS>@localhost:5432/dolanin`
+Keduanya harus menampilkan versi PostgreSQL. Kalau timeout, IP VPS belum diizinkan di server database. Tes ketiga (driver yang dipakai aplikasi) ada di bagian 8.
 
-PostgreSQL bawaan hanya menerima koneksi dari server itu sendiri; biarkan begitu.
-
-**Jangan pernah jalankan seed di server** (`npx prisma db seed`, `prisma migrate dev`, `prisma migrate reset`). Seed berisi data contoh dan mengganti password admin dengan password dev yang tertulis di repo. Seed sudah menolak database yang namanya tidak berakhiran `_dev`/`_test`, jadi nama `dolanin` aman.
+**Jangan pernah jalankan seed atau reset di database produksi** (`npx prisma db seed`, `prisma migrate dev`, `prisma migrate reset`).
 
 ## 5. Bunny Storage (foto)
 
@@ -173,7 +198,8 @@ Kalau repo publik: `git clone https://github.com/diantnugraha/dolanin.git ~/dola
 **Isi `.env`** (`nano ~/dolanin/.env`). Satu nilai per baris, tanpa tanda kutip, tanpa spasi, dan tanpa komentar di belakang nilai:
 
 ```
-DATABASE_URL=postgresql://dolanin:<DB_PASS>@localhost:5432/dolanin
+DATABASE_URL=<URL Transaction Pooler, diakhiri ?sslmode=require>
+DIRECT_URL=<URL Direct Connection, diakhiri ?sslmode=require>
 SESSION_SECRET=<hasil openssl rand -hex 32>
 NEXT_PUBLIC_SITE_URL=https://dolanin.id
 NEXT_PUBLIC_MEDIA_CDN_URL=https://<pull-zone-foto>.b-cdn.net
@@ -204,6 +230,19 @@ chmod 600 ~/dolanin/.env
 ```bash
 cd ~/dolanin
 npm ci
+```
+
+Tes koneksi dengan driver yang sama dengan aplikasi (driver ini memperlakukan `sslmode=require` sebagai verifikasi sertifikat penuh, beda dari `psql`):
+
+```bash
+node -e "process.loadEnvFile('.env'); const c = new (require('pg').Client)({ connectionString: process.env.DATABASE_URL }); c.connect().then(() => c.query('select 1')).then(() => { console.log('Koneksi DB OK'); return c.end(); }).catch((e) => { console.error('Koneksi DB GAGAL:', e.message); process.exit(1); })"
+```
+
+Satu baris `SECURITY WARNING` tentang `sslmode` di output itu wajar: driver memberi tahu bahwa `require` diperlakukan sebagai verifikasi penuh. Kalau gagal dengan pesan sertifikat (mis. `self-signed certificate`) padahal `psql` di bagian 4 berhasil, berhenti di sini dan sesuaikan pengaturan SSL dulu.
+
+Lalu migrasi dan build:
+
+```bash
 npx prisma migrate deploy
 npm run build
 ```
@@ -224,8 +263,8 @@ Supaya aplikasi hidup terus dan otomatis menyala lagi setelah crash atau reboot:
 sudo tee /etc/systemd/system/dolanin.service > /dev/null <<'EOF'
 [Unit]
 Description=Dolanin (Next.js)
-After=network.target postgresql.service
-Wants=postgresql.service
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 User=ubuntu
@@ -342,7 +381,7 @@ Server menyimpan dump 7 hari terakhir di `~/backups`; salinan di Bunny tidak dih
 
 ```bash
 cd ~/dolanin
-DB=$(grep '^DATABASE_URL=' .env | cut -d= -f2-)
+DB=$(grep '^DIRECT_URL=' .env | cut -d= -f2-)
 sudo systemctl stop dolanin
 pg_restore --clean --if-exists --no-owner -d "$DB" ~/backups/dolanin-YYYY-MM-DD.dump
 sudo systemctl start dolanin

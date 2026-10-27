@@ -9,7 +9,10 @@ env_get() { grep "^$1=" .env | cut -d= -f2- || true; }
 DIR="$HOME/backups"
 FILE="$DIR/dolanin-$(date -u +%F).dump"
 mkdir -p "$DIR"
-pg_dump -Fc --no-owner "$(env_get DATABASE_URL)" > "$FILE"
+# Direct connection when set: a transaction pooler is not meant for pg_dump.
+DB=$(env_get DIRECT_URL)
+[ -n "$DB" ] || DB=$(env_get DATABASE_URL)
+pg_dump -Fc --no-owner "$DB" > "$FILE"
 
 ZONE=$(env_get BACKUP_STORAGE_ZONE)
 if [ -n "$ZONE" ]; then
