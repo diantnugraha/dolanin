@@ -22,10 +22,9 @@ import type { MediaKind, VideoStatus } from "@/generated/prisma/client";
  * - Get video: GET /library/{libraryId}/videos/{guid}; the video object `status` is a DIFFERENT enum from the
  *   webhook codes: 0 Created, 1 Uploaded, 2 Processing, 3 Transcoding, 4 Finished, 5 Error, 6 UploadFailed,
  *   7 JitSegmenting, 8 JitPlaylistsCreated; `length` is int seconds. https://bunny.net/docs/reference/video_getvideo
- * - NOT verified from official pages (404/unreachable; only search snippets + community examples):
- *   MP4 fallback `https://{stream-cdn-host}/{guid}/play_720p.mp4` and `.../{guid}/thumbnail.jpg`;
- *   the library must have "MP4 Fallback" enabled (Stream > Library > Encoding), and only videos uploaded
- *   AFTER enabling get MP4 files. https://bunny.net/docs/stream/mp4-downloads
+ * - MP4 fallback `https://{stream-cdn-host}/{guid}/play_{height}p.mp4` (library "MP4 Fallback" on, Encoding tab;
+ *   only videos uploaded AFTER enabling get MP4s), poster `.../{guid}/thumbnail.jpg` (checked 2026-10-27).
+ *   https://bunny.net/docs/stream/mp4-downloads, https://bunny.net/docs/stream/storage-structure
  */
 
 const BUNNY_API = "https://video.bunnycdn.com";

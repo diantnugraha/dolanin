@@ -45,16 +45,23 @@ Sumber: [Bunny Storage S3](https://bunny.net/docs/storage/s3), [changelog Storag
 
 ## 4. Bunny Stream (video)
 
-1. Buat **Stream Library**.
-2. Aktifkan **MP4 Fallback** (di pengaturan library) dengan resolusi **480p dan 720p**. Pemutar mencoba `play_720p.mp4`, lalu `play_480p.mp4`, lalu hanya menampilkan poster (tanpa kontrol putar). Tanpa MP4 Fallback, video hanya tampil sebagai poster.
-3. **Webhook**: set ke `https://{domain}/api/bunny/webhook?token={BUNNY_WEBHOOK_TOKEN}`. `BUNNY_WEBHOOK_TOKEN` = string acak panjang buatanmu (mis. `openssl rand -hex 32`); sama persis dengan env di Vercel.
-4. **Allowed referrers** = domain produksi, plus URL `*.vercel.app` bawaan bila smoke test dijalankan di sana (harus sudah diisi sebelum smoke test). Tambahkan `localhost` hanya jika perlu tes lokal.
-5. Pemetaan nilai:
-   - `BUNNY_LIBRARY_ID` = ID library (angka).
-   - `BUNNY_API_KEY` = API key library (bukan API key akun).
-   - `NEXT_PUBLIC_BUNNY_CDN_HOST` = hostname pull zone library, bentuk `vz-xxxx.b-cdn.net` (tanpa `https://`).
+Video diupload langsung dari browser ke Bunny Stream (TUS), lalu diputar sebagai file MP4 biasa (bukan player iframe Bunny).
 
-Catatan: nama menu persis di dashboard Bunny dapat berbeda; halaman dokumentasi Bunny tidak bisa dibaca saat pengembangan, jadi nama pengaturan di atas belum diverifikasi dari dokumen.
+1. Buat **Video Library** (Stream, Add Video Library). Pilih region penyimpanan yang mencakup **Asia (Singapura)**.
+2. Tab **Encoding**:
+   - Pastikan resolusi **480p** dan **720p** aktif.
+   - Aktifkan **MP4 Fallback**. Pemutar mencoba `play_720p.mp4`, lalu `play_480p.mp4`, lalu hanya menampilkan poster (tanpa kontrol putar).
+   - Aktifkan SEBELUM upload video pertama: video yang diupload sebelum MP4 Fallback aktif tidak pernah mendapat file MP4 (hapus lalu upload ulang).
+3. **Webhook** (pengaturan library): set ke `https://{domain}/api/bunny/webhook?token={BUNNY_WEBHOOK_TOKEN}`. `BUNNY_WEBHOOK_TOKEN` = string acak panjang buatanmu (mis. `openssl rand -hex 32`); sama persis dengan env di Vercel.
+4. **Keamanan** (tab Security dan Pull Zone library). Situs memutar file MP4 dan `thumbnail.jpg` langsung lewat `<video>`/`<img>`, tanpa token:
+   - **CDN Token Authentication: mati.** Kalau aktif, semua MP4 dan thumbnail menjawab 403.
+   - **Allowed domains**: isi domain produksi dan URL `*.vercel.app` bawaan (sebelum smoke test). Untuk tes lokal tambahkan `localhost:3000` (Bunny ikut mencocokkan port; `localhost` saja tetap 403). Kalau **Block direct URL file access** aktif tanpa domain yang diizinkan, thumbnail dan MP4 menjawab 403.
+5. Tab **API**, pemetaan nilai:
+   - `BUNNY_LIBRARY_ID` = Video Library ID (angka).
+   - `BUNNY_API_KEY` = API Key library (bukan API key akun, bukan Read-only).
+   - `NEXT_PUBLIC_BUNNY_CDN_HOST` = CDN Hostname, bentuk `vz-xxxx.b-cdn.net` (tanpa `https://`).
+
+Sumber: [MP4 Fallback](https://bunny.net/docs/stream/mp4-downloads), [struktur file dan thumbnail](https://bunny.net/docs/stream/storage-structure), [webhook](https://bunny.net/docs/stream/webhooks), [keamanan](https://bunny.net/docs/stream/security). Nama menu persis di dashboard bisa sedikit berbeda.
 
 ## 5. Vercel
 
@@ -101,7 +108,7 @@ Dasar:
 
 Verifikasi yang tidak bisa dilakukan saat pengembangan (tidak ada kredensial):
 - [ ] **(a) Foto**: upload foto pertama; file muncul di Storage Zone sebagai `p/...-800.webp` dan `p/...-1600.webp`, dan tampil lewat Pull Zone. `curl -sI https://{pull-zone}/p/...-800.webp` mengembalikan 200, `content-type: image/webp`, dan cache 1 tahun. Ini belum pernah diuji ke Bunny sungguhan: kalau console browser menunjukkan error CORS saat PUT (preflight `Cache-Control`), atau Bunny menjawab 403 `SignatureDoesNotMatch`, cek `S3_REGION` sama dengan kode di endpoint, password (bukan read-only), dan jam server. Hapus satu foto di CMS lalu pastikan kedua file ikut hilang dari Storage Zone.
-- [ ] **(b) Video**: upload TUS selesai; webhook membuat status menjadi READY; `https://{pull-zone}/{guid}/play_720p.mp4` terputar dan `https://{pull-zone}/{guid}/thumbnail.jpg` termuat. Dua format URL ini TIDAK bisa diverifikasi dari dokumentasi Bunny (halaman 404). Cek dulu; kalau berbeda, satu-satunya tempat yang diubah adalah `videoSrc` / `videoPoster` di `lib/media.ts`.
+- [ ] **(b) Video**: upload TUS selesai; webhook membuat status menjadi READY; `https://{pull-zone}/{guid}/play_720p.mp4` terputar dan `https://{pull-zone}/{guid}/thumbnail.jpg` termuat. Kalau 403, cek langkah 4 bagian 4 (token mati, allowed domains). Format URL ada di `videoSrc` / `videoPoster` di `lib/media.ts`.
   - Upload dua video uji, sumber **1080×1920** dan **720×1280**. Untuk masing-masing, cek file `play_*.mp4` mana yang benar-benar dibuat Bunny (`curl -sI https://{pull-zone}/{guid}/play_720p.mp4` dan `.../play_480p.mp4`, harus 200). Pastikan MP4 Fallback library mencakup 480p dan 720p.
   - Di halaman detail, video yang tidak punya `play_720p.mp4` harus otomatis memutar `play_480p.mp4`; bila keduanya tidak ada, hanya poster yang tampil, tanpa tombol putar/jeda/suara.
 - [ ] **(c)** `curl -sI https://{domain}/go/{id}/pesan` mengembalikan `302` dengan `location` berupa link affiliate. Catatan: `curl -sI` mengirim HEAD, dan HEAD sengaja **tidak** dihitung sebagai klik (link checker dan preview juga memakai HEAD). Untuk menguji hitungan, klik tombol Pesan sungguhan di browser.
