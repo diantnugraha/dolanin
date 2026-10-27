@@ -126,7 +126,7 @@ Setelah mengganti password di Sumobase, perbarui password di **kedua** URL.
 - **Lokasi berdekatan dengan VPS** (data center sama atau satu kota). Setiap halaman menjalankan beberapa query; jarak jauh langsung terasa lambat.
 - **SSL**: koneksi lewat internet, jadi kedua URL wajib `?sslmode=require`. Sertifikat Sumobase (Let's Encrypt) dipercaya Node, jadi aplikasi memverifikasinya penuh.
 
-**Tes dari VPS** (URL ditempel lalu Enter; tidak tampil di layar dan tidak masuk history):
+**Tes dari VPS.** Ketik `read -s DATABASE_URL` persis seperti tertulis (`DATABASE_URL` adalah nama variabel, bukan URL-nya) lalu Enter; baru tempel URL-nya dan Enter lagi. Layar memang tidak menampilkan apa-apa saat menempel, dan URL tidak masuk history. Jangan pernah mengetik URL langsung di baris perintah: password-nya tersimpan di history shell (kalau terlanjur: `history -c && history -w`).
 
 ```bash
 read -s DATABASE_URL
