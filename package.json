@@ -11,8 +11,7 @@
     "test:int": "vitest run tests/int",
     "test:e2e": "playwright test",
     "admin:password": "tsx scripts/set-admin-password.ts",
-    "postinstall": "prisma generate",
-    "vercel-build": "sh scripts/vercel-build.sh"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1157.0",

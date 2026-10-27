@@ -1,125 +1,366 @@
-# Panduan deploy produksi Dolanin
+# Panduan deploy produksi Dolanin (VPS)
 
-Panduan ini dijalankan oleh pemilik (butuh akun cloud). Tidak ada nilai rahasia di sini; isi sendiri di dashboard Vercel, jangan di-commit.
+Panduan ini membawa Dolanin dari VPS kosong sampai online dengan HTTPS, backup harian, dan cara update. Tidak ada nilai rahasia di file ini. Semua rahasia hanya ditulis di `.env` di server, tidak pernah di-commit.
 
-Urutan: 1 Prasyarat, 2 Database, 3 Bunny Storage, 4 Bunny Stream, 5 Vercel, 6 Deploy + admin pertama, 7 Smoke test, 8 Catatan operasional.
+**Susunan produksi**
 
-## 1. Prasyarat dan biaya ringkas
+```
+Pengunjung ──HTTPS──> Caddy (port 443) ──> Next.js (127.0.0.1:3000) ──> PostgreSQL (localhost:5432)
+Browser admin ──upload langsung──> Bunny Storage (foto) dan Bunny Stream (video)
+Pengunjung <──foto dan video dari CDN── Bunny
+```
 
-| Layanan | Paket | Perkiraan biaya |
-|---|---|---|
-| Vercel | Pro | Berbayar per bulan per anggota tim (cek [vercel.com/pricing](https://vercel.com/pricing)) |
-| Postgres (Neon, `aws-ap-southeast-1` Singapura) | Free | Gratis selama masih di batas free tier |
-| Bunny Stream | Bayar sesuai pemakaian (storage + trafik) | Kecil di awal; cek halaman harga Bunny |
-| Bunny Storage + Pull Zone | Bayar sesuai pemakaian (storage + trafik) | Hampir nol untuk traffic awal |
+VPS hanya melayani halaman web; foto dan video tidak pernah lewat VPS.
 
-Angka pasti bisa berubah; cek halaman harga masing-masing sebelum mendaftar. Siapkan juga: domain, `openssl`, dan Node sesuai repo.
+**Contoh nilai di panduan ini** (ganti dengan punyamu):
 
-## 2. Database (Neon)
+| Contoh | Artinya |
+|---|---|
+| `ubuntu` | user bawaan VPS (Tencent Lighthouse Ubuntu memakai `ubuntu`) |
+| `IP_VPS` | IP publik VPS |
+| `dolanin.id` | domain produksi |
+| `~/dolanin` | folder aplikasi di server (`/home/ubuntu/dolanin`) |
 
-1. Buat project di Neon, region **AWS Singapore (`aws-ap-southeast-1`)**.
-2. Di Connect, ambil dua connection string:
-   - **Pooled** (hostname mengandung `-pooler`) untuk `DATABASE_URL`. Dipakai aplikasi saat runtime (`lib/db.ts` lewat `@prisma/adapter-pg`).
-   - **Direct / unpooled** (tanpa `-pooler`) untuk `DIRECT_URL`. Dipakai hanya untuk migrasi.
-3. Kenapa dua: Prisma 7 menghapus `directUrl`; CLI (`prisma migrate`) hanya membaca `datasource.url` di `prisma.config.ts`. Repo ini membaca `DIRECT_URL` dulu, lalu jatuh ke `DATABASE_URL` bila `DIRECT_URL` kosong. Neon menyarankan koneksi direct untuk migrasi ([Prisma config reference](https://www.prisma.io/docs/orm/reference/prisma-config-reference), [Neon + Prisma](https://neon.com/docs/guides/prisma)).
-4. Migrasi berjalan otomatis hanya pada deploy **Production** lewat `vercel-build` (`scripts/vercel-build.sh`: `prisma migrate deploy` jika `VERCEL_ENV=production`, lalu `next build` selalu). Kalau migrasi produksi gagal, build gagal. Deploy **Preview tidak menjalankan migrasi**. Jangan pernah mengarahkan Preview ke DB produksi. Bila ingin Preview berfungsi, buat branch Neon terpisah, isi `DATABASE_URL`/`DIRECT_URL` khusus environment Preview dengan branch itu, dan jalankan migrasinya manual (`DIRECT_URL=<url branch> npx prisma migrate deploy`).
+Urutan: 1 Persiapan, 2 Server, 3 Software, 4 Database, 5 Bunny Storage, 6 Bunny Stream, 7 Kode dan `.env`, 8 Build dan admin pertama, 9 Service, 10 Domain dan HTTPS, 11 Sambungkan Bunny ke domain, 12 Smoke test, 13 Update aplikasi, 14 Backup dan restore, 15 Operasional.
 
-## 3. Bunny Storage (foto)
+## 1. Persiapan
+
+- **VPS**: Ubuntu **24.04 LTS**, lokasi Jakarta (atau Singapura), minimal **2 vCPU / 4 GB RAM**. `next build` butuh sekitar 1,5–2 GB RAM.
+- **Domain**: buat DNS record **A** `@` dan `www` ke `IP_VPS` sekarang, karena perubahan DNS butuh waktu. Untuk tes tanpa domain berbayar, subdomain DuckDNS (`dolanin.duckdns.org`) juga bisa.
+- **Firewall VPS** (di console provider, Tencent: Lighthouse, Firewall): hanya buka **TCP 22, 80, 443**. Jangan buka 3000 atau 5432.
+- **Kode di branch `main`**. Server mengambil kode dari `main`, jadi gabungkan perubahan ke `main` dulu.
+- **Biaya**: VPS bulanan, domain tahunan, dan Bunny (Storage + Stream) bayar sesuai pemakaian.
+
+## 2. Siapkan server
+
+Dari laptop:
+
+```bash
+ssh ubuntu@IP_VPS
+```
+
+Di server:
+
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+**Login pakai SSH key (disarankan).** Dari laptop: `ssh-copy-id ubuntu@IP_VPS`. Buka terminal baru dan pastikan `ssh ubuntu@IP_VPS` masuk tanpa password. Baru setelah itu matikan login password:
+
+```bash
+echo 'PasswordAuthentication no' | sudo tee /etc/ssh/sshd_config.d/00-no-password.conf
+sudo systemctl restart ssh
+```
+
+Kalau terkunci, masuk lewat terminal web di console provider.
+
+**Swap 2 GB** (pengaman saat build). Cek dulu `free -h`; kalau baris `Swap` masih 0:
+
+```bash
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+Biarkan zona waktu server UTC. Statistik dashboard sudah dihitung dalam WIB oleh database.
+
+## 3. Pasang software
+
+**Node.js 22** ([NodeSource](https://github.com/nodesource/distributions)):
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_22.x -o nodesource_setup.sh
+sudo -E bash nodesource_setup.sh
+sudo apt install -y nodejs git
+node -v
+```
+
+**PostgreSQL 17** (repo resmi PostgreSQL, versi yang sama dengan pengembangan; [postgresql.org](https://www.postgresql.org/download/linux/ubuntu/)). Script kedua meminta tekan Enter:
+
+```bash
+sudo apt install -y postgresql-common
+sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
+sudo apt update
+sudo apt install -y postgresql-17
+```
+
+**Caddy** (web server dengan HTTPS otomatis; [caddyserver.com](https://caddyserver.com/docs/install)):
+
+```bash
+sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+sudo chmod o+r /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+sudo chmod o+r /etc/apt/sources.list.d/caddy-stable.list
+sudo apt update
+sudo apt install -y caddy
+```
+
+## 4. Database
+
+Buat password database lalu catat di password manager:
+
+```bash
+DB_PASS=$(openssl rand -hex 24); echo "$DB_PASS"
+sudo -u postgres psql -c "CREATE ROLE dolanin LOGIN PASSWORD '$DB_PASS';"
+sudo -u postgres psql -c "CREATE DATABASE dolanin OWNER dolanin;"
+```
+
+Nilai untuk `.env` (bagian 7): `DATABASE_URL=postgresql://dolanin:<DB_PASS>@localhost:5432/dolanin`
+
+PostgreSQL bawaan hanya menerima koneksi dari server itu sendiri; biarkan begitu.
+
+**Jangan pernah jalankan seed di server** (`npx prisma db seed`, `prisma migrate dev`, `prisma migrate reset`). Seed berisi data contoh dan mengganti password admin dengan password dev yang tertulis di repo. Seed sudah menolak database yang namanya tidak berakhiran `_dev`/`_test`, jadi nama `dolanin` aman.
+
+## 5. Bunny Storage (foto)
 
 Foto diupload langsung dari browser ke Bunny Storage lewat presigned URL (API S3-compatible), lalu dibaca lewat Pull Zone Bunny.
 
-1. **Storage Zone** dengan **S3 compatibility aktif**. Opsi ini hanya bisa dipilih saat zone dibuat dan tidak bisa diubah sesudahnya. Region utama tidak bisa diganti; Singapura (`sg`) paling dekat ke Indonesia, Frankfurt (`de`) juga jalan karena foto di-cache Pull Zone.
-2. **Pull Zone** dengan origin = Storage Zone tadi. Catat hostname-nya, mis. `dolanin-media.b-cdn.net`.
-3. **Cache di Pull Zone**: set cache expiration (edge) dan browser cache expiration ke **1 tahun**. Pull Zone belum memakai metadata `Cache-Control` yang tersimpan di objek, jadi cache diatur di sini. Aman, karena key foto tidak pernah ditimpa (upload baru = key baru).
+1. **Storage Zone** dengan **S3 compatibility aktif**. Opsi ini hanya bisa dipilih saat zone dibuat. Upload selalu masuk ke region utama zone (endpoint S3-nya mengikuti region utama); region replikasi dipakai untuk pengiriman.
+2. **Pull Zone** dengan origin = Storage Zone tadi. Catat hostname-nya, mis. `dolanin.b-cdn.net`.
+3. **Cache di Pull Zone**: set cache expiration (edge) dan browser cache expiration ke **1 tahun**. Pull Zone belum memakai metadata `Cache-Control` yang tersimpan di objek, jadi cache diatur di sini. Aman, karena key foto tidak pernah ditimpa (upload baru = key baru, folder `p/`).
 4. **CORS upload**: tidak perlu diatur. Endpoint S3 Bunny selalu menjawab `Access-Control-Allow-Origin: *`.
 5. Nilai env (dari halaman Credentials Storage Zone):
-   - `S3_ENDPOINT` = S3 Region Endpoint URL, mis. `https://de-s3.storage.bunnycdn.com`
-   - `S3_REGION` = kode region di endpoint itu, mis. `de` (Singapura: `sg`)
-   - `S3_BUCKET` dan `AWS_ACCESS_KEY_ID` = nama Storage Zone, mis. `dolanin-storage`
+   - `S3_ENDPOINT` = S3 Region Endpoint URL, mis. `https://sg-s3.storage.bunnycdn.com`
+   - `S3_REGION` = kode region di endpoint itu, mis. `sg`
+   - `S3_BUCKET` dan `AWS_ACCESS_KEY_ID` = nama Storage Zone
    - `AWS_SECRET_ACCESS_KEY` = **Password** (bukan Read-only password; aplikasi perlu upload dan hapus)
    - `NEXT_PUBLIC_MEDIA_CDN_URL` = `https://{hostname pull zone}` (tanpa slash di akhir)
 
-`S3_ENDPOINT` kosong = AWS S3 biasa; kode yang sama tetap jalan.
+Sumber: [Bunny Storage S3](https://bunny.net/docs/storage/s3), [replikasi](https://bunny.net/docs/storage/replication). Nama menu persis di dashboard Bunny bisa berbeda dari panduan ini.
 
-Sumber: [Bunny Storage S3](https://bunny.net/docs/storage/s3), [changelog Storage](https://bunny.net/docs/storage/changelog). Nama menu persis di dashboard Bunny bisa berbeda dari panduan ini.
-
-## 4. Bunny Stream (video)
+## 6. Bunny Stream (video)
 
 Video diupload langsung dari browser ke Bunny Stream (TUS), lalu diputar sebagai file MP4 biasa (bukan player iframe Bunny).
 
 1. Buat **Video Library** (Stream, Add Video Library). Pilih region penyimpanan yang mencakup **Asia (Singapura)**.
-2. Tab **Encoding**:
+2. Bagian **Encoding**:
    - Pastikan resolusi **480p** dan **720p** aktif.
    - Aktifkan **MP4 Fallback**. Pemutar mencoba `play_720p.mp4`, lalu `play_480p.mp4`, lalu hanya menampilkan poster (tanpa kontrol putar).
    - Aktifkan SEBELUM upload video pertama: video yang diupload sebelum MP4 Fallback aktif tidak pernah mendapat file MP4 (hapus lalu upload ulang).
-3. **Webhook** (pengaturan library): set ke `https://{domain}/api/bunny/webhook?token={BUNNY_WEBHOOK_TOKEN}`. `BUNNY_WEBHOOK_TOKEN` = string acak panjang buatanmu (mis. `openssl rand -hex 32`); sama persis dengan env di Vercel.
-4. **Keamanan** (tab Security dan Pull Zone library). Situs memutar file MP4 dan `thumbnail.jpg` langsung lewat `<video>`/`<img>`, tanpa token:
-   - **CDN Token Authentication: mati.** Kalau aktif, semua MP4 dan thumbnail menjawab 403.
-   - **Allowed domains**: isi domain produksi dan URL `*.vercel.app` bawaan (sebelum smoke test). Untuk tes lokal tambahkan `localhost:3000` (Bunny ikut mencocokkan port; `localhost` saja tetap 403). Kalau **Block direct URL file access** aktif tanpa domain yang diizinkan, thumbnail dan MP4 menjawab 403.
-5. Tab **API**, pemetaan nilai:
+3. Bagian **Security**. Situs memutar file MP4 dan `thumbnail.jpg` langsung lewat `<video>`/`<img>`, tanpa token:
+   - **Token Authentication: mati** (juga di Pull Zone library: API, Pull Zone, Manage, Security). Kalau aktif, semua MP4 dan thumbnail menjawab 403.
+   - **Allowed domains**: diisi di bagian 11 setelah domain aktif. Untuk tes lokal tambahkan `localhost:3000` (Bunny ikut mencocokkan port; `localhost` saja tetap 403).
+4. Bagian **API**, pemetaan nilai:
    - `BUNNY_LIBRARY_ID` = Video Library ID (angka).
    - `BUNNY_API_KEY` = API Key library (bukan API key akun, bukan Read-only).
-   - `NEXT_PUBLIC_BUNNY_CDN_HOST` = CDN Hostname, bentuk `vz-xxxx.b-cdn.net` (tanpa `https://`).
+   - `NEXT_PUBLIC_BUNNY_CDN_HOST` = CDN Hostname, bentuk `vz-xxxx.b-cdn.net` (tanpa `https://`). Ini berbeda dari Pull Zone foto.
+   - Webhook URL diisi di bagian 11.
 
-Sumber: [MP4 Fallback](https://bunny.net/docs/stream/mp4-downloads), [struktur file dan thumbnail](https://bunny.net/docs/stream/storage-structure), [webhook](https://bunny.net/docs/stream/webhooks), [keamanan](https://bunny.net/docs/stream/security). Nama menu persis di dashboard bisa sedikit berbeda.
+Sumber: [MP4 Fallback](https://bunny.net/docs/stream/mp4-downloads), [struktur file dan thumbnail](https://bunny.net/docs/stream/storage-structure), [webhook](https://bunny.net/docs/stream/webhooks), [dashboard](https://bunny.net/docs/stream/dashboard). Nama menu persis di dashboard bisa sedikit berbeda.
 
-## 5. Vercel
+## 7. Ambil kode dan isi `.env`
 
-1. Buat proyek **Pro**, import repo, branch produksi.
-2. Region function **Singapore (`sin1`)**: sudah di `vercel.json` (`"regions": ["sin1"]`), yang menimpa Project Settings, Functions ([docs](https://vercel.com/docs/functions/configuring-functions/region)). Default proyek baru adalah `iad1`, jadi pastikan di deployment summary region-nya `sin1`.
-3. Environment Variables (Production), semua dari `.env.example`:
-
-| Env | Asal nilai |
-|---|---|
-| `DATABASE_URL` | Neon pooled (bagian 2) |
-| `DIRECT_URL` | Neon direct (bagian 2) |
-| `SESSION_SECRET` | `openssl rand -base64 48` |
-| `NEXT_PUBLIC_SITE_URL` | `https://{domain}` tanpa slash akhir |
-| `NEXT_PUBLIC_MEDIA_CDN_URL` | URL Pull Zone foto (bagian 3) |
-| `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET` | Bagian 3 |
-| `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | Nama Storage Zone dan password-nya (bagian 3) |
-| `BUNNY_LIBRARY_ID`, `BUNNY_API_KEY` | Bagian 4 |
-| `NEXT_PUBLIC_BUNNY_CDN_HOST` | Pull zone host Bunny |
-| `BUNNY_WEBHOOK_TOKEN` | String acak, sama dengan di URL webhook |
-
-   Variabel `NEXT_PUBLIC_*` ditanam saat build; ubah nilainya berarti harus redeploy.
-
-   **Awas:** form Environment Variables di Vercel secara default mencentang semua environment (Production, Preview, Development). Untuk `DATABASE_URL` dan `DIRECT_URL`, **hapus centang Preview dan Development** sehingga hanya Production yang memakai DB produksi. Kalau tidak, setiap deploy Preview (tiap push branch/PR) terhubung ke DB produksi.
-4. **Domain**: Settings, Domains, tambahkan domain dan ikuti instruksi DNS. Setelah aktif, perbarui `NEXT_PUBLIC_SITE_URL`, webhook dan allowed referrer Bunny dengan domain final.
-
-## 6. Deploy dan admin pertama
-
-1. Deploy (push ke branch produksi). Build Production menjalankan `prisma migrate deploy` lalu `next build`.
-2. Buat admin dari laptop, terhadap DB produksi. Pakai URL **direct** Neon. Awali perintah dengan satu spasi agar tidak tersimpan di history shell (zsh: `setopt HIST_IGNORE_SPACE`; bash: `HISTCONTROL=ignorespace`). Jangan simpan ke file yang masuk git:
+**Akses repo.** Kalau repo GitHub privat, buat deploy key khusus server (hanya baca):
 
 ```bash
- DATABASE_URL='<url direct produksi>' npm run admin:password -- <username> <password>
+ssh-keygen -t ed25519 -C "dolanin-vps" -f ~/.ssh/dolanin_deploy -N ""
+cat ~/.ssh/dolanin_deploy.pub
 ```
 
-   Jangan jalankan seed di produksi (`prisma/seed.ts` berisi data contoh dan me-reset admin ke password dev publik). Seed menolak berjalan (exit 1) bila host `DATABASE_URL` bukan `localhost`/`127.0.0.1`, kecuali `ALLOW_SEED=1` di-set dengan sengaja.
-3. **Lupa password**: jalankan perintah yang sama dengan password baru.
+Tempel isinya di GitHub: repo, Settings, Deploy keys, Add deploy key (jangan centang write access). Lalu:
 
-## 7. Smoke test
+```bash
+printf 'Host github.com\n  IdentityFile ~/.ssh/dolanin_deploy\n' >> ~/.ssh/config
+git clone git@github.com:diantnugraha/dolanin.git ~/dolanin
+cd ~/dolanin
+```
 
-Dasar:
-- [ ] `curl -sI https://{domain}/` mengembalikan 200.
-- [ ] Login di `/admin`, buat kota (`/admin/kota`) dan satu listing dengan foto dan video.
-- [ ] Halaman detail memutar video di HP sungguhan.
+Kalau repo publik: `git clone https://github.com/diantnugraha/dolanin.git ~/dolanin`.
 
-Verifikasi yang tidak bisa dilakukan saat pengembangan (tidak ada kredensial):
-- [ ] **(a) Foto**: upload foto pertama; file muncul di Storage Zone sebagai `p/...-800.webp` dan `p/...-1600.webp`, dan tampil lewat Pull Zone. `curl -sI https://{pull-zone}/p/...-800.webp` mengembalikan 200, `content-type: image/webp`, dan cache 1 tahun. Ini belum pernah diuji ke Bunny sungguhan: kalau console browser menunjukkan error CORS saat PUT (preflight `Cache-Control`), atau Bunny menjawab 403 `SignatureDoesNotMatch`, cek `S3_REGION` sama dengan kode di endpoint, password (bukan read-only), dan jam server. Hapus satu foto di CMS lalu pastikan kedua file ikut hilang dari Storage Zone.
-- [ ] **(b) Video**: upload TUS selesai; webhook membuat status menjadi READY; `https://{pull-zone}/{guid}/play_720p.mp4` terputar dan `https://{pull-zone}/{guid}/thumbnail.jpg` termuat. Kalau 403, cek langkah 4 bagian 4 (token mati, allowed domains). Format URL ada di `videoSrc` / `videoPoster` di `lib/media.ts`.
-  - Upload dua video uji, sumber **1080×1920** dan **720×1280**. Untuk masing-masing, cek file `play_*.mp4` mana yang benar-benar dibuat Bunny (`curl -sI https://{pull-zone}/{guid}/play_720p.mp4` dan `.../play_480p.mp4`, harus 200). Pastikan MP4 Fallback library mencakup 480p dan 720p.
-  - Di halaman detail, video yang tidak punya `play_720p.mp4` harus otomatis memutar `play_480p.mp4`; bila keduanya tidak ada, hanya poster yang tampil, tanpa tombol putar/jeda/suara.
-- [ ] **(c)** `curl -sI https://{domain}/go/{id}/pesan` mengembalikan `302` dengan `location` berupa link affiliate. Catatan: `curl -sI` mengirim HEAD, dan HEAD sengaja **tidak** dihitung sebagai klik (link checker dan preview juga memakai HEAD). Untuk menguji hitungan, klik tombol Pesan sungguhan di browser.
-- [ ] **(d)** Dashboard admin menghitung klik dari browser tadi (bukan dari `curl -sI`).
-- [ ] **(e)** Overlay poster pada mosaik tampil benar di Safari (WebKit); baru diuji di Chromium.
+**Isi `.env`** (`nano ~/dolanin/.env`). Satu nilai per baris, tanpa tanda kutip, tanpa spasi, dan tanpa komentar di belakang nilai:
 
-## 8. Catatan operasional
+```
+DATABASE_URL=postgresql://dolanin:<DB_PASS>@localhost:5432/dolanin
+SESSION_SECRET=<hasil openssl rand -hex 32>
+NEXT_PUBLIC_SITE_URL=https://dolanin.id
+NEXT_PUBLIC_MEDIA_CDN_URL=https://<pull-zone-foto>.b-cdn.net
+S3_ENDPOINT=https://sg-s3.storage.bunnycdn.com
+S3_REGION=sg
+S3_BUCKET=<nama storage zone foto>
+AWS_ACCESS_KEY_ID=<nama storage zone foto>
+AWS_SECRET_ACCESS_KEY=<password storage zone foto>
+BUNNY_LIBRARY_ID=<video library id>
+BUNNY_API_KEY=<api key library>
+NEXT_PUBLIC_BUNNY_CDN_HOST=vz-xxxx.b-cdn.net
+BUNNY_WEBHOOK_TOKEN=<hasil openssl rand -hex 32, beda dari SESSION_SECRET>
+BACKUP_STORAGE_ZONE=
+BACKUP_STORAGE_HOST=
+BACKUP_STORAGE_PASSWORD=
+```
 
+Tiga baris `BACKUP_*` diisi di bagian 14. Lalu kunci file-nya:
+
+```bash
+chmod 600 ~/dolanin/.env
+```
+
+`NEXT_PUBLIC_SITE_URL` dipakai untuk link listing di pesan WhatsApp dan preview link saat dibagikan. Semua `NEXT_PUBLIC_*` ditanam saat build: setiap kali diubah, jalankan update (bagian 13).
+
+## 8. Build dan admin pertama
+
+```bash
+cd ~/dolanin
+npm ci
+npx prisma migrate deploy
+npm run build
+```
+
+Buat akun admin. Awali dengan **satu spasi** agar password tidak tersimpan di history shell. Password minimal 10 karakter:
+
+```bash
+ npm run admin:password -- <username> <password>
+```
+
+**Lupa password**: jalankan perintah yang sama dengan password baru. Semua sesi login lama otomatis keluar.
+
+## 9. Jalankan sebagai service
+
+Supaya aplikasi hidup terus dan otomatis menyala lagi setelah crash atau reboot:
+
+```bash
+sudo tee /etc/systemd/system/dolanin.service > /dev/null <<'EOF'
+[Unit]
+Description=Dolanin (Next.js)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/dolanin
+Environment=NODE_ENV=production
+ExecStart=/home/ubuntu/dolanin/node_modules/.bin/next start -H 127.0.0.1 -p 3000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload
+sudo systemctl enable --now dolanin
+curl -sI http://127.0.0.1:3000/ | head -1
+```
+
+Hasil yang benar: `HTTP/1.1 200 OK`. Aplikasi hanya mendengarkan `127.0.0.1`, jadi tidak bisa dibuka langsung dari internet; jalurnya lewat Caddy.
+
+## 10. Domain dan HTTPS
+
+Pastikan DNS sudah mengarah ke VPS: `getent hosts dolanin.id` harus menampilkan `IP_VPS`. Lalu:
+
+```bash
+sudo tee /etc/caddy/Caddyfile > /dev/null <<'EOF'
+dolanin.id {
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:3000
+}
+
+www.dolanin.id {
+	redir https://dolanin.id{uri} permanent
+}
+EOF
+sudo systemctl reload caddy
+curl -sI https://dolanin.id/ | head -1
+```
+
+Caddy mengambil sertifikat HTTPS sendiri (Let's Encrypt) dan memperpanjangnya otomatis. Kalau gagal, lihat `journalctl -u caddy -n 50`: biasanya DNS belum mengarah ke VPS, atau port 80/443 belum dibuka di firewall provider.
+
+HTTPS wajib: cookie login admin hanya dikirim lewat HTTPS. Caddy meneruskan header `Host` asli, yang dibutuhkan form admin (server action Next.js).
+
+## 11. Sambungkan Bunny ke domain
+
+Di Bunny Stream, library-mu:
+
+1. Bagian **API**, kolom **Webhook URL**: `https://dolanin.id/api/bunny/webhook?token=<BUNNY_WEBHOOK_TOKEN>`. Webhook mengubah status video dari "Sedang diproses" ke siap tayang secara otomatis.
+2. Bagian **Security**, **Allowed domains**: tambahkan `dolanin.id` (tanpa `https://`). `localhost:3000` boleh tetap ada untuk tes lokal.
+
+Bunny Storage tidak perlu diubah.
+
+## 12. Smoke test
+
+- [ ] `curl -sI https://dolanin.id/` mengembalikan 200, dan `http://dolanin.id` dialihkan ke HTTPS.
+- [ ] Login di `https://dolanin.id/admin`, buat kota (`/admin/kota`) dan satu listing dengan foto dan video.
+- [ ] **Foto**: file muncul di Storage Zone sebagai `p/...-800.webp` dan `p/...-1600.webp` dan tampil di situs. Hapus satu foto di CMS; kedua file ikut hilang dari Storage Zone.
+- [ ] **Video**: setelah encode selesai, status di CMS berubah sendiri jadi siap (tanpa klik Simpan ulang; ini bukti webhook jalan). Video terputar di HP sungguhan. Kalau 403, cek bagian 6 langkah 3 dan Allowed domains.
+- [ ] **Klik**: `curl -sI https://dolanin.id/go/{id}/pesan` mengembalikan `302` ke link affiliate. `curl -sI` mengirim HEAD, yang sengaja tidak dihitung sebagai klik; untuk menguji hitungan, klik tombol Pesan sungguhan di browser, lalu cek dashboard admin.
+- [ ] Overlay poster pada mosaik tampil benar di Safari (baru diuji di Chromium).
+- [ ] Backup pertama berhasil (bagian 14).
+
+## 13. Update aplikasi
+
+Setelah perubahan masuk ke `main`:
+
+```bash
+sh ~/dolanin/scripts/deploy.sh
+```
+
+Script ini: `git pull`, `npm ci`, `prisma migrate deploy`, `npm run build`, lalu restart service. Selama build (1–2 menit) situs bisa error sesaat, jadi jalankan saat sepi. Script mencetak versi sebelum update.
+
+**Rollback** kalau versi baru bermasalah (ganti `<versi>` dengan yang dicetak script):
+
+```bash
+cd ~/dolanin
+git checkout <versi>
+npm ci && npm run build && sudo systemctl restart dolanin
+```
+
+Migrasi database tidak ikut mundur. Untuk kembali normal ke versi terbaru: `git checkout main` lalu jalankan `deploy.sh` lagi.
+
+## 14. Backup dan restore
+
+Foto dan video sudah aman di Bunny; yang perlu di-backup hanya database (listing, kota, pengaturan, admin, statistik klik).
+
+**Siapkan tempat backup di Bunny**: buat Storage Zone baru khusus backup (mis. `dolanin-backup`, region Singapura), **tanpa Pull Zone**. Jangan simpan backup di Storage Zone foto: zone itu punya Pull Zone, jadi isinya bisa diunduh publik. Lalu isi di `.env`:
+
+```
+BACKUP_STORAGE_ZONE=dolanin-backup
+BACKUP_STORAGE_HOST=sg.storage.bunnycdn.com
+BACKUP_STORAGE_PASSWORD=<password storage zone backup>
+```
+
+`BACKUP_STORAGE_HOST` mengikuti region utama zone backup: Frankfurt `storage.bunnycdn.com`, Singapura `sg.storage.bunnycdn.com`, lainnya `{kode}.storage.bunnycdn.com` ([Bunny Storage API](https://bunny.net/docs/storage/http)). Password ada di halaman FTP & API Access zone itu.
+
+**Tes sekali:**
+
+```bash
+sh ~/dolanin/scripts/backup-db.sh
+ls -lh ~/backups
+```
+
+Pastikan file `dolanin-YYYY-MM-DD.dump` juga muncul di Storage Zone backup.
+
+**Jadwal harian.** `crontab -e`, tambahkan baris (19.00 UTC = 02.00 WIB):
+
+```
+0 19 * * * sh /home/ubuntu/dolanin/scripts/backup-db.sh >> /home/ubuntu/backup-db.log 2>&1
+```
+
+Server menyimpan dump 7 hari terakhir di `~/backups`; salinan di Bunny tidak dihapus otomatis (ukurannya kecil, hapus sesekali dari dashboard).
+
+**Restore:**
+
+```bash
+cd ~/dolanin
+DB=$(grep '^DATABASE_URL=' .env | cut -d= -f2-)
+sudo systemctl stop dolanin
+pg_restore --clean --if-exists --no-owner -d "$DB" ~/backups/dolanin-YYYY-MM-DD.dump
+sudo systemctl start dolanin
+```
+
+Kalau VPS hilang, unduh dulu dari Bunny ke server baru:
+
+```bash
+curl -fsS -H "AccessKey: <password storage zone backup>" -o dolanin.dump https://sg.storage.bunnycdn.com/dolanin-backup/dolanin-YYYY-MM-DD.dump
+```
+
+## 15. Operasional
+
+- **Log aplikasi**: `journalctl -u dolanin -f`. Log Caddy: `journalctl -u caddy -f`. Webhook Bunny dengan token salah muncul sebagai 401 untuk `/api/bunny/webhook`.
+- **Restart**: `sudo systemctl restart dolanin`.
+- **Update sistem**: patch keamanan Ubuntu terpasang otomatis (unattended-upgrades). Sebulan sekali: `sudo apt update && sudo apt upgrade -y`, lalu `sudo reboot` bila diminta.
+- **Disk**: `df -h`.
+- **Video tertahan "Sedang diproses"**: kalau webhook terlewat, buka listing di CMS lalu Simpan; status ditanyakan ulang ke Bunny. Video "Gagal diproses" harus dihapus lalu diunggah ulang.
+- **Batas video**: maksimal 4 menit, 300 MB, vertikal 9:16.
+- **Rate limit** (opsional, kalau ada bot yang menggelembungkan klik): Caddy belum punya rate limit bawaan. Pilihannya plugin `caddy-ratelimit`, atau Cloudflare (gratis) di depan domain.
 - **Daftar kota awal** masih menunggu keputusan pemilik; isi lewat `/admin/kota`.
-- **Biaya bulanan**: Vercel Pro adalah biaya tetap utama; Neon Free ditargetkan nol; Bunny (Storage dan Stream) naik mengikuti jumlah/ukuran media dan trafik video. Pantau tagihan bulan pertama.
-- **Log**: Vercel dashboard, tab Logs (runtime) dan Deployments (build, termasuk output migrasi). Webhook Bunny yang gagal terlihat sebagai 401 (token salah) di log function `/api/bunny/webhook`.
-- **Video tertahan "Sedang diproses"**: kalau webhook terlewat, buka listing di CMS lalu simpan lagi; saat menyimpan, status video yang masih diproses ditanyakan ulang ke Bunny. Video berstatus "Gagal diproses" harus dihapus lalu diunggah ulang.
-- **Rate limit (disarankan)**: di Vercel, Firewall, tambahkan custom rule dengan aksi **Rate Limit** untuk path yang diawali `/go/` dan path `/api/view`, mis. 30 permintaan per 60 detik per IP, lalu 429. Ini membatasi bot yang menggelembungkan klik/view dan biaya function. Cek batas fitur Firewall paket Pro di dokumentasi Vercel.
-- Migrasi baru ikut ter-deploy otomatis; backup/restore DB lewat fitur Neon.
