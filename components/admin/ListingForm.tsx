@@ -172,7 +172,7 @@ export function ListingForm({ cities, initial }: { cities: { id: string; name: s
         <section className={s.card}>
           <h2>Foto &amp; video</h2>
           <p className={s.hint}>
-            Seret untuk mengurutkan, atau pakai tombol geser. Media pertama jadi pembuka di halaman detail. Video vertikal 9:16, maksimal 60 detik.
+            Seret untuk mengurutkan, atau pakai tombol geser. Media pertama jadi pembuka di halaman detail. Video vertikal 9:16, maksimal 4 menit.
           </p>
           <MediaManager items={items} setItems={setItems} error={err("media")} />
         </section>

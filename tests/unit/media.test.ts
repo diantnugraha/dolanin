@@ -25,8 +25,8 @@ describe("bunnyTusSignature", () => {
 
 describe("validateVideoMeta", () => {
   it("accepts a valid 9:16 clip", () => expect(validateVideoMeta(ok)).toBeNull());
-  it("rejects long duration", () => expect(validateVideoMeta({ ...ok, durationSec: 61 })).toBe("durasi"));
-  it("accepts 60.4s", () => expect(validateVideoMeta({ ...ok, durationSec: 60.4 })).toBeNull());
+  it("rejects long duration", () => expect(validateVideoMeta({ ...ok, durationSec: 241 })).toBe("durasi"));
+  it("accepts 240.4s (4 menit)", () => expect(validateVideoMeta({ ...ok, durationSec: 240.4 })).toBeNull());
   it("rejects NaN duration", () => expect(validateVideoMeta({ ...ok, durationSec: NaN })).toBe("durasi"));
   it("rejects landscape", () => expect(validateVideoMeta({ ...ok, width: 1920, height: 1080 })).toBe("rasio"));
   it("rejects huge file", () => expect(validateVideoMeta({ ...ok, sizeBytes: 301e6 })).toBe("ukuran"));

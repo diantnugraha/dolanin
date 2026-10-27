@@ -7,7 +7,7 @@ export type VideoMeta = { durationSec: number; width: number; height: number; si
 export type VideoProblem = "durasi" | "rasio" | "ukuran" | "format";
 
 export const VIDEO_ERRORS: Record<VideoProblem, string> = {
-  durasi: "Video maksimal 60 detik.",
+  durasi: "Video maksimal 4 menit.",
   rasio: "Video harus vertikal 9:16.",
   ukuran: "Ukuran video maksimal 300 MB.",
   format: "File ini bukan video.",
@@ -15,7 +15,7 @@ export const VIDEO_ERRORS: Record<VideoProblem, string> = {
 
 export function validateVideoMeta(m: VideoMeta): VideoProblem | null {
   if (!m.mime.startsWith("video/")) return "format";
-  if (!(m.durationSec <= 60.5)) return "durasi";
+  if (!(m.durationSec <= 240.5)) return "durasi";
   const ratio = m.height > 0 ? m.width / m.height : 0;
   if (ratio < 0.54 || ratio > 0.585) return "rasio";
   if (m.sizeBytes > 300e6) return "ukuran";
