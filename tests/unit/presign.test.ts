@@ -30,4 +30,14 @@ describe("createPhotoUploadFor (real getSignedUrl)", () => {
       expect(new URL(urls[w]).searchParams.get("X-Amz-SignedHeaders")).toBe("cache-control;content-type;host");
     }
   });
+
+  it("S3_ENDPOINT (Bunny Storage) signs path-style urls against that host and region", async () => {
+    vi.stubEnv("S3_ENDPOINT", "https://de-s3.storage.bunnycdn.com");
+    vi.stubEnv("S3_REGION", "de");
+    const { key, urls } = await createPhotoUploadFor();
+    const u = new URL(urls[800]);
+    expect(u.host).toBe("de-s3.storage.bunnycdn.com");
+    expect(u.pathname).toBe(`/test-bucket/${key}-800.webp`);
+    expect(u.searchParams.get("X-Amz-Credential")).toMatch(/\/de\/s3\/aws4_request$/);
+  });
 });

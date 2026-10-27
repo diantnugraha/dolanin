@@ -8,4 +8,4 @@ Panduan deploy produksi: [docs/deploy.md](docs/deploy.md).
 
 ## Media
 
-Dev and E2E use `NEXT_PUBLIC_MEDIA_CDN_URL=/dev-media` (served from `public/dev-media`, works on any port). Production uses the CloudFront URL.
+Dev and E2E use `NEXT_PUBLIC_MEDIA_CDN_URL=/dev-media` (served from `public/dev-media`, works on any port). Production uses the Bunny Storage Pull Zone URL.

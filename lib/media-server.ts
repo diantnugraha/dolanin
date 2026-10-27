@@ -49,8 +49,12 @@ function s3Config() {
   if (!bucket || !region || !id || !secret) throw new Error("Penyimpanan foto belum dikonfigurasi (S3_*).");
   // WHEN_REQUIRED: by default the SDK adds an empty-body CRC32 checksum to presigned PUT URLs, so S3
   // rejects every real upload (aws-sdk-js-v3 #6810). DeleteObjects still gets its required checksum.
+  // S3_ENDPOINT set = S3-compatible storage (Bunny Storage: key id = zone name, secret = zone password).
+  const endpoint = process.env.S3_ENDPOINT || undefined;
   const client = new S3Client({
     region,
+    endpoint,
+    forcePathStyle: !!endpoint,
     credentials: { accessKeyId: id, secretAccessKey: secret },
     requestChecksumCalculation: "WHEN_REQUIRED",
   });
