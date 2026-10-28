@@ -36,9 +36,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const chartLabel = `Grafik garis jumlah klik per hari, ${formatDay(series[0].date)} sampai ${formatDay(series[series.length - 1].date)}`;
   const prev = `dari ${days} hari sebelumnya`;
   const channelRows = byChannel.map((r) => {
-    if (r.channel === null) return { key: "lainnya", name: "Lainnya", count: r.count, other: true as const };
+    if (r.channel === null) return { key: "lainnya", name: "Lainnya", count: r.count, share: r.share, other: true as const };
     const c = channelById(r.channel);
-    return { key: c.slug, name: c.label, count: r.count, icon: `/channels/icon-${c.slug}.png` };
+    return { key: c.slug, name: c.label, count: r.count, share: r.share, icon: `/channels/icon-${c.slug}.png` };
   });
   const topChannel = kpis.top && channelById(kpis.top.channel);
 

@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { formatCount } from "@/lib/format";
+import { formatCount, formatPercent } from "@/lib/format";
 import s from "./dashboard.module.css";
 
 /** One single-hue bar per row; identity comes from the label (and optional icon), never from colour. */
-export type BarRow = { key: string; name: string; count: number; other?: true; icon?: string };
+/** `share` (0–1, of all clicks) is shown next to the count when given; otherwise the tooltip derives it from `total`. */
+export type BarRow = { key: string; name: string; count: number; other?: true; icon?: string; share?: number };
 
 export function BarList({ rows, total, unit }: { rows: BarRow[]; total: number; unit: string }) {
   const [tip, setTip] = useState<{ row: BarRow; left: number; top: number } | null>(null);
@@ -19,7 +20,7 @@ export function BarList({ rows, total, unit }: { rows: BarRow[]; total: number; 
   };
   return (
     <>
-      <div className={s.bars}>
+      <div className={`${s.bars} ${rows.some((r) => r.share !== undefined) ? s.shares : ""}`}>
         {rows.map((r) => (
           <div
             key={r.key}
@@ -36,7 +37,10 @@ export function BarList({ rows, total, unit }: { rows: BarRow[]; total: number; 
               {r.name}
             </span>
             <div className={s.tr}><i style={{ width: `${(r.count / max) * 100}%` }} /></div>
-            <b>{formatCount(r.count)}</b>
+            <b>
+              {formatCount(r.count)}
+              {r.share !== undefined && <small> · {formatPercent(r.share)}</small>}
+            </b>
           </div>
         ))}
         <div className={s.tt} role="tooltip" style={{ left: tip?.left ?? 0, top: tip?.top ?? 0, opacity: tip ? 1 : 0 }}>
@@ -46,7 +50,12 @@ export function BarList({ rows, total, unit }: { rows: BarRow[]; total: number; 
               <div className={s.r}>
                 <i style={{ background: tip.row.other ? "#C9C2B8" : "#F26B3A" }} />
                 <b>{formatCount(tip.row.count)}</b>
-                <span>{unit}{total > 0 ? ` · ${Math.round((tip.row.count / total) * 100)}%` : ""}</span>
+                <span>
+                  {unit}
+                  {tip.row.share !== undefined
+                    ? ` · ${formatPercent(tip.row.share)}`
+                    : total > 0 ? ` · ${Math.round((tip.row.count / total) * 100)}%` : ""}
+                </span>
               </div>
             </>
           )}

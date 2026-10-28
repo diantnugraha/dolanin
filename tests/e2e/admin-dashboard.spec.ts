@@ -75,6 +75,11 @@ test("clicks per channel: most first, Lainnya last", async ({ page }) => {
   const card = page.getByRole("heading", { name: "Klik per channel" }).locator("xpath=ancestor::div[contains(@class, 'card')][1]");
   const names = await card.locator("[tabindex='0'] > span").allInnerTexts();
   expect(names.map((n) => n.trim())).toEqual(["Agoda", "WhatsApp", "Lainnya"]);
+  // every row shows its share of all clicks, not only in the tooltip
+  const rows = card.locator("[tabindex='0']");
+  await expect(rows.nth(0)).toContainText("60%");
+  await expect(rows.nth(1)).toContainText("30%");
+  await expect(rows.nth(2)).toContainText("10%");
   await card.locator("[tabindex='0']").first().hover();
   await expect(card.getByRole("tooltip")).toContainText("6");
   await expect(card.getByRole("tooltip")).toContainText("klik · 60%");

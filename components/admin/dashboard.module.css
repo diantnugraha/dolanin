@@ -58,6 +58,8 @@
 .bar .tr i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--series-klik); border-radius: 0 4px 4px 0; transition: filter 0.12s; }
 .bar:hover .tr i, .bar:focus .tr i { filter: brightness(1.1); }
 .bar b { font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.shares .bar { grid-template-columns: 120px 1fr 84px; }
+.bar b small { font-size: 12px; font-weight: 500; color: var(--text-2); }
 .bar > span { color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .nm { display: flex; align-items: center; gap: 8px; }
 .nm .noic { flex: none; width: 18px; }
