@@ -31,7 +31,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 
 ## Copy
 
-Tagline (opsi C pilihan user): "Yuk, dolan! Nginepnya biar hemat, jalan-jalannya puas." Kata "hemat" diberi stabilo Kuning senja. Subline: "Bandingkan hotel, penginapan, dan villa murah per kota, lalu pesan lewat link resmi atau tanya via WhatsApp." Jangan pakai frasa "sudah kami pilihkan".
+Tagline (opsi C pilihan user): "Yuk, dolan! Nginepnya biar hemat, jalan-jalannya puas." Kata "hemat" diberi stabilo Kuning senja. Subline: "Kasih kamu rekomendasi villa dan hotel di berbagai daerah! Info booking tersedia di OTA resmi atau direct via WhatsApp." Jangan pakai frasa "sudah kami pilihkan".
 
 ## Responsive
 

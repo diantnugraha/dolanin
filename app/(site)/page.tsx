@@ -30,7 +30,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <h1>
             Yuk, dolan! Nginepnya biar <mark>hemat</mark>, jalan‑jalannya puas.
           </h1>
-          <p>Bandingkan hotel, penginapan, dan villa murah per kota, lalu pesan lewat link resmi atau tanya via WhatsApp.</p>
+          <p>Kasih kamu rekomendasi villa dan hotel di berbagai daerah! Info booking tersedia di OTA resmi atau direct via WhatsApp.</p>
           <TypeSegment active={tipe} />
         </div>
         <div>
