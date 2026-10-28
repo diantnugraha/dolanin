@@ -42,6 +42,29 @@ test.describe("detail mobile", () => {
     }
   });
 
+  test("logos keep their aspect ratio on a narrow 360px phone", async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 780 });
+    for (const url of ["/bali/villa-sawah-asri", URL]) {
+      await page.goto(url);
+      const imgs = page.locator("[data-dock] a img");
+      await expect(imgs.first()).toBeVisible();
+      const ratios = await imgs.evaluateAll((els) =>
+        (els as HTMLImageElement[]).map((im) => ({
+          src: im.getAttribute("src"),
+          drift: Math.abs(im.clientWidth / im.clientHeight / (im.naturalWidth / im.naturalHeight) - 1),
+          inside: (() => {
+            const i = im.getBoundingClientRect(), t = im.parentElement!.getBoundingClientRect();
+            return i.left >= t.left && i.right <= t.right && i.top >= t.top && i.bottom <= t.bottom;
+          })(),
+        })),
+      );
+      for (const r of ratios) {
+        expect(r.drift, r.src ?? "").toBeLessThan(0.02);
+        expect(r.inside, `${r.src} inside its tile`).toBe(true);
+      }
+    }
+  });
+
   test("six links scroll sideways inside the dock, never the page", async ({ page }) => {
     await page.goto(URL);
     const tiles = page.locator("[data-dock] a");

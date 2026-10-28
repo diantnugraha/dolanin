@@ -30,24 +30,26 @@
   }
 }
 
-/* Logos differ from 2:1 (Agoda, stacked) to 6:1 (Booking.com): per-logo heights keep them optically equal. */
+/* Logos differ from 2:1 (Agoda, stacked) to 6:1 (Booking.com): per-logo heights keep them optically equal.
+   Max sizes, not fixed ones: in a narrow tile the logo shrinks with its aspect ratio instead of squashing. */
 .lg {
   display: block;
   width: auto;
+  height: auto;
   max-width: 100%;
-  height: 21px;
+  max-height: 21px;
 }
 .agoda {
-  height: 30px;
+  max-height: 30px;
 }
 .booking {
-  height: 17px;
+  max-height: 17px;
 }
 .one .lg {
-  height: 24px;
+  max-height: 24px;
 }
 .one .agoda {
-  height: 34px;
+  max-height: 34px;
 }
 
 /* More than three on a phone: fixed-width tiles in a sideways row. The cut-off tile at the edge says "more". */
@@ -79,7 +81,7 @@
   padding: 0 16px;
 }
 .card .agoda {
-  height: 28px;
+  max-height: 28px;
 }
 .arr {
   flex: none;
