@@ -25,8 +25,17 @@ enum VideoStatus {
 
 enum EventKind {
   VIEW
-  PESAN
-  WA
+  CLICK
+}
+
+/// Urutan di sini = urutan tampil tombol pemesanan.
+enum BookingChannel {
+  AGODA
+  TRAVELOKA
+  TRIP
+  TIKET
+  BOOKING
+  WHATSAPP
 }
 
 model City {
@@ -42,11 +51,11 @@ model City {
 }
 
 model Listing {
-  id              String      @id @default(cuid())
+  id              String        @id @default(cuid())
   name            String
-  slug            String      @unique
+  slug            String        @unique
   cityId          String
-  city            City        @relation(fields: [cityId], references: [id], onDelete: Restrict)
+  city            City          @relation(fields: [cityId], references: [id], onDelete: Restrict)
   type            ListingType
   area            String
   mapsUrl         String?
@@ -55,16 +64,26 @@ model Listing {
   description     String // ≤ 300 karakter
   facilities      String[] // key preset dari FACILITIES
   extraFacilities String[] // teks bebas "Lainnya"
-  affiliateUrl    String
-  waNumber        String? // sudah dinormalisasi "62…"
-  published       Boolean     @default(false)
-  featured        Boolean     @default(false)
+  legacyUrl       String? // link affiliate lama berdomain tak dikenal; dikosongkan saat listing disimpan
+  published       Boolean       @default(false)
+  featured        Boolean       @default(false)
   media           Media[]
+  links           ListingLink[]
   events          Event[]
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   @@index([cityId, published, price])
+}
+
+model ListingLink {
+  id        String         @id @default(cuid())
+  listingId String
+  listing   Listing        @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  channel   BookingChannel
+  url       String
+
+  @@unique([listingId, channel])
 }
 
 model Media {
@@ -95,13 +114,14 @@ model Admin {
 }
 
 model Event {
-  id        BigInt      @id @default(autoincrement())
+  id        BigInt          @id @default(autoincrement())
   listingId String
-  listing   Listing     @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listing   Listing         @relation(fields: [listingId], references: [id], onDelete: Cascade)
   kind      EventKind
+  channel   BookingChannel? // CLICK saja; null = klik lama yang channel-nya tak dikenal
   cityId    String // didenormalisasi saat event terjadi
   type      ListingType
-  createdAt DateTime    @default(now())
+  createdAt DateTime        @default(now())
 
   @@index([createdAt])
   @@index([listingId, createdAt])

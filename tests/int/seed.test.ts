@@ -12,6 +12,16 @@ describe("seed", () => {
     expect(await db.city.count()).toBe(5);
   });
 
+  it("seeds 6, 3 and 1 booking links (E2E fixtures) and none on the draft", async () => {
+    const channels = async (slug: string) =>
+      (await db.listingLink.findMany({ where: { listing: { slug } }, orderBy: { channel: "asc" } })).map((l) => l.channel);
+    expect(await channels("omah-tugu-inn")).toEqual(["AGODA", "TRAVELOKA", "TRIP", "TIKET", "BOOKING", "WHATSAPP"]);
+    expect(await channels("villa-sawah-asri")).toEqual(["AGODA", "TRAVELOKA", "WHATSAPP"]);
+    expect(await channels("kamar-dago-atas")).toEqual(["BOOKING"]);
+    expect(await channels("pondok-kaliurang")).toEqual([]);
+    expect(await db.listing.count({ where: { published: true, links: { none: {} } } })).toBe(0);
+  });
+
   it("keeps the draft listing unpublished", async () => {
     const draft = await db.listing.findUnique({ where: { slug: "pondok-kaliurang" } });
     expect(draft?.published).toBe(false);

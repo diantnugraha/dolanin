@@ -1,7 +1,8 @@
 // Data contoh untuk dev/E2E saja. JANGAN dijalankan di produksi.
 import { pathToFileURL } from "node:url";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient, ListingType } from "../generated/prisma/client";
+import { PrismaClient, ListingType, type BookingChannel } from "../generated/prisma/client";
+import { CHANNELS } from "../lib/channels";
 import { hashPassword } from "../lib/password";
 
 const cities = [
@@ -92,6 +93,20 @@ const listings: SeedListing[] = [
   },
 ];
 
+// Varied on purpose so E2E covers 1, 3 and 6 booking tiles and a draft without links.
+function seedChannels(slug: string, published: boolean): BookingChannel[] {
+  if (!published) return [];
+  if (slug === "omah-tugu-inn") return CHANNELS.map((c) => c.id);
+  if (slug === "villa-sawah-asri") return ["AGODA", "TRAVELOKA", "WHATSAPP"];
+  if (slug === "kamar-dago-atas") return ["BOOKING"];
+  return ["TRAVELOKA", "WHATSAPP"];
+}
+
+const seedUrl = (slug: string, channel: BookingChannel) =>
+  channel === "WHATSAPP"
+    ? "https://wa.me/6281200000000"
+    : `https://example.com/${slug}/${CHANNELS.find((c) => c.id === channel)!.slug}`;
+
 export async function seedData(db: PrismaClient) {
   const cityRows = [];
   for (const [sortOrder, c] of cities.entries()) {
@@ -107,9 +122,13 @@ export async function seedData(db: PrismaClient) {
       ...l,
       cityId: cityId.get(city)!,
       extraFacilities: [],
-      affiliateUrl: `https://example.com/aff/${l.slug}`,
+      legacyUrl: null,
     };
     const row = await db.listing.upsert({ where: { slug: l.slug }, update: data, create: data });
+    await db.listingLink.deleteMany({ where: { listingId: row.id } });
+    await db.listingLink.createMany({
+      data: seedChannels(l.slug, l.published).map((channel) => ({ listingId: row.id, channel, url: seedUrl(l.slug, channel) })),
+    });
     await db.media.deleteMany({ where: { listingId: row.id } });
     await db.media.createMany({
       data: photos.map((key, sortOrder) => ({ listingId: row.id, kind: "PHOTO" as const, key, sortOrder })),
