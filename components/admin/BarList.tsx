@@ -10,6 +10,7 @@ export type BarRow = { key: string; name: string; count: number; other?: true; i
 export function BarList({ rows, total, unit }: { rows: BarRow[]; total: number; unit: string }) {
   const [tip, setTip] = useState<{ row: BarRow; left: number; top: number } | null>(null);
   const max = Math.max(1, ...rows.map((r) => r.count));
+  const withIcons = rows.some((r) => r.icon); // keeps names aligned when one row ("Lainnya") has no icon
   if (!rows.length) return <p className={s.empty}>Belum ada data untuk periode ini.</p>;
   // Positioned inside the (relative) list so it scrolls with the page and can't leave the card.
   const show = (row: BarRow, el: HTMLElement) => {
@@ -31,7 +32,7 @@ export function BarList({ rows, total, unit }: { rows: BarRow[]; total: number; 
           >
             <span className={s.nm}>
               {/* eslint-disable-next-line @next/next/no-img-element -- 18px static icon */}
-              {r.icon && <img src={r.icon} alt="" width={18} height={18} />}
+              {r.icon ? <img src={r.icon} alt="" width={18} height={18} /> : withIcons && <span className={s.noic} />}
               {r.name}
             </span>
             <div className={s.tr}><i style={{ width: `${(r.count / max) * 100}%` }} /></div>
