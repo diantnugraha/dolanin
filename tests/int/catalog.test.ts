@@ -13,7 +13,7 @@ async function addListing(citySlug: string, slug: string, price: number, extra: 
   return db.listing.create({
     data: {
       name: slug, slug, cityId: city.id, type: "HOTEL", area: "Pusat", price,
-      description: "x", facilities: [], extraFacilities: [], affiliateUrl: "https://example.com/a",
+      description: "x", facilities: [], extraFacilities: [],
       published: true, ...extra,
     },
   });

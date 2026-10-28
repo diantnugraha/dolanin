@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { parseRupiah } from "./format";
-import { normalizeWaNumber } from "./wa";
+import type { BookingChannel } from "../generated/prisma/client";
+import { CHANNELS } from "./channels";
 import { FACILITIES } from "./listing";
 
 const URL_MSG = "Link harus diawali http:// atau https://";
@@ -31,6 +32,12 @@ const rupiah = (min: number, minMsg: string) =>
 
 const empty = (v: unknown) => (typeof v === "string" && v.trim() === "" ? undefined : v);
 
+const optionalUrl = z.preprocess(empty, httpUrl.optional());
+// One optional link per channel; unknown channels are rejected, empty ones dropped.
+const bookingLinks = z
+  .strictObject(Object.fromEntries(CHANNELS.map((c) => [c.id, optionalUrl])) as Record<BookingChannel, typeof optionalUrl>)
+  .transform((l) => Object.fromEntries(Object.entries(l).filter(([, url]) => url !== undefined)) as Partial<Record<BookingChannel, string>>);
+
 export const listingInput = z
   .object({
     name: z.string().trim().min(1, "Nama wajib diisi").max(100, "Nama maksimal 100 karakter"),
@@ -45,21 +52,7 @@ export const listingInput = z
     extraFacilities: z
       .array(z.string().trim().min(1, "Fasilitas tidak boleh kosong").max(30, "Maksimal 30 karakter"))
       .max(5, "Maksimal 5 fasilitas lainnya"),
-    affiliateUrl: httpUrl,
-    waNumber: z.preprocess(
-      empty,
-      z
-        .string()
-        .transform((v, ctx) => {
-          const n = normalizeWaNumber(v);
-          if (!n) {
-            ctx.addIssue({ code: "custom", message: "Nomor WhatsApp tidak valid" });
-            return z.NEVER;
-          }
-          return n;
-        })
-        .optional(),
-    ),
+    links: bookingLinks,
     published: z.boolean(),
     featured: z.boolean(),
     media: z.array(
@@ -73,6 +66,9 @@ export const listingInput = z
   .superRefine((v, ctx) => {
     if (v.published && v.media.length === 0) {
       ctx.addIssue({ code: "custom", path: ["media"], message: "Tambahkan minimal 1 foto atau video" });
+    }
+    if (v.published && Object.keys(v.links).length === 0) {
+      ctx.addIssue({ code: "custom", path: ["links"], message: "Isi minimal satu link pemesanan" });
     }
   });
 

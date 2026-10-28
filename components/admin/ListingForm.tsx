@@ -3,8 +3,10 @@
 import { useRef, useState, useActionState, type ReactNode } from "react";
 import { unstable_rethrow } from "next/navigation";
 import { IconPlus, IconX } from "@tabler/icons-react";
+import type { BookingChannel } from "../../generated/prisma/client";
 import type { AdminListingDetail } from "@/lib/admin";
 import type { Cover, ListingCardData } from "@/lib/catalog";
+import { CHANNELS } from "@/lib/channels";
 import { formatRupiah, parseRupiah } from "@/lib/format";
 import { FACILITIES, TYPE_LABEL } from "@/lib/listing";
 import { saveListingAction } from "./actions";
@@ -50,8 +52,7 @@ export function ListingForm({ cities, initial }: { cities: { id: string; name: s
   const [extras, setExtras] = useState<string[]>(initial?.extraFacilities ?? []);
   const [extraOpen, setExtraOpen] = useState(false);
   const [extraDraft, setExtraDraft] = useState("");
-  const [affiliateUrl, setAffiliateUrl] = useState(initial?.affiliateUrl ?? "");
-  const [waNumber, setWaNumber] = useState(initial?.waNumber ?? "");
+  const [links, setLinks] = useState<Partial<Record<BookingChannel, string>>>(initial?.links ?? {});
   const [published, setPublished] = useState(initial?.published ?? true);
   const [featured, setFeatured] = useState(initial?.featured ?? false);
   const [items, setItems] = useState<MediaItem[]>(() =>
@@ -67,7 +68,7 @@ export function ListingForm({ cities, initial }: { cities: { id: string; name: s
       const res = await saveListingAction(
       {
         name, cityId, type, area, mapsUrl, price, normalPrice, description,
-        facilities, extraFacilities: extras, affiliateUrl, waNumber,
+        facilities, extraFacilities: extras, links,
         published: draft.current ? false : published,
         featured,
         media: items.filter((i) => i.key && !i.uploading).map((i, sortOrder) => ({ kind: i.kind, key: i.key, sortOrder })),
@@ -226,16 +227,33 @@ export function ListingForm({ cities, initial }: { cities: { id: string; name: s
         </section>
 
         <section className={s.card}>
-          <h2>Tombol Pesan &amp; WhatsApp</h2>
-          <p className={s.hint}>Ke mana pengunjung diarahkan dari halaman detail.</p>
-          <Field id="affiliateUrl" label="Link affiliate (tombol Pesan)" hint="Link dibuka di tab baru." error={err("affiliateUrl")}>
-            <input id="affiliateUrl" inputMode="url" placeholder="https://" value={affiliateUrl}
-              onChange={(e) => setAffiliateUrl(e.target.value)} {...bad("affiliateUrl")} />
-          </Field>
-          <Field id="waNumber" label="Nomor WhatsApp" hint="Kosongkan untuk memakai nomor default dari Pengaturan." error={err("waNumber")}>
-            <input id="waNumber" inputMode="tel" placeholder="0812-0000-0000" value={waNumber}
-              onChange={(e) => setWaNumber(e.target.value)} {...bad("waNumber")} />
-          </Field>
+          <h2>Link pemesanan</h2>
+          <p className={s.hint}>Isi minimal satu. Yang dikosongkan tidak tampil di halaman detail.</p>
+          {initial?.legacyUrl && (
+            <p className={s.legacy}>
+              Link lama belum masuk channel mana pun: <span>{initial.legacyUrl}</span> Salin ke kolom yang sesuai, lalu simpan.
+            </p>
+          )}
+          {CHANNELS.map((c) => {
+            const id = `link-${c.slug}`;
+            const e = err(`links.${c.id}`);
+            const wa = c.id === "WHATSAPP";
+            return (
+              <Field key={c.id} id={id} error={e} hint={wa ? "Contoh: https://wa.me/6281234567890?text=Halo" : undefined}
+                label={
+                  <span className={s.lk}>
+                    {/* eslint-disable-next-line @next/next/no-img-element -- 20px static icon */}
+                    <img src={`/channels/icon-${c.slug}.png`} alt="" width={20} height={20} />
+                    {c.label}
+                  </span>
+                }>
+                <input id={id} inputMode="url" placeholder={wa ? "https://wa.me/628…" : "https://"} value={links[c.id] ?? ""}
+                  onChange={(ev) => setLinks((l) => ({ ...l, [c.id]: ev.target.value }))}
+                  aria-invalid={e ? true : undefined} aria-describedby={e ? `${id}-err` : undefined} />
+              </Field>
+            );
+          })}
+          {err("links") && <p className={s.err} role="alert">{err("links")}</p>}
         </section>
       </div>
 

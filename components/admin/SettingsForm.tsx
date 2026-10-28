@@ -23,7 +23,7 @@ function WaForm({ initial }: { initial: string }) {
     <form action={submit} noValidate>
       <section className={s.card}>
         <h2>WhatsApp</h2>
-        <p className={s.hint}>Nomor ini dipakai tombol WhatsApp di landing dan di listing yang tidak punya nomor sendiri. Kosongkan untuk menyembunyikannya.</p>
+        <p className={s.hint}>Nomor ini dipakai tombol &quot;Tanya via WA&quot; di header dan blok WhatsApp di landing. Kosongkan untuk menyembunyikannya.</p>
         <div className={s.f}>
           <label htmlFor="waDefault">Nomor WhatsApp default</label>
           <input id="waDefault" inputMode="tel" placeholder="0812-0000-0000" value={wa} onChange={(e) => setWa(e.target.value)}

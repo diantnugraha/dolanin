@@ -61,6 +61,7 @@ export function ListingTable({ rows }: { rows: AdminListingRow[] }) {
                   <i className={s.dot} aria-hidden="true" />
                   {r.published ? "Tayang" : "Draf"}
                 </span>
+                {r.legacyUrl && <span className={s.legacy}>Cek link lama</span>}
               </td>
               <td>
                 <div className={s.act}>

@@ -13,6 +13,10 @@
 .f [aria-invalid="true"] { border-color: #b42318; }
 .count { text-align: right; font-variant-numeric: tabular-nums; }
 .err { margin: 4px 0 0; font-size: 12px; font-weight: 500; color: #b42318; }
+.lk { display: flex; align-items: center; gap: 8px; }
+.lk img { flex: none; border-radius: 5px; box-shadow: 0 0 0 1px rgba(31, 42, 55, 0.08); }
+.legacy { margin: 0 0 16px; padding: 10px 12px; border-radius: 12px; background: var(--tint-j); font-size: 13px; line-height: 1.55; }
+.legacy span { font-weight: 600; overflow-wrap: anywhere; }
 .money { display: flex; align-items: center; gap: 8px; border: 1px solid #ddd5cb; border-radius: 12px; padding: 0 12px; background: #fff; }
 .money:focus-within { outline: 2px solid var(--laut); border-color: var(--laut); }
 .money span { color: var(--abu); font-size: 14px; }

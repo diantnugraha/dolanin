@@ -4,14 +4,14 @@ import { isPromo } from "@/lib/listing";
 
 const base = {
   name: "Omah Tugu Inn", cityId: "c1", type: "HOTEL", area: "Tugu", price: "185.000",
-  description: "Nyaman", facilities: [], extraFacilities: [], affiliateUrl: "https://x.com/a",
+  description: "Nyaman", facilities: [], extraFacilities: [], links: { AGODA: "https://x.com/a" },
   published: false, featured: false, media: [],
 };
 const err = (o: object) => {
   const r = listingInput.safeParse({ ...base, ...o });
   if (r.success) return null;
   const m: Record<string, string> = {};
-  for (const i of r.error.issues) m[String(i.path[0])] ??= i.message;
+  for (const i of r.error.issues) m[i.path[0] === "links" && i.path[1] ? `links.${String(i.path[1])}` : String(i.path[0])] ??= i.message;
   return m;
 };
 
@@ -30,12 +30,21 @@ describe("listingInput", () => {
   });
   it("urls http(s) only", () => {
     const m = "Link harus diawali http:// atau https://";
-    expect(err({ affiliateUrl: "javascript:alert(1)" })?.affiliateUrl).toBe(m);
+    expect(err({ links: { TRIP: "javascript:alert(1)" } })?.["links.TRIP"]).toBe(m);
     expect(err({ mapsUrl: "javascript:alert(1)" })?.mapsUrl).toBe(m);
   });
-  it("wa", () => {
-    expect(err({ waNumber: "021-555" })?.waNumber).toBe("Nomor WhatsApp tidak valid");
-    expect(listingInput.parse({ ...base, waNumber: "0812-3456-7890" }).waNumber).toBe("6281234567890");
+  it("booking links: empty ones are dropped", () => {
+    expect(listingInput.parse({ ...base, links: { AGODA: "", WHATSAPP: "https://wa.me/62812" } }).links).toEqual({
+      WHATSAPP: "https://wa.me/62812",
+    });
+  });
+  it("booking links: a published listing needs at least one, a draft does not", () => {
+    expect(err({ published: true, links: {} })?.links).toBe("Isi minimal satu link pemesanan");
+    expect(err({ published: true, links: { AGODA: " " } })?.links).toBe("Isi minimal satu link pemesanan");
+    expect(listingInput.safeParse({ ...base, published: false, links: {} }).success).toBe(true);
+  });
+  it("booking links: unknown channels are rejected", () => {
+    expect(err({ links: { EXPEDIA: "https://x.com" } })).not.toBeNull();
   });
   it("description max", () => {
     expect(err({ description: "a".repeat(301) })?.description).toBe("Deskripsi maksimal 300 karakter");

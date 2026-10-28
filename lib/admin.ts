@@ -1,6 +1,6 @@
 import "server-only";
 import { db } from "@/lib/db";
-import type { ListingType, MediaKind, Prisma, VideoStatus } from "../generated/prisma/client";
+import type { BookingChannel, ListingType, MediaKind, Prisma, VideoStatus } from "../generated/prisma/client";
 import type { Cover } from "./catalog";
 import { deleteMediaObjects, fetchBunnyVideoState } from "./media-server";
 import { isReservedSlug, slugify, uniqueSlug } from "./slug";
@@ -23,14 +23,14 @@ export type AdminListingRow = {
   updatedAt: Date;
   cover: Cover | null;
   hasVideo: boolean;
+  /** An old affiliate link on an unknown domain is waiting to be moved into a channel. */
+  legacyUrl: boolean;
 };
 
 export async function saveListing(input: unknown, id?: string): Promise<SaveResult> {
   const parsed = listingInput.safeParse(input);
   if (!parsed.success) {
-    const errors: Record<string, string> = {};
-    for (const i of parsed.error.issues) errors[String(i.path[0] ?? "form")] ??= i.message;
-    return { ok: false, errors };
+    return { ok: false, errors: listingErrors(parsed.error.issues) };
   }
   const v = parsed.data;
   if (!(await db.city.findUnique({ where: { id: v.cityId }, select: { id: true } }))) {
@@ -72,9 +72,10 @@ export async function saveListing(input: unknown, id?: string): Promise<SaveResu
   const data = {
     name: v.name, cityId: v.cityId, type: v.type, area: v.area, mapsUrl: v.mapsUrl ?? null,
     price: v.price, normalPrice: v.normalPrice ?? null, description: v.description,
-    facilities: v.facilities, extraFacilities: v.extraFacilities, affiliateUrl: v.affiliateUrl,
-    waNumber: v.waNumber ?? null, published: v.published, featured: v.featured,
+    facilities: v.facilities, extraFacilities: v.extraFacilities, published: v.published, featured: v.featured,
+    legacyUrl: null, // saving the form is the admin's acknowledgement of the old link
   };
+  const links = Object.entries(v.links) as [BookingChannel, string][];
 
   const run = () => db.$transaction(async (tx) => {
     let listingId: string;
@@ -100,6 +101,8 @@ export async function saveListing(input: unknown, id?: string): Promise<SaveResu
       );
       listingId = (await tx.listing.create({ data: { ...data, slug }, select: { id: true } })).id;
     }
+    await tx.listingLink.deleteMany({ where: { listingId } });
+    await tx.listingLink.createMany({ data: links.map(([channel, url]) => ({ listingId, channel, url })) });
     const fresh = v.media.filter((m) => !byKey.has(m.key));
     if (fresh.length) {
       await tx.media.createMany({
@@ -162,6 +165,7 @@ export async function listAdminListings(f: {
     orderBy: { updatedAt: "desc" },
     select: {
       id: true, name: true, slug: true, area: true, type: true, price: true, normalPrice: true, published: true, updatedAt: true,
+      legacyUrl: true,
       city: { select: { name: true, slug: true } },
       media: { orderBy: { sortOrder: "asc" }, select: { kind: true, key: true, status: true } },
     },
@@ -173,6 +177,7 @@ export async function listAdminListings(f: {
       normalPrice: r.normalPrice, published: r.published, updatedAt: r.updatedAt,
       cover: !c ? null : c.kind === "PHOTO" ? { kind: "PHOTO", key: c.key } : { kind: "VIDEO", guid: c.key },
       hasVideo: r.media.some((m) => m.kind === "VIDEO"),
+      legacyUrl: r.legacyUrl !== null,
     };
   });
 }
@@ -193,8 +198,8 @@ export type AdminListingDetail = {
   description: string;
   facilities: string[];
   extraFacilities: string[];
-  affiliateUrl: string;
-  waNumber: string;
+  links: Partial<Record<BookingChannel, string>>;
+  legacyUrl: string | null;
   published: boolean;
   featured: boolean;
   media: { kind: MediaKind; key: string; status: VideoStatus | null }[];
@@ -203,15 +208,28 @@ export type AdminListingDetail = {
 export async function getAdminListing(id: string): Promise<AdminListingDetail | null> {
   const l = await db.listing.findUnique({
     where: { id },
-    include: { media: { orderBy: { sortOrder: "asc" }, select: { kind: true, key: true, status: true } } },
+    include: {
+      media: { orderBy: { sortOrder: "asc" }, select: { kind: true, key: true, status: true } },
+      links: { select: { channel: true, url: true } },
+    },
   });
   if (!l) return null;
   return {
     id: l.id, name: l.name, cityId: l.cityId, type: l.type, area: l.area, mapsUrl: l.mapsUrl ?? "",
     price: l.price, normalPrice: l.normalPrice, description: l.description, facilities: l.facilities,
-    extraFacilities: l.extraFacilities, affiliateUrl: l.affiliateUrl, waNumber: l.waNumber ?? "",
+    extraFacilities: l.extraFacilities, links: Object.fromEntries(l.links.map((k) => [k.channel, k.url])), legacyUrl: l.legacyUrl,
     published: l.published, featured: l.featured, media: l.media,
   };
+}
+
+/** Like fieldErrors, but a bad link is keyed per channel ("links.AGODA"); the minimum-one rule stays on "links". */
+function listingErrors(issues: { path: PropertyKey[]; message: string }[]): Record<string, string> {
+  const errors: Record<string, string> = {};
+  for (const i of issues) {
+    const key = i.path[0] === "links" && i.path[1] !== undefined ? `links.${String(i.path[1])}` : String(i.path[0] ?? "form");
+    errors[key] ??= i.message;
+  }
+  return errors;
 }
 
 function fieldErrors(issues: { path: PropertyKey[]; message: string }[]): Record<string, string> {
