@@ -161,8 +161,8 @@ test.describe("media mobile", () => {
     await hero(page).getByRole("button", { name: "Layar penuh" }).click();
     await expect(viewer(page)).toContainText("Villa Sawah Asri");
     await expect(viewer(page)).toContainText(`1 dari ${total}`);
-    await expect(viewer(page).locator('a[href$="/pesan"]')).toBeVisible();
-    await expect(viewer(page).getByRole("link", { name: "Chat WhatsApp" })).toBeVisible();
+    await expect(viewer(page).getByRole("link", { name: "Pesan di Agoda" })).toBeVisible();
+    await expect(viewer(page).getByRole("link", { name: "Chat via WhatsApp" })).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(viewer(page)).toHaveCount(0);
 
@@ -270,7 +270,7 @@ test.describe("media desktop", () => {
 
     await page.getByRole("button", { name: `Lihat semua (${total})` }).click();
     await expect(viewer(page)).toContainText(`1 dari ${total}`);
-    await expect(viewer(page).locator('a[href$="/pesan"]')).toBeVisible(); // dock shown at desktop width too
+    await expect(viewer(page).getByRole("link", { name: "Pesan di Agoda" })).toBeVisible(); // dock shown at desktop width too
     await page.keyboard.press("ArrowLeft"); // already first: nothing moves
     await frames(page);
     await expect(viewer(page)).toContainText(`1 dari ${total}`);
@@ -280,7 +280,7 @@ test.describe("media desktop", () => {
     await expect(viewer(page)).toContainText(`1 dari ${total}`);
     await page.keyboard.press("Escape");
     await expect(viewer(page)).toHaveCount(0);
-    await expect(page.getByRole("link", { name: "Pesan sekarang" })).toBeVisible();
+    await expect(page.getByLabel("Pemesanan").getByRole("link", { name: "Pesan di Agoda" })).toBeVisible();
   });
 
   test("booking card stays pinned while the page scrolls", async ({ page }) => {

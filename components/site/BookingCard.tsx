@@ -1,26 +1,25 @@
-import { IconBrandWhatsapp, IconExternalLink, IconInfoCircle } from "@tabler/icons-react";
+import { IconInfoCircle } from "@tabler/icons-react";
+import type { BookingChannel } from "../../generated/prisma/client";
 import { isPromo } from "@/lib/listing";
+import { ChannelTiles } from "./ChannelTiles";
 import { PriceTag } from "./PriceTag";
 import { PromoStamp } from "./PromoStamp";
 import s from "./BookingCard.module.css";
 
 export function BookingCard({
-  id, price, normalPrice, showWa,
-}: { id: string; price: number; normalPrice: number | null; showWa: boolean }) {
+  id, price, normalPrice, channels,
+}: { id: string; price: number; normalPrice: number | null; channels: BookingChannel[] }) {
   return (
     <aside className={s.book} aria-label="Pemesanan">
       <div className={s.top}>
         <PriceTag price={price} normalPrice={normalPrice} size="lg" perNight />
         {isPromo({ price, normalPrice }) && <PromoStamp />}
       </div>
-      <a className={s.go} href={`/go/${id}/pesan`} target="_blank" rel="noopener nofollow">
-        Pesan sekarang <IconExternalLink size={18} stroke={1.75} aria-hidden="true" />
-      </a>
-      {showWa && (
-        <a className={s.wa} href={`/go/${id}/wa`} target="_blank" rel="noopener nofollow">
-          <IconBrandWhatsapp size={20} stroke={1.75} aria-hidden="true" />
-          Tanya via WhatsApp
-        </a>
+      {channels.length > 0 && (
+        <>
+          <h2 className={s.h}>Pesan di</h2>
+          <ChannelTiles id={id} channels={channels} variant="card" />
+        </>
       )}
       <p className={s.note}>
         <IconInfoCircle size={16} stroke={1.75} aria-hidden="true" />

@@ -1,7 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { db } from "@/lib/db";
-import type { ListingType, Prisma } from "../generated/prisma/client";
+import type { BookingChannel, ListingType, Prisma } from "../generated/prisma/client";
 import { PAGE_SIZE, priceRange, type CatalogParams } from "./listing";
 
 export type Cover = { kind: "PHOTO"; key: string } | { kind: "VIDEO"; guid: string };
@@ -34,7 +34,8 @@ export type ListingDetail = ListingCardData & {
   mapsUrl: string | null;
   facilities: string[];
   extraFacilities: string[];
-  waNumber: string | null;
+  /** Booking links the listing has, in display order (the links themselves stay server-side behind /go). */
+  channels: BookingChannel[];
   media: ({ kind: "PHOTO"; key: string } | { kind: "VIDEO"; guid: string; durationSec: number | null })[];
 };
 
@@ -187,7 +188,8 @@ export const getListingDetail = cache(async (citySlug: string, slug: string): Pr
     where: { slug, published: true, city: { slug: citySlug } },
     select: {
       ...cardSelect,
-      description: true, mapsUrl: true, facilities: true, extraFacilities: true, waNumber: true,
+      description: true, mapsUrl: true, facilities: true, extraFacilities: true,
+      links: { select: { channel: true }, orderBy: { channel: "asc" } },
       media: { where: PUBLIC_MEDIA, orderBy: { sortOrder: "asc" }, select: { kind: true, key: true, durationSec: true } },
     },
   });
@@ -195,7 +197,7 @@ export const getListingDetail = cache(async (citySlug: string, slug: string): Pr
   return {
     ...card(l),
     description: l.description, mapsUrl: l.mapsUrl, facilities: l.facilities,
-    extraFacilities: l.extraFacilities, waNumber: l.waNumber,
+    extraFacilities: l.extraFacilities, channels: l.links.map((k) => k.channel),
     media: l.media.map((m) =>
       m.kind === "PHOTO"
         ? { kind: "PHOTO" as const, key: m.key }

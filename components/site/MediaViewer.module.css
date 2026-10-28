@@ -156,7 +156,7 @@
 }
 /* The page's ActionDock, restyled for the dark viewer and shown at every width. */
 .dock :global([data-dock]) {
-  display: flex;
+  display: block;
   position: static;
   background: #000;
   border-top: 0;

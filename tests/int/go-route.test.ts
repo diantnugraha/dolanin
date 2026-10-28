@@ -16,60 +16,76 @@ beforeEach(async () => {
   await seedBasic();
 });
 
+type Ch = "AGODA" | "TRAVELOKA" | "TRIP" | "TIKET" | "BOOKING" | "WHATSAPP";
+const url = async (listingId: string, channel: Ch) =>
+  (await db.listingLink.findUniqueOrThrow({ where: { listingId_channel: { listingId, channel } } })).url;
+
 describe("resolveGo", () => {
-  it("pesan: 302 to affiliateUrl and records PESAN with cityId/type", async () => {
+  it("channel slug: 302 to that link and records CLICK with channel, cityId and type", async () => {
     const l = await get("omah-tugu-inn");
-    expect(await resolveGo(l.id, "pesan", CHROME)).toEqual({ status: 302, location: l.affiliateUrl });
+    expect(await resolveGo(l.id, "traveloka", CHROME)).toEqual({ status: 302, location: await url(l.id, "TRAVELOKA") });
     const ev = await db.event.findMany();
     expect(ev).toHaveLength(1);
-    expect(ev[0]).toMatchObject({ kind: "PESAN", listingId: l.id, cityId: l.cityId, type: l.type });
+    expect(ev[0]).toMatchObject({ kind: "CLICK", channel: "TRAVELOKA", listingId: l.id, cityId: l.cityId, type: l.type });
+  });
+
+  it("every seeded channel of a listing resolves to its own link", async () => {
+    const l = await get("omah-tugu-inn");
+    for (const [slug, ch] of [["agoda", "AGODA"], ["trip", "TRIP"], ["tiket", "TIKET"], ["booking", "BOOKING"], ["whatsapp", "WHATSAPP"]] as const) {
+      expect(await resolveGo(l.id, slug, CHROME)).toEqual({ status: 302, location: await url(l.id, ch) });
+    }
+  });
+
+  it("a channel the listing does not have -> 404, no event", async () => {
+    const dago = await get("kamar-dago-atas"); // BOOKING only
+    expect(await resolveGo(dago.id, "agoda", CHROME)).toEqual({ status: 404 });
+    expect(await db.event.count()).toBe(0);
   });
 
   it("bot: still redirects but records nothing", async () => {
     const l = await get("omah-tugu-inn");
-    expect(await resolveGo(l.id, "pesan", BOT)).toEqual({ status: 302, location: l.affiliateUrl });
+    expect(await resolveGo(l.id, "agoda", BOT)).toEqual({ status: 302, location: await url(l.id, "AGODA") });
     expect(await db.event.count()).toBe(0);
   });
 
-  it("wa: redirects to wa.me with encoded text containing detail url", async () => {
+  it("legacy pesan: first non-WhatsApp link, recorded under that channel", async () => {
     const l = await get("omah-tugu-inn");
-    const r = await resolveGo(l.id, "wa", CHROME);
-    expect(r.status).toBe(302);
-    const loc = (r as { location: string }).location;
-    expect(loc.startsWith("https://wa.me/62")).toBe(true);
-    const text = decodeURIComponent(loc.split("?text=")[1]);
-    expect(text).toContain(l.name);
-    expect(text).toContain(`${process.env.NEXT_PUBLIC_SITE_URL}/${l.city.slug}/${l.slug}`);
-    expect(await db.event.count({ where: { kind: "WA" } })).toBe(1);
+    expect(await resolveGo(l.id, "pesan", CHROME)).toEqual({ status: 302, location: await url(l.id, "AGODA") });
+    expect(await db.event.findFirst()).toMatchObject({ kind: "CLICK", channel: "AGODA" });
   });
 
-  it("wa: listing number wins over default", async () => {
+  it("legacy pesan on a WhatsApp-only listing falls back to WhatsApp", async () => {
     const l = await get("omah-tugu-inn");
-    await db.listing.update({ where: { id: l.id }, data: { waNumber: "6281399999999" } });
-    const r = await resolveGo(l.id, "wa", CHROME);
-    expect((r as { location: string }).location.startsWith("https://wa.me/6281399999999?")).toBe(true);
+    await db.listingLink.deleteMany({ where: { listingId: l.id, channel: { not: "WHATSAPP" } } });
+    expect(await resolveGo(l.id, "pesan", CHROME)).toEqual({ status: 302, location: await url(l.id, "WHATSAPP") });
+    expect(await db.event.findFirst()).toMatchObject({ kind: "CLICK", channel: "WHATSAPP" });
   });
 
-  it("wa: no listing number and no default -> 404, no event", async () => {
+  it("legacy wa: the WhatsApp link", async () => {
     const l = await get("omah-tugu-inn");
-    await db.listing.update({ where: { id: l.id }, data: { waNumber: null } });
-    await db.setting.update({ where: { id: 1 }, data: { waDefault: null } });
-    expect(await resolveGo(l.id, "wa", CHROME)).toEqual({ status: 404 });
+    expect(await resolveGo(l.id, "wa", CHROME)).toEqual({ status: 302, location: await url(l.id, "WHATSAPP") });
+  });
+
+  it("legacy pesan/wa with no matching link -> 404", async () => {
+    const dago = await get("kamar-dago-atas");
+    expect(await resolveGo(dago.id, "wa", CHROME)).toEqual({ status: 404 });
+    await db.listingLink.deleteMany({ where: { listingId: dago.id } });
+    expect(await resolveGo(dago.id, "pesan", CHROME)).toEqual({ status: 404 });
     expect(await db.event.count()).toBe(0);
   });
 
-  it("pesan: non-http affiliateUrl -> 404", async () => {
+  it("stored non-http link -> 404", async () => {
     const l = await get("omah-tugu-inn");
-    await db.listing.update({ where: { id: l.id }, data: { affiliateUrl: "javascript:alert(1)" } });
-    expect(await resolveGo(l.id, "pesan", CHROME)).toEqual({ status: 404 });
+    await db.listingLink.update({ where: { listingId_channel: { listingId: l.id, channel: "AGODA" } }, data: { url: "javascript:alert(1)" } });
+    expect(await resolveGo(l.id, "agoda", CHROME)).toEqual({ status: 404 });
   });
 
-  it("draft, unknown kind, unknown id -> 404", async () => {
+  it("draft, unknown channel, unknown id -> 404", async () => {
     const draft = await get("pondok-kaliurang");
     const l = await get("omah-tugu-inn");
-    expect(await resolveGo(draft.id, "pesan", CHROME)).toEqual({ status: 404 });
-    expect(await resolveGo(l.id, "lain", CHROME)).toEqual({ status: 404 });
-    expect(await resolveGo("tidak-ada", "pesan", CHROME)).toEqual({ status: 404 });
+    expect(await resolveGo(draft.id, "agoda", CHROME)).toEqual({ status: 404 });
+    expect(await resolveGo(l.id, "expedia", CHROME)).toEqual({ status: 404 });
+    expect(await resolveGo("tidak-ada", "agoda", CHROME)).toEqual({ status: 404 });
     expect(await db.event.count()).toBe(0);
   });
 });
@@ -78,28 +94,28 @@ describe("/go route handler", () => {
   const call = (method: "GET" | "HEAD", id: string) =>
     (go as Record<string, unknown>)[method] as (r: Request, c: { params: Promise<{ id: string; kind: string }> }) => Promise<Response>;
   const req = (method: string, id: string) =>
-    new Request(`http://x/go/${id}/pesan`, { method, headers: { "user-agent": CHROME } });
+    new Request(`http://x/go/${id}/agoda`, { method, headers: { "user-agent": CHROME } });
 
-  it("GET: 302 to the affiliate link and counts the click", async () => {
+  it("GET: 302 to the channel link and counts the click", async () => {
     const l = await get("omah-tugu-inn");
-    const res = await call("GET", l.id)(req("GET", l.id), { params: Promise.resolve({ id: l.id, kind: "pesan" }) });
+    const res = await call("GET", l.id)(req("GET", l.id), { params: Promise.resolve({ id: l.id, kind: "agoda" }) });
     expect(res.status).toBe(302);
-    expect(res.headers.get("location")).toBe(l.affiliateUrl);
+    expect(res.headers.get("location")).toBe(await url(l.id, "AGODA"));
     expect(await db.event.count()).toBe(1);
   });
 
   it("HEAD (curl -sI, link checkers): same 302 but no click is recorded", async () => {
     const l = await get("omah-tugu-inn");
     expect(typeof go.HEAD).toBe("function");
-    const res = await call("HEAD", l.id)(req("HEAD", l.id), { params: Promise.resolve({ id: l.id, kind: "pesan" }) });
+    const res = await call("HEAD", l.id)(req("HEAD", l.id), { params: Promise.resolve({ id: l.id, kind: "agoda" }) });
     expect(res.status).toBe(302);
-    expect(res.headers.get("location")).toBe(l.affiliateUrl);
+    expect(res.headers.get("location")).toBe(await url(l.id, "AGODA"));
     expect(res.headers.get("cache-control")).toBe("no-store");
     expect(await db.event.count()).toBe(0);
   });
 
   it("HEAD: unknown listing -> 404", async () => {
-    const res = await call("HEAD", "tidak-ada")(req("HEAD", "tidak-ada"), { params: Promise.resolve({ id: "tidak-ada", kind: "pesan" }) });
+    const res = await call("HEAD", "tidak-ada")(req("HEAD", "tidak-ada"), { params: Promise.resolve({ id: "tidak-ada", kind: "agoda" }) });
     expect(res.status).toBe(404);
   });
 });
@@ -123,7 +139,7 @@ describe("best-effort tracking", () => {
     const l = await get("omah-tugu-inn");
     const spy = vi.spyOn(db.event, "create").mockRejectedValueOnce(new Error("db down"));
     const err = vi.spyOn(console, "error").mockImplementation(() => {});
-    expect(await resolveGo(l.id, "pesan", CHROME)).toEqual({ status: 302, location: l.affiliateUrl });
+    expect(await resolveGo(l.id, "agoda", CHROME)).toEqual({ status: 302, location: await url(l.id, "AGODA") });
     spy.mockRestore();
     err.mockRestore();
   });

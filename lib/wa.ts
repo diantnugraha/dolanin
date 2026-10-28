@@ -11,7 +11,3 @@ export function normalizeWaNumber(input: string): string | null {
 export function waLink(number: string, text: string): string {
   return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
 }
-
-export function listingWaText(name: string, url: string): string {
-  return `Halo, saya tertarik dengan ${name} di Dolanin: ${url}`;
-}

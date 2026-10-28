@@ -8,9 +8,9 @@
 .hero[data-kind="PHOTO"] {
   aspect-ratio: 4 / 5;
 }
-/* 9:16, but never taller than the screen minus the 75px ActionDock. */
+/* 9:16, but never taller than the screen minus the 112px ActionDock (see ActionDock.module.css). */
 .hero[data-kind="VIDEO"] {
-  height: min(calc(100svh - 75px), 177.8vw);
+  height: min(calc(100svh - 112px), 177.8vw);
   background: #111;
 }
 .video {

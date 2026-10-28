@@ -139,6 +139,11 @@ describe("getListingDetail", () => {
     expect(d?.citySlug).toBe("yogyakarta");
   });
 
+  it("lists the listing's booking channels in display order", async () => {
+    expect((await getListingDetail("bali", "villa-sawah-asri"))?.channels).toEqual(["AGODA", "TRAVELOKA", "WHATSAPP"]);
+    expect((await getListingDetail("bandung", "kamar-dago-atas"))?.channels).toEqual(["BOOKING"]);
+  });
+
   it("ignores non-ready videos for cover and media", async () => {
     const l = await addListing("bali", "mixed", 100000);
     await db.media.createMany({
