@@ -7,7 +7,8 @@ cd "$(dirname "$0")/.."
 env_get() { grep "^$1=" .env | cut -d= -f2- || true; }
 
 DIR="$HOME/backups"
-FILE="$DIR/dolanin-$(date -u +%F).dump"
+# Optional label, e.g. `pre-deploy` from scripts/deploy.sh: dolanin-YYYY-MM-DD-pre-deploy.dump
+FILE="$DIR/dolanin-$(date -u +%F)${1:+-$1}.dump"
 mkdir -p "$DIR"
 # Direct connection when set: a transaction pooler is not meant for pg_dump.
 DB=$(env_get DIRECT_URL)

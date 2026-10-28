@@ -7,6 +7,8 @@ PREV=$(git rev-parse --short HEAD)
 echo "Versi sebelum update: $PREV (rollback: docs/deploy.md bagian 13)"
 git pull --ff-only
 npm ci
+# A migration may change data the previous version reads: keep a dump from right before it (rollback = restore it).
+sh scripts/backup-db.sh pre-deploy
 npx prisma migrate deploy
 npm run build
 sudo systemctl restart dolanin

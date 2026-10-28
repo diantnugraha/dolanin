@@ -334,7 +334,7 @@ Setelah perubahan masuk ke `main`:
 sh ~/dolanin/scripts/deploy.sh
 ```
 
-Script ini: `git pull`, `npm ci`, `prisma migrate deploy`, `npm run build`, lalu restart service. Selama build (1–2 menit) situs bisa error sesaat, jadi jalankan saat sepi. Script mencetak versi sebelum update.
+Script ini: `git pull`, `npm ci`, **backup database** (`~/backups/dolanin-YYYY-MM-DD-pre-deploy.dump`, juga disalin ke Bunny bila backup Bunny sudah diatur), `prisma migrate deploy`, `npm run build`, lalu restart service. Kalau backup gagal, update berhenti sebelum database diubah. Selama build (1–2 menit) situs bisa error sesaat, jadi jalankan saat sepi. Script mencetak versi sebelum update.
 
 **Rollback** kalau versi baru bermasalah (ganti `<versi>` dengan yang dicetak script):
 
@@ -344,7 +344,11 @@ git checkout <versi>
 npm ci && npm run build && sudo systemctl restart dolanin
 ```
 
-Migrasi database tidak ikut mundur. Untuk kembali normal ke versi terbaru: `git checkout main` lalu jalankan `deploy.sh` lagi.
+Itu cukup kalau update tadi **tidak** membawa migrasi baru (output `prisma migrate deploy` berbunyi "No pending migrations"). Kalau ada migrasi, versi lama tidak bisa membaca database yang sudah dimigrasi, jadi pulihkan juga database dari backup sebelum update (bagian 14, "Restore"), memakai file `dolanin-YYYY-MM-DD-pre-deploy.dump`. Data yang masuk setelah update (listing baru, klik) ikut hilang.
+
+Contoh migrasi seperti itu: pembaruan "link pemesanan per channel" (29 Oktober 2026) menghapus kolom link affiliate dan nomor WA lama.
+
+Untuk kembali normal ke versi terbaru: `git checkout main` lalu jalankan `deploy.sh` lagi.
 
 ## 14. Backup dan restore
 
