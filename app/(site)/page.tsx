@@ -8,7 +8,7 @@ import { getCityBoard, getFeatured, getSiteSettings } from "@/lib/catalog";
 import type { ListingType } from "../../generated/prisma/client";
 import s from "./page.module.css";
 
-const TIPE: Record<string, ListingType> = { hotel: "HOTEL", penginapan: "PENGINAPAN", villa: "VILLA" };
+const TIPE: Record<string, ListingType> = { hotel: "HOTEL", villa: "VILLA" };
 
 export default async function LandingPage({ searchParams }: { searchParams: Promise<{ tipe?: string | string[] }> }) {
   const sp = await searchParams;

@@ -10,7 +10,7 @@ const NOW = new Date("2026-10-26T12:00:00+07:00");
 const F = { days: 7 as const, now: NOW };
 
 async function ev(
-  l: { id: string; cityId: string; type: "HOTEL" | "PENGINAPAN" | "VILLA" },
+  l: { id: string; cityId: string; type: "HOTEL" | "VILLA" },
   kind: "VIEW" | "PESAN" | "WA",
   at: string,
   n = 1,

@@ -15,6 +15,8 @@ describe("listing", () => {
     });
     expect(parseCatalogParams({ tipe: "kapal", urut: "x", hal: "-1" })).toEqual({ types: [], sort: "asc", page: 1 });
     expect(parseCatalogParams({ hal: "999" }).page).toBe(50);
+    // Penginapan was dropped as a type: old shared links fall back to all types.
+    expect(parseCatalogParams({ tipe: "penginapan,villa" }).types).toEqual(["VILLA"]);
     expect(parseCatalogParams({ tipe: ["villa", "hotel"], min: ["100000"], max: "250000" })).toEqual({
       types: ["VILLA"], min: 100000, max: 250000, sort: "asc", page: 1,
     });
@@ -45,7 +47,7 @@ describe("listing", () => {
 
   it("exposes constants", () => {
     expect(PAGE_SIZE).toBe(12);
-    expect(TYPE_LABEL).toEqual({ HOTEL: "Hotel", PENGINAPAN: "Penginapan", VILLA: "Villa" });
+    expect(TYPE_LABEL).toEqual({ HOTEL: "Hotel", VILLA: "Villa" });
     expect(FACILITIES.map((f) => f.key)).toEqual([
       "wifi", "ac", "sarapan", "parkir-motor", "parkir-mobil", "kolam", "dapur", "air-panas",
     ]);

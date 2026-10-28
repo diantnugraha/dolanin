@@ -35,7 +35,7 @@ export const listingInput = z
   .object({
     name: z.string().trim().min(1, "Nama wajib diisi").max(100, "Nama maksimal 100 karakter"),
     cityId: z.string().min(1, "Pilih kota"),
-    type: z.enum(["HOTEL", "PENGINAPAN", "VILLA"], "Pilih tipe"),
+    type: z.enum(["HOTEL", "VILLA"], "Pilih tipe"),
     area: z.string().trim().min(1, "Area wajib diisi").max(100, "Area maksimal 100 karakter"),
     mapsUrl: z.preprocess(empty, httpUrl.optional()),
     price: rupiah(10_000, "Harga minimal Rp10.000"),

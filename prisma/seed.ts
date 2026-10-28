@@ -37,13 +37,13 @@ const listings: SeedListing[] = [
     mapsUrl: "https://maps.app.goo.gl/omahtugu1nn",
   },
   {
-    name: "Ndalem Prawiro", slug: "ndalem-prawiro", city: "yogyakarta", type: "PENGINAPAN",
+    name: "Ndalem Prawiro", slug: "ndalem-prawiro", city: "yogyakarta", type: "HOTEL",
     area: "Prawirotaman", price: 95000, normalPrice: 130000, featured: true, published: true,
     description: "Penginapan bernuansa Jawa di kawasan kafe Prawirotaman.",
     facilities: ["wifi", "air-panas"], photos: ["seed-room-1", "seed-room-2"],
   },
   {
-    name: "Kamar Kayu Malioboro", slug: "kamar-kayu-malioboro", city: "yogyakarta", type: "PENGINAPAN",
+    name: "Kamar Kayu Malioboro", slug: "kamar-kayu-malioboro", city: "yogyakarta", type: "HOTEL",
     area: "Sosrowijayan", price: 210000, normalPrice: null, featured: false, published: true,
     description: "Kamar kayu hangat, beberapa langkah dari Malioboro.",
     facilities: ["wifi", "ac"], photos: ["seed-room-2"],
@@ -61,7 +61,7 @@ const listings: SeedListing[] = [
     facilities: ["wifi", "ac", "kolam"], photos: ["seed-room-3", "seed-room-1"],
   },
   {
-    name: "Pondok Kaliurang", slug: "pondok-kaliurang", city: "yogyakarta", type: "PENGINAPAN",
+    name: "Pondok Kaliurang", slug: "pondok-kaliurang", city: "yogyakarta", type: "HOTEL",
     area: "Kaliurang", price: 260000, normalPrice: null, featured: false, published: false,
     description: "Draf: pondok sederhana dekat kawasan wisata Kaliurang.",
     facilities: ["air-panas"], photos: ["seed-room-1"],
@@ -79,7 +79,7 @@ const listings: SeedListing[] = [
     facilities: ["wifi", "ac", "sarapan"], photos: ["seed-room-2", "seed-room-3"],
   },
   {
-    name: "Wisma Batu Indah", slug: "wisma-batu-indah", city: "malang-batu", type: "PENGINAPAN",
+    name: "Wisma Batu Indah", slug: "wisma-batu-indah", city: "malang-batu", type: "HOTEL",
     area: "Batu", price: 140000, normalPrice: null, featured: false, published: true,
     description: "Wisma sederhana, dekat alun-alun dan wisata petik apel.",
     facilities: ["wifi", "parkir-motor"], photos: ["seed-room-1"],

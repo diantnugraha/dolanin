@@ -15,7 +15,7 @@ test.describe("catalog desktop", () => {
 
   test("tipe=villa shows only villas", async ({ page }) => {
     await page.goto("/yogyakarta?tipe=villa");
-    const tags = await page.locator("a[data-price] span:text-is('Villa'), a[data-price] span:text-is('Hotel'), a[data-price] span:text-is('Penginapan')").allTextContents();
+    const tags = await page.locator("a[data-price] span:text-is('Villa'), a[data-price] span:text-is('Hotel')").allTextContents();
     expect(tags.length).toBeGreaterThan(0);
     expect(tags.every((t) => t === "Villa")).toBe(true);
   });

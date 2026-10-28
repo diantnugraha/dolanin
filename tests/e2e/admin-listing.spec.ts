@@ -57,7 +57,7 @@ test("create draft, edit price, validation, preview, delete", async ({ page }) =
   await page.getByLabel("Nama", { exact: true }).fill("Wisma Uji");
 
   await page.getByLabel("Kota").selectOption({ label: "Bandung" });
-  await page.getByRole("radio", { name: "Penginapan" }).check();
+  await page.getByRole("radio", { name: "Villa" }).check();
   await page.getByLabel("Area / alamat").fill("Dago");
   await page.getByLabel("Harga per malam").fill("150000");
   await page.getByLabel("Harga per malam").blur();

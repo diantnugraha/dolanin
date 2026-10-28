@@ -586,8 +586,8 @@
       "name": "Type Segment",
       "kind": "nav",
       "refersTo": "type-segment",
-      "description": "Semua / Hotel / Penginapan / Villa switcher on a white pill track.",
-      "html": "<nav class=\"ds-seg\"><a class=\"ds-on\" href=\"#\">Semua</a><a href=\"#\">Hotel</a><a href=\"#\">Penginapan</a><a href=\"#\">Villa</a></nav>",
+      "description": "Semua / Hotel / Villa switcher on a white pill track.",
+      "html": "<nav class=\"ds-seg\"><a class=\"ds-on\" href=\"#\">Semua</a><a href=\"#\">Hotel</a><a href=\"#\">Villa</a></nav>",
       "css": ".ds-seg { font-family: var(--font-poppins), Poppins, system-ui, sans-serif; display: flex; width: 358px; background: #fff; border: 1px solid #EFE3D5; border-radius: 999px; padding: 4px; } .ds-seg a { flex: 1; border-radius: 999px; padding: 8px 4px; font-size: 12px; font-weight: 500; line-height: 1; color: #575E6B; text-align: center; text-decoration: none; transition: color 0.15s; } .ds-seg a:hover { color: #1F2A37; } .ds-seg a.ds-on { background: #1F2A37; color: #FFF6EC; } .ds-seg a:focus-visible { outline: 2px solid #0E8C8C; outline-offset: 2px; }"
     },
     {

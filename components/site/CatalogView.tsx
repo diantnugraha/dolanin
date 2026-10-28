@@ -37,7 +37,7 @@ export function CatalogView({
 
   const panel = { params, hrefFor, cityHref, resetHref, action: basePath, hidden, cities, currentCity, typeCounts: result.typeCounts };
   const { items, total } = result;
-  const all = result.typeCounts.HOTEL + result.typeCounts.PENGINAPAN + result.typeCounts.VILLA;
+  const all = result.typeCounts.HOTEL + result.typeCounts.VILLA;
 
   return (
     <div className={`wrap ${s.page}`}>

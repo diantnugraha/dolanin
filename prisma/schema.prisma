@@ -9,7 +9,6 @@ datasource db {
 
 enum ListingType {
   HOTEL
-  PENGINAPAN
   VILLA
 }
 

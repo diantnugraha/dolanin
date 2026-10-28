@@ -1,6 +1,6 @@
 ---
 name: Dolanin
-description: Katalog terkurasi hotel, penginapan, dan villa murah per kota; papan tujuan yang hangat dan flat.
+description: Katalog terkurasi hotel dan villa murah per kota; papan tujuan yang hangat dan flat.
 colors:
   jingga: "#F26B3A"
   biru-laut: "#0E8C8C"
@@ -381,7 +381,7 @@ Round, warm, and unmistakable; the colour tells you where the button goes.
 - **State:** selected is Tint Laut with a Biru Laut stroke and Laut Ink label; the active sort chip is Malam with Pasir text.
 
 ### Type segment
-A white pill track (4px inset, Garis stroke) holding Semua / Hotel / Penginapan / Villa; the active option is a Malam pill with Pasir text, the rest Abu Pasir. Full width on phones, inline from 1024px. The catalog sort control follows the same pattern.
+A white pill track (4px inset, Garis stroke) holding Semua / Hotel / Villa; the active option is a Malam pill with Pasir text, the rest Abu Pasir. Full width on phones, inline from 1024px. The catalog sort control follows the same pattern.
 
 ### Cards / Containers
 - **Corner Style:** 16px.

@@ -12,7 +12,7 @@ Satu aplikasi Next.js (App Router) yang berjalan di Node.js, dengan Prisma + Pos
 
 ## Users
 
-- **Pengunjung:** wisatawan lokal Indonesia yang mencari penginapan murah (hotel, penginapan, villa) di kota tujuan. Mayoritas membuka dari smartphone.
+- **Pengunjung:** wisatawan lokal Indonesia yang mencari penginapan murah (hotel dan villa) di kota tujuan. Mayoritas membuka dari smartphone.
 - **Admin:** klien pemilik Dolanin. Web ini dibangun untuk mereka. Admin mengelola isi katalog lewat CMS (CRUD konten, link affiliate milik mereka sendiri, dan nomor WhatsApp yang tampil di web).
 
 ## Product Purpose
@@ -31,7 +31,7 @@ Dolanin menampilkan pilihan murah yang sudah diseleksi pemilik (kurasi), plus pr
 
 ## Capabilities and Constraints
 
-- Isi katalog hanya akomodasi. Tipe: **Hotel**, **Penginapan** (homestay, guest house, dan sejenisnya), **Villa**. Tempat wisata dan transportasi tidak termasuk.
+- Isi katalog hanya akomodasi. Tipe: **Hotel** dan **Villa**. Kategori Penginapan dihapus pemilik pada 28 Oktober 2026; listing Penginapan yang sudah ada menjadi Hotel. Tempat wisata dan transportasi tidak termasuk.
 - Filter: kota, harga, tipe. Urutan: harga.
 - Klik kartu katalog selalu membuka halaman detail dulu. Dari detail ada dua CTA: Pesan (link affiliate milik klien, keluar ke partner) dan Chat WhatsApp (ke nomor klien yang tercantum di web).
 - Media item: foto dan/atau video vertikal 9:16 (konten klien yang sudah ada di IG/TikTok). Kalau item punya video, halaman detail dibuka dengan video setinggi layar (autoplay, muted, loop). Kalau tidak ada video, halaman dibuka dengan galeri foto 4:5. Video di-upload sebagai file lewat CMS, bukan embed IG/TikTok. Ini keputusan sementara yang dianggap disetujui, dan ruang penyimpanan videonya belum dipilih.

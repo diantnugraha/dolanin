@@ -38,7 +38,7 @@ export type ListingDetail = ListingCardData & {
   media: ({ kind: "PHOTO"; key: string } | { kind: "VIDEO"; guid: string; durationSec: number | null })[];
 };
 
-const TYPES: ListingType[] = ["HOTEL", "PENGINAPAN", "VILLA"];
+const TYPES: ListingType[] = ["HOTEL", "VILLA"];
 
 // Photos and READY videos only; PROCESSING/FAILED videos are never public.
 const PUBLIC_MEDIA: Prisma.MediaWhereInput = {

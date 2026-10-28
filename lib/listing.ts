@@ -8,7 +8,6 @@ const MAX_PAGE = 50;
 
 export const TYPE_LABEL: Record<ListingType, string> = {
   HOTEL: "Hotel",
-  PENGINAPAN: "Penginapan",
   VILLA: "Villa",
 };
 
