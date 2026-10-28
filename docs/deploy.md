@@ -322,7 +322,7 @@ Bunny Storage tidak perlu diubah.
 - [ ] Login di `https://dolanin.my.id/admin`, buat kota (`/admin/kota`) dan satu listing dengan foto dan video.
 - [ ] **Foto**: file muncul di Storage Zone sebagai `p/...-800.webp` dan `p/...-1600.webp` dan tampil di situs. Hapus satu foto di CMS; kedua file ikut hilang dari Storage Zone.
 - [ ] **Video**: setelah encode selesai, status di CMS berubah sendiri jadi siap (tanpa klik Simpan ulang; ini bukti webhook jalan). Video terputar di HP sungguhan. Kalau 403, cek bagian 6 langkah 3 dan Allowed domains.
-- [ ] **Klik**: `curl -sI https://dolanin.my.id/go/{id}/pesan` mengembalikan `302` ke link affiliate. `curl -sI` mengirim HEAD, yang sengaja tidak dihitung sebagai klik; untuk menguji hitungan, klik tombol Pesan sungguhan di browser, lalu cek dashboard admin.
+- [ ] **Klik**: `curl -sI https://dolanin.my.id/go/{id}/agoda` (atau channel lain yang diisi: `traveloka`, `trip`, `tiket`, `booking`, `whatsapp`) mengembalikan `302` ke link channel itu. `curl -sI` mengirim HEAD, yang sengaja tidak dihitung sebagai klik; untuk menguji hitungan, klik salah satu tombol logo sungguhan di browser, lalu cek "Klik per channel" di dashboard admin.
 - [ ] Overlay poster pada mosaik tampil benar di Safari (baru diuji di Chromium).
 - [ ] Backup pertama berhasil (bagian 14).
 
