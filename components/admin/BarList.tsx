@@ -4,14 +4,15 @@ import { useState } from "react";
 import { formatCount } from "@/lib/format";
 import s from "./dashboard.module.css";
 
-type Row = { name: string; count: number; other?: true };
+/** One single-hue bar per row; identity comes from the label (and optional icon), never from colour. */
+export type BarRow = { key: string; name: string; count: number; other?: true; icon?: string };
 
-export function CityBars({ rows, total }: { rows: Row[]; total: number }) {
-  const [tip, setTip] = useState<{ row: Row; left: number; top: number } | null>(null);
+export function BarList({ rows, total, unit }: { rows: BarRow[]; total: number; unit: string }) {
+  const [tip, setTip] = useState<{ row: BarRow; left: number; top: number } | null>(null);
   const max = Math.max(1, ...rows.map((r) => r.count));
   if (!rows.length) return <p className={s.empty}>Belum ada data untuk periode ini.</p>;
   // Positioned inside the (relative) list so it scrolls with the page and can't leave the card.
-  const show = (row: Row, el: HTMLElement) => {
+  const show = (row: BarRow, el: HTMLElement) => {
     const box = el.parentElement!.clientWidth;
     setTip({ row, left: Math.max(0, Math.min(box * 0.4, box - 150)), top: el.offsetTop + el.offsetHeight + 4 });
   };
@@ -20,7 +21,7 @@ export function CityBars({ rows, total }: { rows: Row[]; total: number }) {
       <div className={s.bars}>
         {rows.map((r) => (
           <div
-            key={r.name}
+            key={r.key}
             className={`${s.bar} ${r.other ? s.other : ""}`}
             tabIndex={0}
             onPointerEnter={(e) => show(r, e.currentTarget)}
@@ -28,7 +29,11 @@ export function CityBars({ rows, total }: { rows: Row[]; total: number }) {
             onPointerLeave={() => setTip(null)}
             onBlur={() => setTip(null)}
           >
-            <span>{r.name}</span>
+            <span className={s.nm}>
+              {/* eslint-disable-next-line @next/next/no-img-element -- 18px static icon */}
+              {r.icon && <img src={r.icon} alt="" width={18} height={18} />}
+              {r.name}
+            </span>
             <div className={s.tr}><i style={{ width: `${(r.count / max) * 100}%` }} /></div>
             <b>{formatCount(r.count)}</b>
           </div>
@@ -40,7 +45,7 @@ export function CityBars({ rows, total }: { rows: Row[]; total: number }) {
               <div className={s.r}>
                 <i style={{ background: tip.row.other ? "#C9C2B8" : "#F26B3A" }} />
                 <b>{formatCount(tip.row.count)}</b>
-                <span>klik Pesan{total > 0 ? ` · ${Math.round((tip.row.count / total) * 100)}%` : ""}</span>
+                <span>{unit}{total > 0 ? ` · ${Math.round((tip.row.count / total) * 100)}%` : ""}</span>
               </div>
             </>
           )}

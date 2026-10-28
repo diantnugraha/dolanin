@@ -6,9 +6,10 @@ describe("stats math", () => {
     expect(pctChange(118, 100)).toBeCloseTo(0.18);
     expect(pctChange(5, 0)).toBeNull();
   });
-  it("clickRatio", () => {
-    expect(clickRatio(1284, 268, 9840)).toBeCloseTo(0.1577, 4);
-    expect(clickRatio(3, 0, 0)).toBeNull();
+  it("clickRatio = clicks / views", () => {
+    expect(clickRatio(1552, 9840)).toBeCloseTo(0.1577, 4);
+    expect(clickRatio(3, 6)).toBe(0.5);
+    expect(clickRatio(3, 0)).toBeNull();
   });
   it("periodBounds uses WIB midnight", () => {
     const now = new Date("2026-10-26T10:00:00+07:00");
