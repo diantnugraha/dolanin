@@ -1,22 +1,18 @@
-import { IconBrandWhatsapp, IconExternalLink } from "@tabler/icons-react";
+import type { BookingChannel } from "../../generated/prisma/client";
 import { formatRupiah } from "@/lib/format";
+import { ChannelTiles } from "./ChannelTiles";
 import s from "./ActionDock.module.css";
 
-export function ActionDock({ id, price, showWa }: { id: string; price: number; showWa: boolean }) {
+export function ActionDock({ id, price, channels }: { id: string; price: number; channels: BookingChannel[] }) {
   return (
     <div className={s.dock} data-dock>
-      <div className={s.p}>
-        <small>mulai dari</small>
-        <div className={s.price}>{formatRupiah(price)}</div>
+      <div className={s.top}>
+        <small>{channels.length ? "Pesan di" : "mulai dari"}</small>
+        <div className={s.price}>
+          {formatRupiah(price)} <small>/malam</small>
+        </div>
       </div>
-      {showWa && (
-        <a className={s.wa} href={`/go/${id}/wa`} target="_blank" rel="noopener nofollow" aria-label="Chat WhatsApp">
-          <IconBrandWhatsapp size={22} stroke={1.75} aria-hidden="true" />
-        </a>
-      )}
-      <a className={s.go} href={`/go/${id}/pesan`} target="_blank" rel="noopener nofollow">
-        Pesan <IconExternalLink size={16} stroke={1.75} aria-hidden="true" />
-      </a>
+      <ChannelTiles id={id} channels={channels} variant="dock" />
     </div>
   );
 }

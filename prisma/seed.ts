@@ -1,7 +1,8 @@
 // Data contoh untuk dev/E2E saja. JANGAN dijalankan di produksi.
 import { pathToFileURL } from "node:url";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient, ListingType } from "../generated/prisma/client";
+import { PrismaClient, ListingType, type BookingChannel } from "../generated/prisma/client";
+import { CHANNELS } from "../lib/channels";
 import { hashPassword } from "../lib/password";
 
 const cities = [
@@ -37,13 +38,13 @@ const listings: SeedListing[] = [
     mapsUrl: "https://maps.app.goo.gl/omahtugu1nn",
   },
   {
-    name: "Ndalem Prawiro", slug: "ndalem-prawiro", city: "yogyakarta", type: "PENGINAPAN",
+    name: "Ndalem Prawiro", slug: "ndalem-prawiro", city: "yogyakarta", type: "HOTEL",
     area: "Prawirotaman", price: 95000, normalPrice: 130000, featured: true, published: true,
     description: "Penginapan bernuansa Jawa di kawasan kafe Prawirotaman.",
     facilities: ["wifi", "air-panas"], photos: ["seed-room-1", "seed-room-2"],
   },
   {
-    name: "Kamar Kayu Malioboro", slug: "kamar-kayu-malioboro", city: "yogyakarta", type: "PENGINAPAN",
+    name: "Kamar Kayu Malioboro", slug: "kamar-kayu-malioboro", city: "yogyakarta", type: "HOTEL",
     area: "Sosrowijayan", price: 210000, normalPrice: null, featured: false, published: true,
     description: "Kamar kayu hangat, beberapa langkah dari Malioboro.",
     facilities: ["wifi", "ac"], photos: ["seed-room-2"],
@@ -61,7 +62,7 @@ const listings: SeedListing[] = [
     facilities: ["wifi", "ac", "kolam"], photos: ["seed-room-3", "seed-room-1"],
   },
   {
-    name: "Pondok Kaliurang", slug: "pondok-kaliurang", city: "yogyakarta", type: "PENGINAPAN",
+    name: "Pondok Kaliurang", slug: "pondok-kaliurang", city: "yogyakarta", type: "HOTEL",
     area: "Kaliurang", price: 260000, normalPrice: null, featured: false, published: false,
     description: "Draf: pondok sederhana dekat kawasan wisata Kaliurang.",
     facilities: ["air-panas"], photos: ["seed-room-1"],
@@ -79,7 +80,7 @@ const listings: SeedListing[] = [
     facilities: ["wifi", "ac", "sarapan"], photos: ["seed-room-2", "seed-room-3"],
   },
   {
-    name: "Wisma Batu Indah", slug: "wisma-batu-indah", city: "malang-batu", type: "PENGINAPAN",
+    name: "Wisma Batu Indah", slug: "wisma-batu-indah", city: "malang-batu", type: "HOTEL",
     area: "Batu", price: 140000, normalPrice: null, featured: false, published: true,
     description: "Wisma sederhana, dekat alun-alun dan wisata petik apel.",
     facilities: ["wifi", "parkir-motor"], photos: ["seed-room-1"],
@@ -91,6 +92,20 @@ const listings: SeedListing[] = [
     facilities: ["sarapan", "air-panas"], photos: ["seed-bungalow-1", "seed-villa-1"],
   },
 ];
+
+// Varied on purpose so E2E covers 1, 3 and 6 booking tiles and a draft without links.
+function seedChannels(slug: string, published: boolean): BookingChannel[] {
+  if (!published) return [];
+  if (slug === "omah-tugu-inn") return CHANNELS.map((c) => c.id);
+  if (slug === "villa-sawah-asri") return ["AGODA", "TRAVELOKA", "WHATSAPP"];
+  if (slug === "kamar-dago-atas") return ["BOOKING"];
+  return ["TRAVELOKA", "WHATSAPP"];
+}
+
+const seedUrl = (slug: string, channel: BookingChannel) =>
+  channel === "WHATSAPP"
+    ? "https://wa.me/6281200000000"
+    : `https://example.com/${slug}/${CHANNELS.find((c) => c.id === channel)!.slug}`;
 
 export async function seedData(db: PrismaClient) {
   const cityRows = [];
@@ -107,9 +122,13 @@ export async function seedData(db: PrismaClient) {
       ...l,
       cityId: cityId.get(city)!,
       extraFacilities: [],
-      affiliateUrl: `https://example.com/aff/${l.slug}`,
+      legacyUrl: null,
     };
     const row = await db.listing.upsert({ where: { slug: l.slug }, update: data, create: data });
+    await db.listingLink.deleteMany({ where: { listingId: row.id } });
+    await db.listingLink.createMany({
+      data: seedChannels(l.slug, l.published).map((channel) => ({ listingId: row.id, channel, url: seedUrl(l.slug, channel) })),
+    });
     await db.media.deleteMany({ where: { listingId: row.id } });
     await db.media.createMany({
       data: photos.map((key, sortOrder) => ({ listingId: row.id, kind: "PHOTO" as const, key, sortOrder })),

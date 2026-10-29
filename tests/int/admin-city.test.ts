@@ -75,7 +75,7 @@ describe("deleteCity", () => {
   it("refuses a city with listings", async () => {
     const id = okId(await saveCity(city({ photoKey: "p/a" })));
     await db.listing.create({
-      data: { name: "X", slug: "x", cityId: id, type: "HOTEL", area: "a", price: 100000, description: "d", facilities: [], extraFacilities: [], affiliateUrl: "https://x.com" },
+      data: { name: "X", slug: "x", cityId: id, type: "HOTEL", area: "a", price: 100000, description: "d", facilities: [], extraFacilities: [] },
     });
     expect(await deleteCity(id)).toBe("has-listings");
     expect(await cityListingCount(id)).toBe(1);
@@ -109,7 +109,7 @@ describe("listAdminCities", () => {
     const b = okId(await saveCity(city({ name: "Bali", code: "BB", sortOrder: 2 })));
     okId(await saveCity(city({ name: "Aceh", code: "AA", sortOrder: 1 })));
     await db.listing.create({
-      data: { name: "X", slug: "x", cityId: b, type: "HOTEL", area: "a", price: 100000, description: "d", facilities: [], extraFacilities: [], affiliateUrl: "https://x.com" },
+      data: { name: "X", slug: "x", cityId: b, type: "HOTEL", area: "a", price: 100000, description: "d", facilities: [], extraFacilities: [] },
     });
     const rows = await listAdminCities();
     expect(rows.map((r) => [r.name, r.listingCount])).toEqual([["Aceh", 0], ["Bali", 1]]);

@@ -1,5 +1,5 @@
 import { IconInfoCircle } from "@tabler/icons-react";
-import { CityBars } from "@/components/admin/CityBars";
+import { BarList } from "@/components/admin/BarList";
 import { KpiTile } from "@/components/admin/KpiTile";
 import { LineChart } from "@/components/admin/LineChart";
 import { StatsFilters } from "@/components/admin/StatsFilters";
@@ -9,10 +9,11 @@ import a from "@/components/admin/admin.module.css";
 import d from "@/components/admin/dashboard.module.css";
 import { listCities } from "@/lib/admin";
 import { requireAdmin } from "@/lib/auth";
+import { channelById } from "@/lib/channels";
 import { formatCount, formatDateRange, formatDay, formatPercent } from "@/lib/format";
 import { TYPE_LABEL } from "@/lib/listing";
 import {
-  getDailySeries, getKpis, getPesanByCity, getTopListings, getZeroClickListings, periodBounds,
+  getClicksByChannel, getClicksByCity, getDailySeries, getKpis, getTopListings, getZeroClickListings, periodBounds,
   type StatsFilter,
 } from "@/lib/stats";
 
@@ -27,28 +28,36 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const now = new Date();
   const filter: StatsFilter = { days, cityId, type, now };
 
-  const [kpis, series, byCity, top, zero] = await Promise.all([
-    getKpis(filter), getDailySeries(filter), getPesanByCity(filter), getTopListings(filter), getZeroClickListings(filter),
+  const [kpis, series, byChannel, byCity, top, zero] = await Promise.all([
+    getKpis(filter), getDailySeries(filter), getClicksByChannel(filter), getClicksByCity(filter),
+    getTopListings(filter), getZeroClickListings(filter),
   ]);
   const rangeLabel = formatDateRange(periodBounds(days, now).from, now);
-  const chartLabel = `Grafik garis klik Pesan dan Chat WA per hari, ${formatDay(series[0].date)} sampai ${formatDay(series[series.length - 1].date)}`;
+  const chartLabel = `Grafik garis jumlah klik per hari, ${formatDay(series[0].date)} sampai ${formatDay(series[series.length - 1].date)}`;
   const prev = `dari ${days} hari sebelumnya`;
+  const channelRows = byChannel.map((r) => {
+    if (r.channel === null) return { key: "lainnya", name: "Lainnya", count: r.count, share: r.share, other: true as const };
+    const c = channelById(r.channel);
+    return { key: c.slug, name: c.label, count: r.count, share: r.share, icon: `/channels/icon-${c.slug}.png` };
+  });
+  const topChannel = kpis.top && channelById(kpis.top.channel);
 
   return (
     <div className={d.db}>
       <div className={a.top}>
         <div>
           <h1>Dashboard</h1>
-          <p>Seberapa sering pengunjung menekan tombol Pesan dan WhatsApp.</p>
+          <p>Seberapa sering pengunjung menekan tombol pemesanan, per channel.</p>
         </div>
       </div>
       <StatsFilters filter={filter} cities={cities} rangeLabel={rangeLabel} />
 
       <div className={d.kpi}>
-        <KpiTile hero id="pesan" label="Klik tombol Pesan" keyColor="#F26B3A" value={formatCount(kpis.pesan.value)} delta={kpis.pesan.delta} deltaSuffix={prev} />
-        <KpiTile id="wa" label="Chat WhatsApp" keyColor="#00918F" value={formatCount(kpis.wa.value)} delta={kpis.wa.delta} />
+        <KpiTile hero id="clicks" label="Total klik" keyColor="#F26B3A" value={formatCount(kpis.clicks.value)} delta={kpis.clicks.delta} deltaSuffix={prev} />
         <KpiTile id="views" label="Kunjungan halaman detail" value={formatCount(kpis.views.value)} delta={kpis.views.delta} />
-        <KpiTile id="ratio" label="Rasio klik" value={formatPercent(kpis.ratio)} note="(Pesan + WA) ÷ kunjungan detail" />
+        <KpiTile id="ratio" label="Rasio klik" value={formatPercent(kpis.ratio)} note="klik ÷ kunjungan detail" />
+        <KpiTile id="top" label="Channel teratas" value={topChannel ? topChannel.label : "–"}
+          note={kpis.top ? `${formatPercent(kpis.top.share)} dari semua klik` : undefined} />
       </div>
 
       <div className={d.row}>
@@ -58,21 +67,17 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
               <h2>Klik per hari</h2>
               <p className={d.sub}>Arahkan kursor ke grafik untuk melihat angka per tanggal</p>
             </div>
-            <div className={d.legend}>
-              <span><i style={{ background: "#F26B3A" }} />Pesan</span>
-              <span><i style={{ background: "#00918F" }} />Chat WA</span>
-            </div>
           </div>
           <LineChart series={series} label={chartLabel} />
         </div>
         <div className={d.card}>
           <div className={d.hd}>
             <div>
-              <h2>Klik Pesan per kota</h2>
+              <h2>Klik per channel</h2>
               <p className={d.sub}>{days} hari terakhir</p>
             </div>
           </div>
-          <CityBars rows={byCity} total={kpis.pesan.value} />
+          <BarList rows={channelRows} total={kpis.clicks.value} unit="klik" />
         </div>
       </div>
 
@@ -81,7 +86,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <div className={d.hd}>
             <div>
               <h2>Listing paling banyak diklik</h2>
-              <p className={d.sub}>Urut dari klik Pesan terbanyak</p>
+              <p className={d.sub}>Urut dari klik terbanyak</p>
             </div>
           </div>
           <TopListings rows={top} />
@@ -89,12 +94,22 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <div className={d.card}>
           <div className={d.hd}>
             <div>
-              <h2>Belum ada klik</h2>
-              <p className={d.sub}>Tayang, tapi 0 klik dalam {days} hari</p>
+              <h2>Klik per kota</h2>
+              <p className={d.sub}>{days} hari terakhir</p>
             </div>
           </div>
-          <ZeroClicks rows={zero} />
+          <BarList rows={byCity.map((r) => ({ ...r, key: r.name }))} total={kpis.clicks.value} unit="klik" />
         </div>
+      </div>
+
+      <div className={`${d.card} ${d.full}`}>
+        <div className={d.hd}>
+          <div>
+            <h2>Belum ada klik</h2>
+            <p className={d.sub}>Tayang, tapi 0 klik dalam {days} hari</p>
+          </div>
+        </div>
+        <ZeroClicks rows={zero} />
       </div>
 
       <p className={d.note}>

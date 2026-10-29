@@ -4,7 +4,6 @@ import s from "./TypeSegment.module.css";
 const ITEMS = [
   { label: "Semua", value: undefined, href: "/" },
   { label: "Hotel", value: "hotel", href: "/?tipe=hotel" },
-  { label: "Penginapan", value: "penginapan", href: "/?tipe=penginapan" },
   { label: "Villa", value: "villa", href: "/?tipe=villa" },
 ] as const;
 

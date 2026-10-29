@@ -11,7 +11,7 @@ Landing Dolanin + alur katalog → detail (pengunjung, HP dulu). Mode: Persuade 
 
 ## Audience, job, action
 
-Wisatawan lokal yang mencari hotel, penginapan, dan villa murah di kota tujuan. Tujuan halaman: pengunjung memilih kota, menemukan item terkurasi, lalu klik Pesan (link affiliate) atau Chat WhatsApp.
+Wisatawan lokal yang mencari hotel dan villa murah di kota tujuan. Tujuan halaman: pengunjung memilih kota, menemukan item terkurasi, lalu klik Pesan (link affiliate) atau Chat WhatsApp.
 
 ## Direction contract
 
@@ -21,7 +21,7 @@ OWN-WORLD: Brand Dolanin yang sudah dikunci. Latar Pasir #FFF6EC, teks Malam #1F
 
 STORY: Pengunjung melihat "Mau dolan ke mana?" bersama foto kota sungguhan, tap kotanya, mendapat katalog kurasi yang bisa difilter (kota, harga, tipe) dan diurutkan berdasarkan harga, membuka detail, lalu menekan Pesan atau WA.
 
-FIRST VIEWPORT: Lebar 390px. Bar tipis berisi logo dan tombol cari. Judul display 32/700 rata kiri dua baris. Segmen tipe Semua / Hotel / Penginapan / Villa. Papan kota 2 kolom: tile foto asli rasio 4:5, nama kota di kiri bawah, "mulai Rp…" dan jumlah pilihan. Baris promo mengintip di bawah lipatan.
+FIRST VIEWPORT: Lebar 390px. Bar tipis berisi logo dan tombol cari. Judul display 32/700 rata kiri dua baris. Segmen tipe Semua / Hotel / Villa. Papan kota 2 kolom: tile foto asli rasio 4:5, nama kota di kiri bawah, "mulai Rp…" dan jumlah pilihan. Baris promo mengintip di bawah lipatan.
 
 SIGNATURE: Tap tile kota → tile membesar menjadi header katalog (view transition, shared element).
 
@@ -31,7 +31,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 
 ## Copy
 
-Tagline (opsi C pilihan user): "Yuk, dolan! Nginepnya biar hemat, jalan-jalannya puas." Kata "hemat" diberi stabilo Kuning senja. Subline: "Bandingkan hotel, penginapan, dan villa murah per kota, lalu pesan lewat link resmi atau tanya via WhatsApp." Jangan pakai frasa "sudah kami pilihkan".
+Tagline (opsi C pilihan user): "Yuk, dolan! Nginepnya biar hemat, jalan-jalannya puas." Kata "hemat" diberi stabilo Kuning senja. Subline: "Kasih kamu rekomendasi villa dan hotel di berbagai daerah! Info booking tersedia di OTA resmi atau direct via WhatsApp." Jangan pakai frasa "sudah kami pilihkan".
 
 ## Responsive
 

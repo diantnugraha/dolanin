@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "@/lib/db";
 import * as ms from "@/lib/media-server";
-import { deleteListing, listAdminListings, saveListing } from "@/lib/admin";
+import { deleteListing, getAdminListing, listAdminListings, saveListing } from "@/lib/admin";
 import { resetDb } from "./setup";
 
 let cityId: string;
 const input = (o: object = {}) => ({
   name: "Omah Tugu Inn", cityId, type: "HOTEL", area: "Tugu", price: "185.000", description: "Nyaman",
-  facilities: ["wifi"], extraFacilities: [], affiliateUrl: "https://x.com/a", published: true, featured: false,
+  facilities: ["wifi"], extraFacilities: [], links: { AGODA: "https://x.com/a" }, published: true, featured: false,
   media: [{ kind: "PHOTO", key: "p/a", sortOrder: 0 }], ...o,
 });
 const okId = (r: Awaited<ReturnType<typeof saveListing>>) => {
@@ -23,6 +23,42 @@ beforeEach(async () => {
 afterEach(() => {
   vi.unstubAllEnvs();
   vi.restoreAllMocks();
+});
+
+describe("saveListing booking links", () => {
+  const channels = async (id: string) =>
+    (await db.listingLink.findMany({ where: { listingId: id }, orderBy: { channel: "asc" } })).map((l) => [l.channel, l.url]);
+
+  it("stores one row per filled channel and replaces them on edit", async () => {
+    const id = okId(await saveListing(input({ links: { AGODA: "https://agoda.com/a", WHATSAPP: "https://wa.me/62812" } })));
+    expect(await channels(id)).toEqual([["AGODA", "https://agoda.com/a"], ["WHATSAPP", "https://wa.me/62812"]]);
+    okId(await saveListing(input({ links: { BOOKING: "https://booking.com/b" } }), id));
+    expect(await channels(id)).toEqual([["BOOKING", "https://booking.com/b"]]);
+  });
+
+  it("a published listing without links is refused with a section error", async () => {
+    expect(await saveListing(input({ links: {} }))).toEqual({ ok: false, errors: { links: "Isi minimal satu link pemesanan" } });
+  });
+
+  it("a bad link is reported on its own field", async () => {
+    const r = await saveListing(input({ links: { TIKET: "ftp://x" } }));
+    expect(r).toEqual({ ok: false, errors: { "links.TIKET": "Link harus diawali http:// atau https://" } });
+  });
+
+  it("legacyUrl is shown until the listing is saved again", async () => {
+    const id = okId(await saveListing(input()));
+    await db.listing.update({ where: { id }, data: { legacyUrl: "https://invol.co/abc" } });
+    expect((await getAdminListing(id))?.legacyUrl).toBe("https://invol.co/abc");
+    expect((await listAdminListings({})).map((r) => r.legacyUrl)).toEqual([true]);
+    okId(await saveListing(input(), id));
+    expect((await getAdminListing(id))?.legacyUrl).toBeNull();
+    expect((await listAdminListings({})).map((r) => r.legacyUrl)).toEqual([false]);
+  });
+
+  it("getAdminListing returns links keyed by channel", async () => {
+    const id = okId(await saveListing(input({ links: { TRIP: "https://trip.com/t", WHATSAPP: "https://wa.me/62" } })));
+    expect((await getAdminListing(id))?.links).toEqual({ TRIP: "https://trip.com/t", WHATSAPP: "https://wa.me/62" });
+  });
 });
 
 describe("saveListing", () => {

@@ -12,12 +12,12 @@ Satu aplikasi Next.js (App Router) yang berjalan di Node.js, dengan Prisma + Pos
 
 ## Users
 
-- **Pengunjung:** wisatawan lokal Indonesia yang mencari penginapan murah (hotel, penginapan, villa) di kota tujuan. Mayoritas membuka dari smartphone.
-- **Admin:** klien pemilik Dolanin. Web ini dibangun untuk mereka. Admin mengelola isi katalog lewat CMS (CRUD konten, link affiliate milik mereka sendiri, dan nomor WhatsApp yang tampil di web).
+- **Pengunjung:** wisatawan lokal Indonesia yang mencari penginapan murah (hotel dan villa) di kota tujuan. Mayoritas membuka dari smartphone.
+- **Admin:** klien pemilik Dolanin. Web ini dibangun untuk mereka. Admin mengelola isi katalog lewat CMS (CRUD konten dan link pemesanan per listing: link affiliate OTA milik mereka sendiri dan link WhatsApp).
 
 ## Product Purpose
 
-Dolanin adalah katalog terkurasi yang mengarahkan pengunjung ke link affiliate milik pemilik. Alurnya: landing (hero) → katalog → halaman detail → klik **Pesan** (link affiliate) atau **Chat WhatsApp** ke pemilik. Ukuran sukses: klik ke link affiliate dan chat WhatsApp yang masuk.
+Dolanin adalah katalog terkurasi yang mengarahkan pengunjung ke link affiliate milik pemilik. Alurnya: landing (hero) → katalog → halaman detail → klik salah satu **link pemesanan** (Agoda, Traveloka, Trip.com, tiket.com, Booking.com, atau WhatsApp ke pemilik). Ukuran sukses: klik ke link pemesanan, dilihat per channel.
 
 ## Positioning
 
@@ -27,15 +27,16 @@ Dolanin menampilkan pilihan murah yang sudah diseleksi pemilik (kurasi), plus pr
 
 - Pengunjung menjelajah dari HP, menyaring berdasarkan **kota, harga, dan tipe**, dan mengurutkan berdasarkan **harga**.
 - Setiap item di katalog punya halaman detail sebelum keluar ke situs partner.
-- Admin mengisi konten (foto/video, data, link affiliate, nomor WhatsApp) lewat CMS.
+- Admin mengisi konten (foto/video, data, link pemesanan per channel) lewat CMS.
 
 ## Capabilities and Constraints
 
-- Isi katalog hanya akomodasi. Tipe: **Hotel**, **Penginapan** (homestay, guest house, dan sejenisnya), **Villa**. Tempat wisata dan transportasi tidak termasuk.
+- Isi katalog hanya akomodasi. Tipe: **Hotel** dan **Villa**. Kategori Penginapan dihapus pemilik pada 28 Oktober 2026; listing Penginapan yang sudah ada menjadi Hotel. Tempat wisata dan transportasi tidak termasuk.
 - Filter: kota, harga, tipe. Urutan: harga.
-- Klik kartu katalog selalu membuka halaman detail dulu. Dari detail ada dua CTA: Pesan (link affiliate milik klien, keluar ke partner) dan Chat WhatsApp (ke nomor klien yang tercantum di web).
+- Fasilitas listing berupa pilihan tetap (WiFi, AC, sarapan, parkir, kolam renang, dapur, air panas) ditambah **tipe kasur**: Single, Twin (2 kasur single), Double, Queen, King. Fasilitas lain bisa ditulis bebas.
+- Klik kartu katalog selalu membuka halaman detail dulu. Dari detail, pengunjung memilih tempat memesan: satu tombol logo per link yang diisi admin, urutan tetap Agoda, Traveloka, Trip.com, tiket.com, Booking.com, WhatsApp (sejak 29 Oktober 2026, menggantikan tombol Pesan dan Chat WhatsApp). Listing tayang wajib punya minimal satu link.
 - Media item: foto dan/atau video vertikal 9:16 (konten klien yang sudah ada di IG/TikTok). Kalau item punya video, halaman detail dibuka dengan video setinggi layar (autoplay, muted, loop). Kalau tidak ada video, halaman dibuka dengan galeri foto 4:5. Video di-upload sebagai file lewat CMS, bukan embed IG/TikTok. Ini keputusan sementara yang dianggap disetujui, dan ruang penyimpanan videonya belum dipilih.
-- CMS: hanya satu akun admin (dipakai bersama oleh pembuat web dan klien), tanpa role. Admin bisa CRUD listing dan kota, serta mengatur nomor WA default (nomor per listing opsional). Ada dashboard berisi klik Pesan, klik WA, dan kunjungan halaman detail.
+- CMS: hanya satu akun admin (dipakai bersama oleh pembuat web dan klien), tanpa role. Admin bisa CRUD listing dan kota, serta mengatur nomor WA default untuk tombol "Tanya via WA" di header dan landing. Ada dashboard berisi klik per channel, total klik, dan kunjungan halaman detail.
 - Satu web, satu katalog. Bukan multi-tenant.
 - Rating tidak ditampilkan.
 - Belum diputuskan: daftar kota awal.
@@ -57,7 +58,7 @@ Dolanin menampilkan pilihan murah yang sudah diseleksi pemilik (kurasi), plus pr
 
 ## Product Principles
 
-1. Jalan menuju Pesan atau WhatsApp harus selalu terlihat, terutama di HP.
+1. Jalan menuju pemesanan (link OTA atau WhatsApp) harus selalu terlihat, terutama di HP.
 2. Harga murah dan promo adalah alasan utama orang datang. Tampilkan dengan jujur dan jelas.
 3. Kurasi, bukan banjir pilihan: lebih sedikit item tapi meyakinkan.
 4. HP dulu. Desktop adalah perluasan, bukan versi utama.

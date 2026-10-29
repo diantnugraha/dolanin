@@ -13,7 +13,7 @@ async function addListing(citySlug: string, slug: string, price: number, extra: 
   return db.listing.create({
     data: {
       name: slug, slug, cityId: city.id, type: "HOTEL", area: "Pusat", price,
-      description: "x", facilities: [], extraFacilities: [], affiliateUrl: "https://example.com/a",
+      description: "x", facilities: [], extraFacilities: [],
       published: true, ...extra,
     },
   });
@@ -67,30 +67,30 @@ describe("getCatalog", () => {
 
   it("typeCounts ignore the type filter and exclude drafts", async () => {
     const r = await getCatalog({ citySlug: "yogyakarta" }, { ...P, types: ["VILLA"] });
-    expect(r.typeCounts).toEqual({ HOTEL: 2, PENGINAPAN: 2, VILLA: 1 });
+    expect(r.typeCounts).toEqual({ HOTEL: 4, VILLA: 1 });
   });
 
   it("typeCounts honour the price filter", async () => {
     const r = await getCatalog({ citySlug: "yogyakarta" }, { ...P, preset: "lt150" });
-    expect(r.typeCounts).toEqual({ HOTEL: 0, PENGINAPAN: 1, VILLA: 0 });
+    expect(r.typeCounts).toEqual({ HOTEL: 1, VILLA: 0 });
   });
 
   it("typeCounts honour q", async () => {
     const r = await getCatalog({ q: "tugu" }, P);
-    expect(r.typeCounts).toEqual({ HOTEL: 1, PENGINAPAN: 0, VILLA: 0 });
+    expect(r.typeCounts).toEqual({ HOTEL: 1, VILLA: 0 });
   });
 
   it("typeCounts on the promoOnly path", async () => {
     const r = await getCatalog({ promoOnly: true }, P);
-    expect(r.typeCounts).toEqual({ HOTEL: 2, PENGINAPAN: 1, VILLA: 1 });
+    expect(r.typeCounts).toEqual({ HOTEL: 3, VILLA: 1 });
     const v = await getCatalog({ promoOnly: true }, { ...P, types: ["VILLA"] });
-    expect(v.typeCounts).toEqual({ HOTEL: 2, PENGINAPAN: 1, VILLA: 1 });
+    expect(v.typeCounts).toEqual({ HOTEL: 3, VILLA: 1 });
     expect(v.total).toBe(1);
   });
 
   it("zero-fills typeCounts", async () => {
     const r = await getCatalog({ citySlug: "bali" }, P);
-    expect(r.typeCounts).toEqual({ HOTEL: 0, PENGINAPAN: 0, VILLA: 1 });
+    expect(r.typeCounts).toEqual({ HOTEL: 0, VILLA: 1 });
   });
 
   it("applies price preset", async () => {
@@ -137,6 +137,11 @@ describe("getListingDetail", () => {
     const d = await getListingDetail("yogyakarta", "omah-tugu-inn");
     expect(d?.name).toBe("Omah Tugu Inn");
     expect(d?.citySlug).toBe("yogyakarta");
+  });
+
+  it("lists the listing's booking channels in display order", async () => {
+    expect((await getListingDetail("bali", "villa-sawah-asri"))?.channels).toEqual(["AGODA", "TRAVELOKA", "WHATSAPP"]);
+    expect((await getListingDetail("bandung", "kamar-dago-atas"))?.channels).toEqual(["BOOKING"]);
   });
 
   it("ignores non-ready videos for cover and media", async () => {

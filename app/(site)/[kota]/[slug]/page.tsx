@@ -8,7 +8,7 @@ import { MediaHero } from "@/components/site/MediaHero";
 import { MediaMosaic } from "@/components/site/MediaMosaic";
 import { MediaViewerProvider } from "@/components/site/MediaViewer";
 import { ViewBeacon } from "@/components/site/ViewBeacon";
-import { getListingDetail, getSiteSettings } from "@/lib/catalog";
+import { getListingDetail } from "@/lib/catalog";
 import { photoUrl, videoPoster } from "@/lib/media";
 import s from "./page.module.css";
 
@@ -29,11 +29,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ListingPage({ params }: Props) {
   const { kota, slug } = await params;
-  const [l, settings] = await Promise.all([getListingDetail(kota, slug), getSiteSettings()]);
+  const l = await getListingDetail(kota, slug);
   if (!l) notFound();
-  const showWa = (l.waNumber ?? settings.waDefault) !== null;
   // One dock: pinned under the page on phones, and again inside the fullscreen viewer.
-  const dock = <ActionDock id={l.id} price={l.price} showWa={showWa} />;
+  const dock = <ActionDock id={l.id} price={l.price} channels={l.channels} />;
   return (
     <div className={s.page}>
       <ViewBeacon id={l.id} />
@@ -53,7 +52,7 @@ export default async function ListingPage({ params }: Props) {
             <DetailInfo l={l} />
           </div>
           <div className={s.side}>
-            <BookingCard id={l.id} price={l.price} normalPrice={l.normalPrice} showWa={showWa} />
+            <BookingCard id={l.id} price={l.price} normalPrice={l.normalPrice} channels={l.channels} />
           </div>
         </div>
       </MediaViewerProvider>

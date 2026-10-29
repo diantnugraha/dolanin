@@ -1,0 +1,97 @@
+/* Booking channel tiles: white rounded rectangles holding the full brand logo (owner: no pills, logo only). */
+.tiles {
+  display: flex;
+  gap: 8px;
+}
+.t {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 44px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid var(--garis);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: border-color 0.15s ease-out, background-color 0.15s ease-out;
+}
+.t:focus-visible {
+  outline: 2px solid var(--laut);
+  outline-offset: -2px;
+}
+.t:active {
+  background: var(--pasir);
+}
+@media (hover: hover) {
+  .t:hover {
+    border-color: #d9c9b6;
+  }
+}
+
+/* Logos differ from 2:1 (Agoda, stacked) to 6:1 (Booking.com): per-logo heights keep them optically equal.
+   Max sizes, not fixed ones: in a narrow tile the logo shrinks with its aspect ratio instead of squashing. */
+.lg {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 16px;
+}
+.agoda {
+  max-height: 24px;
+}
+.booking {
+  max-height: 13px;
+}
+.dock.one .lg {
+  max-height: 19px;
+}
+.dock.one .agoda {
+  max-height: 28px;
+}
+
+/* More than three on a phone: fixed-width tiles in a sideways row. The cut-off tile at the edge says "more". */
+.scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 16px;
+  scrollbar-width: none;
+  margin-inline: -16px;
+  padding-inline: 16px;
+}
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+.scroll .t {
+  flex: 0 0 104px;
+  scroll-snap-align: start;
+}
+
+/* Desktop booking card: stacked rows, logo left, arrow right. */
+.card {
+  flex-direction: column;
+}
+.card .t {
+  flex: none;
+  height: 56px;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 0 16px;
+}
+.card .lg {
+  max-height: 21px;
+}
+.card .agoda {
+  max-height: 28px;
+}
+.card .booking {
+  max-height: 17px;
+}
+.arr {
+  flex: none;
+  margin-left: auto;
+  color: var(--abu);
+}

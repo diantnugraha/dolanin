@@ -1,8 +1,8 @@
 import "server-only";
 import { db } from "@/lib/db";
-import { getSiteSettings } from "@/lib/catalog";
-import { listingWaText, waLink } from "@/lib/wa";
-import type { EventKind } from "../generated/prisma/client";
+import { channelBySlug } from "@/lib/channels";
+import { listingWaText, withWaText } from "@/lib/wa";
+import type { BookingChannel, EventKind } from "../generated/prisma/client";
 
 const BOT_RE = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|slack|discord|headless/i;
 
@@ -11,49 +11,57 @@ export function isBot(ua: string | null): boolean {
 }
 
 // Only published listings; copies cityId/type. No IP or personal data is stored.
-export async function recordEvent(listingId: string, kind: EventKind): Promise<boolean> {
+export async function recordEvent(listingId: string, kind: EventKind, channel?: BookingChannel): Promise<boolean> {
   const l = await db.listing.findFirst({
     where: { id: listingId, published: true },
     select: { cityId: true, type: true },
   });
   if (!l) return false;
-  await db.event.create({ data: { listingId, kind, cityId: l.cityId, type: l.type } });
+  await db.event.create({ data: { listingId, kind, channel, cityId: l.cityId, type: l.type } });
   return true;
 }
 
 type GoResult = { status: 302; location: string } | { status: 404 };
 
-/** `record: false` (HEAD requests) resolves the same redirect without counting a click. */
+/**
+ * `kind` is a channel slug (`agoda`, …, `whatsapp`). The pre-channel slugs still work for cached pages:
+ * `pesan` = first non-WhatsApp link (else WhatsApp), `wa` = WhatsApp.
+ * `record: false` (HEAD requests) resolves the same redirect without counting a click.
+ */
 export async function resolveGo(
   id: string,
   kind: string,
   ua: string | null,
   { record = true }: { record?: boolean } = {},
 ): Promise<GoResult> {
-  if (kind !== "pesan" && kind !== "wa") return { status: 404 };
+  const wanted = kind === "pesan" || kind === "wa" ? kind : channelBySlug(kind)?.id;
+  if (!wanted) return { status: 404 };
   const l = await db.listing.findFirst({
     where: { id, published: true },
-    select: { name: true, slug: true, affiliateUrl: true, waNumber: true, city: { select: { slug: true } } },
+    select: {
+      name: true, slug: true, city: { select: { slug: true } },
+      links: { select: { channel: true, url: true }, orderBy: { channel: "asc" } },
+    },
   });
   if (!l) return { status: 404 };
 
-  let location: string;
-  if (kind === "pesan") {
-    if (!/^https?:\/\//i.test(l.affiliateUrl)) return { status: 404 };
-    location = l.affiliateUrl;
-  } else {
-    const number = l.waNumber ?? (await getSiteSettings()).waDefault;
-    if (!number) return { status: 404 };
-    const url = `${process.env.NEXT_PUBLIC_SITE_URL}/${l.city.slug}/${l.slug}`;
-    location = waLink(number, listingWaText(l.name, url));
-  }
+  const link =
+    wanted === "pesan"
+      ? (l.links.find((k) => k.channel !== "WHATSAPP") ?? l.links.find((k) => k.channel === "WHATSAPP"))
+      : l.links.find((k) => k.channel === (wanted === "wa" ? "WHATSAPP" : wanted));
+  if (!link || !/^https?:\/\//i.test(link.url)) return { status: 404 };
 
   if (record && !isBot(ua)) {
     try {
-      await recordEvent(id, kind === "pesan" ? "PESAN" : "WA");
+      await recordEvent(id, "CLICK", link.channel);
     } catch (e) {
       console.error("tracking: recordEvent failed", e);
     }
   }
+  // WhatsApp links without their own text open with one that names the listing (as the old WA button did).
+  const location =
+    link.channel === "WHATSAPP"
+      ? withWaText(link.url, listingWaText(l.name, `${process.env.NEXT_PUBLIC_SITE_URL}/${l.city.slug}/${l.slug}`))
+      : link.url;
   return { status: 302, location };
 }

@@ -20,6 +20,7 @@ async function cleanup() {
     await c.query(`DELETE FROM "Media" WHERE key IN ('e2e-failed-guid', 'e2e-processing-guid')`);
     await c.query(`UPDATE "Listing" SET name = 'Hotel Gedong Kuning' WHERE name = 'Hotel Gedong Kuning X'`);
     await c.query(`UPDATE "Listing" SET facilities = '{wifi,ac,sarapan}' WHERE slug = 'kamar-dago-atas'`);
+    await c.query(`UPDATE "Listing" SET "legacyUrl" = NULL WHERE slug = 'hotel-gedong-kuning'`);
   } finally {
     await c.end();
   }
@@ -57,14 +58,14 @@ test("create draft, edit price, validation, preview, delete", async ({ page }) =
   await page.getByLabel("Nama", { exact: true }).fill("Wisma Uji");
 
   await page.getByLabel("Kota").selectOption({ label: "Bandung" });
-  await page.getByRole("radio", { name: "Penginapan" }).check();
+  await page.getByRole("radio", { name: "Villa" }).check();
   await page.getByLabel("Area / alamat").fill("Dago");
   await page.getByLabel("Harga per malam").fill("150000");
   await page.getByLabel("Harga per malam").blur();
   await expect(page.getByLabel("Harga per malam")).toHaveValue("150.000");
   await page.getByLabel("Deskripsi").fill("Penginapan uji coba.");
   await expect(page.getByText("20 / 300")).toBeVisible();
-  await page.getByLabel(/Link affiliate/).fill("https://example.com/aff");
+  await page.getByLabel("Agoda", { exact: true }).fill("https://example.com/aff");
 
   await page.getByRole("button", { name: "Simpan", exact: true }).click();
   await expect(page.getByText("Tambahkan minimal 1 foto atau video")).toBeVisible();
@@ -118,6 +119,52 @@ test("a stored facility key that is no longer offered is dropped on save, not a 
   }
 });
 
+test("bed types: their own group in the form, shown with the facilities on the detail page", async ({ page }) => {
+  await page.getByRole("row", { name: /Kamar Dago Atas/ }).getByRole("link", { name: /Ubah/ }).click();
+  const beds = page.getByRole("group", { name: /Tipe kasur/ });
+  await expect(beds.getByRole("button")).toHaveText(["Single bed", "Twin bed", "Double bed", "Queen bed", "King bed"]);
+  await beds.getByRole("button", { name: "Double bed" }).click();
+  await beds.getByRole("button", { name: "Twin bed" }).click();
+  await expect(beds.getByRole("button", { name: "Double bed" })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Simpan", exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/listing\?tersimpan=1$/);
+  await page.goto("/bandung/kamar-dago-atas");
+  const fac = page.locator("section", { has: page.getByRole("heading", { name: "Fasilitas" }) });
+  await expect(fac).toContainText("Twin bed");
+  await expect(fac).toContainText("Double bed");
+  await expect(fac).not.toContainText("King bed");
+});
+
+test("publishing with every booking link empty is refused on the form", async ({ page }) => {
+  await page.getByRole("row", { name: /Hotel Gedong Kuning/ }).getByRole("link", { name: /Ubah/ }).click();
+  for (const label of ["Agoda", "Traveloka", "Trip.com", "tiket.com", "Booking.com", "WhatsApp"]) {
+    await page.getByLabel(label, { exact: true }).fill("");
+  }
+  await page.getByRole("button", { name: "Simpan", exact: true }).click();
+  await expect(page.getByText("Isi minimal satu link pemesanan")).toBeVisible();
+  await expect(page).toHaveURL(/\/admin\/listing\/[^/?]+$/);
+});
+
+test("an old link on an unknown domain is flagged until the listing is saved", async ({ page }) => {
+  const c = new Client({ connectionString: process.env.DATABASE_URL });
+  await c.connect();
+  try {
+    await c.query(`UPDATE "Listing" SET "legacyUrl" = 'https://invol.co/abc' WHERE slug = 'hotel-gedong-kuning'`);
+  } finally {
+    await c.end();
+  }
+  await page.goto("/admin/listing");
+  const row = page.getByRole("row", { name: /Hotel Gedong Kuning/ });
+  await expect(row.getByText("Cek link lama")).toBeVisible();
+  await row.getByRole("link", { name: /Ubah/ }).click();
+  await expect(page.getByText("Link lama belum masuk channel mana pun:")).toBeVisible();
+  await expect(page.getByText("https://invol.co/abc")).toBeVisible();
+  await page.getByLabel("Agoda", { exact: true }).fill("https://invol.co/abc");
+  await page.getByRole("button", { name: "Simpan", exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/listing\?tersimpan=1$/);
+  await expect(page.getByRole("row", { name: /Hotel Gedong Kuning/ }).getByText("Cek link lama")).toHaveCount(0);
+});
+
 test("a failed save keeps the form and shows an error", async ({ page }) => {
   await page.goto("/admin/listing/baru");
   await page.route("**/admin/listing/baru", (r) => (r.request().method() === "POST" ? r.abort() : r.continue()));
@@ -133,7 +180,7 @@ async function fillRequired(page: Page, name: string) {
   await page.getByLabel("Area / alamat").fill("Dago");
   await page.getByLabel("Harga per malam").fill("150000");
   await page.getByLabel("Deskripsi").fill("Penginapan uji coba.");
-  await page.getByLabel(/Link affiliate/).fill("https://example.com/aff");
+  await page.getByLabel("Agoda", { exact: true }).fill("https://example.com/aff");
 }
 
 test("photo upload: two WebP PUTs straight to S3, no SDK checksum, immutable cache; saved as one PHOTO", async ({ page }) => {

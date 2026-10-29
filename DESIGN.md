@@ -1,6 +1,6 @@
 ---
 name: Dolanin
-description: Katalog terkurasi hotel, penginapan, dan villa murah per kota; papan tujuan yang hangat dan flat.
+description: Katalog terkurasi hotel dan villa murah per kota; papan tujuan yang hangat dan flat.
 colors:
   jingga: "#F26B3A"
   biru-laut: "#0E8C8C"
@@ -22,8 +22,7 @@ colors:
   error: "#B42318"
   error-ink: "#8A2F0B"
   admin-canvas: "#FAF8F5"
-  series-pesan: "#F26B3A"
-  series-wa: "#00918F"
+  series-klik: "#F26B3A"
   series-other: "#C9C2B8"
   chart-grid: "#EEEAE4"
   chart-text: "#52514E"
@@ -227,7 +226,12 @@ components:
     padding: "24px"
   action-dock:
     backgroundColor: "{colors.putih}"
-    padding: "12px 16px 16px"
+    padding: "8px 16px 10px"
+  channel-tile:
+    backgroundColor: "{colors.putih}"
+    rounded: "{rounded.inner}"
+    height: "44px"
+    padding: "0 10px"
   input-search:
     backgroundColor: "{colors.putih}"
     textColor: "{colors.malam}"
@@ -258,7 +262,7 @@ components:
 
 Dolanin reads like a warm, sunlit departure board for a local trip: the city comes first, as a real photograph on a rounded tile with a small solid Pasir plate naming it, and everything after that is a short, honest list of cheap places to stay. The ground is warm sand (Pasir), the ink is night (Malam), and colour is spent deliberately: Jingga marks prices and the main action, Biru laut marks direction, cities and selection, Kuning senja marks promos and the one highlighted word in a headline. Nothing glows, nothing is frosted, nothing fades: every colour is flat.
 
-Density is phone-first and calm. Cards sit on white with a sand-coloured hairline, corners are generously rounded, and every action is a pill. The path to Pesan or WhatsApp is always on screen: a sticky white dock on phones, a sticky booking card on desktop. The CMS shares the same palette and pill vocabulary but trades the sand ground for a quieter off-white canvas and a Malam sidebar.
+Density is phone-first and calm. Cards sit on white with a sand-coloured hairline, corners are generously rounded, and every action is a pill, except the booking channel tiles, which are 12px rounded rectangles holding a partner logo. The path to booking (an OTA link or WhatsApp) is always on screen: a sticky white dock on phones, a sticky booking card on desktop. The CMS shares the same palette and pill vocabulary but trades the sand ground for a quieter off-white canvas and a Malam sidebar.
 
 The owner's rejections are binding and visual: no colour gradients of any kind (scrims included), no glass or blur, no emoji used as icons, and nothing that reads as a generic AI template.
 
@@ -275,7 +279,7 @@ The owner's rejections are binding and visual: no colour gradients of any kind (
 A warm, sun-and-sea palette on a sand ground: one hot accent for money and action, one sea accent for direction, one sunset yellow for promotion.
 
 ### Primary
-- **Jingga Dolan** (#F26B3A): prices (always 20px/700 or larger), the Pesan button, the "in" of the wordmark on light grounds, the curator avatar disc, and the Pesan series in the dashboard. Labels and icons placed on it are Malam, by owner decision.
+- **Jingga Dolan** (#F26B3A): prices (always 20px/700 or larger), primary buttons, the "in" of the wordmark on light grounds, the curator avatar disc, and the click series and bars in the dashboard. Labels and icons placed on it are Malam, by owner decision.
 
 ### Secondary
 - **Biru Laut** (#0E8C8C): focus rings, checkbox fill, outline-button strokes, selected-chip borders, info icons. Not used for small text on light grounds.
@@ -298,7 +302,7 @@ A warm, sun-and-sea palette on a sand ground: one hot accent for money and actio
 - **Admin Canvas** (#FAF8F5): the CMS main area behind white cards.
 
 ### Dashboard series
-- **Pesan** (#F26B3A), **WA** (#00918F), **Lainnya** (#C9C2B8): the validated chart set. Grid lines use #EEEAE4, chart labels #52514E, positive deltas #17663A on #E5F3EA, flat deltas Malam on #F3EFEA.
+- **Klik** (#F26B3A) and **Lainnya** (#C9C2B8): the dashboard chart set. Every chart is single-hue; booking channels are told apart by their logo and name, never by colour. Grid lines use #EEEAE4, chart labels #52514E, positive deltas #17663A on #E5F3EA, flat deltas Malam on #F3EFEA.
 
 ### Named Rules
 **The Flat Sun Rule.** Every colour is a solid fill. No gradients anywhere, including scrims, fades, and image overlays; no glass, no backdrop blur.
@@ -345,7 +349,7 @@ Phone first at 390px; desktop is an extension at a single breakpoint of 1024px. 
 - **CMS:** a 232px Malam sidebar beside an off-white main area (28px 36px padding), collapsing to a top bar below 800px. Forms use a content column plus a 340px sticky side column, stacking below 1100px.
 
 ### Named Rules
-**The Always-Reachable Rule.** On every detail view the Pesan and WhatsApp actions stay on screen: the sticky dock on phones, the sticky booking card on desktop.
+**The Always-Reachable Rule.** On every detail view the booking channel tiles stay on screen: the sticky dock on phones, the sticky booking card on desktop.
 
 ## Elevation & Depth
 
@@ -369,7 +373,7 @@ Soft and friendly, never sharp. Cards and photo tiles use a 16px radius; larger 
 ### Buttons
 Round, warm, and unmistakable; the colour tells you where the button goes.
 - **Shape:** full pill (999px), weight 600, 14px (15px on desktop booking actions).
-- **Primary (Pesan):** Jingga fill, Malam label and icon; 11px 18px in dialogs, 46px tall with 22px side padding in the dock, full width with 16px padding in the booking card.
+- **Primary:** Jingga fill, Malam label and icon; 11px 18px in dialogs. (The detail page no longer has a Pesan pill; see Channel tile.)
 - **WhatsApp:** WhatsApp green fill with WhatsApp Ink label; a 40 to 46px circle on phones, a labelled pill on desktop.
 - **Outline:** transparent with a 1.5px Biru Laut stroke and Biru Laut Tua label, for "Lihat semua kota", load more, and price-range apply.
 - **Dark / Ghost (CMS):** Malam fill with white label for primary CMS actions; white with a 1px stroke for secondary ones. Disabled buttons drop to 60% opacity.
@@ -381,7 +385,7 @@ Round, warm, and unmistakable; the colour tells you where the button goes.
 - **State:** selected is Tint Laut with a Biru Laut stroke and Laut Ink label; the active sort chip is Malam with Pasir text.
 
 ### Type segment
-A white pill track (4px inset, Garis stroke) holding Semua / Hotel / Penginapan / Villa; the active option is a Malam pill with Pasir text, the rest Abu Pasir. Full width on phones, inline from 1024px. The catalog sort control follows the same pattern.
+A white pill track (4px inset, Garis stroke) holding Semua / Hotel / Villa; the active option is a Malam pill with Pasir text, the rest Abu Pasir. Full width on phones, inline from 1024px. The catalog sort control follows the same pattern.
 
 ### Cards / Containers
 - **Corner Style:** 16px.
@@ -400,8 +404,9 @@ A 4:5 real photograph with 16px radius on a Tint Laut placeholder, a Tint Laut c
 Jingga 20px/700 with -0.01em tracking and tabular figures; an 11px Abu "/malam" unit; an optional 12px Abu struck-through original price above. 28px in the detail price box and booking card.
 
 ### Action dock and booking card
-- **Action dock (phones):** white bar, Garis top rule, sticky at the bottom of the page column; price at left, a WhatsApp circle and a Pesan pill at right. Hidden from 1024px.
-- **Booking card (desktop):** white, 20px radius, 24px padding, sticky 24px from the top; price and promo stamp, full-width Pesan then WhatsApp pills, and a 12px Abu note with an info icon.
+- **Action dock (phones):** white bar, Garis top rule, sticky at the bottom of the page column, 91px tall; a 12px Abu "Pesan di" at left and the price at right, then one channel tile per booking link. One to three tiles share the width; more become 104px tiles in a sideways scroll row (snap, no scrollbar, no fade: the cut-off tile at the edge is the cue). Hidden from 1024px.
+- **Booking card (desktop):** white, 20px radius, 24px padding, sticky 24px from the top; price and promo stamp, a 13px Abu "Pesan di" heading, stacked channel tiles (logo left, outline arrow right), and a 12px Abu note with an info icon.
+- **Channel tile:** white rounded rectangle (12px, owner decision: not a pill), Garis hairline, holding only the full brand logo, sized per logo so all read equally large. Phone dock: 44px tall, logos at most Agoda 24px, Booking.com 13px, others 16px (a single tile 28/19px). Desktop card rows: 56px, logos 28/17/21px. Sizes are maxima: in a narrow tile the logo shrinks with its aspect ratio. Order is fixed: Agoda, Traveloka, Trip.com, tiket.com, Booking.com, WhatsApp. Accessible name "Pesan di {channel}" / "Chat via WhatsApp"; the logo image is decorative. Logos live in `public/channels/` (full) and `public/channels/icon-*.png` (20px square icons for the CMS and dashboard).
 
 ### WhatsApp help block
 A Malam panel (16px radius, 20px radius on desktop) with a Pasir heading, #D9DEE5 supporting text and a WhatsApp pill; stacks on phones, sits in a row on desktop.
@@ -423,7 +428,7 @@ White KPI tiles (16px radius, 18px 20px padding) with a 10px colour key, a 30px/
 
 ### Do:
 - **Do** set every surface on Pasir (#FFF6EC) or white, with Malam (#1F2A37) text, light theme only.
-- **Do** keep Jingga (#F26B3A) for prices and the Pesan action, and put Malam labels and icons on it.
+- **Do** keep Jingga (#F26B3A) for prices and primary actions, and put Malam labels and icons on it.
 - **Do** render prices at 20px/700 or larger with tabular figures.
 - **Do** use Biru Laut Tua (#0A6B6B) for text links and outline-button labels on light grounds, and Biru Laut (#0E8C8C) for strokes, fills and focus rings.
 - **Do** use Abu Pasir (#575E6B) for secondary text on Pasir and Abu (#6B7280) only on white.
@@ -431,7 +436,7 @@ White KPI tiles (16px radius, 18px 20px padding) with a 10px colour key, a 30px/
 - **Do** place names and prices over photos on a solid Pasir plate.
 - **Do** use Tabler outline icons at 1.5 to 1.75 stroke.
 - **Do** keep spacing on the 4px grid.
-- **Do** use the dashboard series colours exactly: Pesan #F26B3A, WA #00918F, other #C9C2B8.
+- **Do** use the dashboard series colours exactly: clicks #F26B3A, "Lainnya" #C9C2B8; identify channels by logo and name, not by colour.
 
 ### Don't:
 - **Don't** use any gradient, including scrims and photo fades.
