@@ -1,5 +1,5 @@
 import {
-  IconAirConditioning, IconBath, IconCar, IconCoffee, IconParking, IconPool, IconToolsKitchen2, IconWifi,
+  IconAirConditioning, IconBath, IconBed, IconCar, IconCoffee, IconParking, IconPool, IconToolsKitchen2, IconWifi,
 } from "@tabler/icons-react";
 import type { ListingType } from "../generated/prisma/client";
 
@@ -11,7 +11,7 @@ export const TYPE_LABEL: Record<ListingType, string> = {
   VILLA: "Villa",
 };
 
-export const FACILITIES = [
+export const AMENITIES = [
   { key: "wifi", label: "WiFi", Icon: IconWifi },
   { key: "ac", label: "AC", Icon: IconAirConditioning },
   { key: "sarapan", label: "Sarapan", Icon: IconCoffee },
@@ -21,6 +21,17 @@ export const FACILITIES = [
   { key: "dapur", label: "Dapur", Icon: IconToolsKitchen2 },
   { key: "air-panas", label: "Air panas", Icon: IconBath },
 ] as const;
+
+/** Bed types, stored in `facilities` like the amenities; the form shows them as their own group. */
+export const BEDS = [
+  { key: "bed-single", label: "Single bed", Icon: IconBed },
+  { key: "bed-twin", label: "Twin bed", Icon: IconBed },
+  { key: "bed-double", label: "Double bed", Icon: IconBed },
+  { key: "bed-queen", label: "Queen bed", Icon: IconBed },
+  { key: "bed-king", label: "King bed", Icon: IconBed },
+] as const;
+
+export const FACILITIES = [...AMENITIES, ...BEDS] as const;
 
 export type FacilityKey = (typeof FACILITIES)[number]["key"];
 export type PricePreset = "lt150" | "150-300" | "gt300";

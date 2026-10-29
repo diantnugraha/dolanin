@@ -8,7 +8,7 @@ import type { AdminListingDetail } from "@/lib/admin";
 import type { Cover, ListingCardData } from "@/lib/catalog";
 import { CHANNELS } from "@/lib/channels";
 import { formatRupiah, parseRupiah } from "@/lib/format";
-import { FACILITIES, TYPE_LABEL } from "@/lib/listing";
+import { AMENITIES, BEDS, FACILITIES, TYPE_LABEL } from "@/lib/listing";
 import { saveListingAction } from "./actions";
 import { CardPreview } from "./CardPreview";
 import { MediaManager, type MediaItem } from "./MediaManager";
@@ -48,6 +48,13 @@ export function ListingForm({ cities, initial }: { cities: { id: string; name: s
   // Keys dropped from FACILITIES have no chip to untick; keep them and the save fails with no way out.
   const [facilities, setFacilities] = useState<string[]>(
     (initial?.facilities ?? []).filter((k) => FACILITIES.some((f) => f.key === k)),
+  );
+  const chip = ({ key, label, Icon }: (typeof FACILITIES)[number]) => (
+    <button key={key} type="button" aria-pressed={facilities.includes(key)}
+      onClick={() => setFacilities((cur) => (cur.includes(key) ? cur.filter((k) => k !== key) : [...cur, key]))}>
+      <Icon size={16} aria-hidden="true" />
+      {label}
+    </button>
   );
   const [extras, setExtras] = useState<string[]>(initial?.extraFacilities ?? []);
   const [extraOpen, setExtraOpen] = useState(false);
@@ -191,13 +198,7 @@ export function ListingForm({ cities, initial }: { cities: { id: string; name: s
           <h2>Fasilitas</h2>
           <p className={s.hint}>Klik untuk memilih.</p>
           <div className={s.fac}>
-            {FACILITIES.map(({ key, label, Icon }) => (
-              <button key={key} type="button" aria-pressed={facilities.includes(key)}
-                onClick={() => setFacilities((cur) => (cur.includes(key) ? cur.filter((k) => k !== key) : [...cur, key]))}>
-                <Icon size={16} aria-hidden="true" />
-                {label}
-              </button>
-            ))}
+            {AMENITIES.map(chip)}
             {extras.map((x, i) => (
               <button key={`${x}-${i}`} type="button" aria-pressed="true" aria-label={`Hapus ${x}`}
                 onClick={() => setExtras((cur) => cur.filter((_, j) => j !== i))}>
@@ -223,6 +224,10 @@ export function ListingForm({ cities, initial }: { cities: { id: string; name: s
               <button type="button" className={`${a.btn} ${a.ghost}`} onClick={addExtra}>Tambah</button>
             </div>
           )}
+          <p className={s.sub} id="beds-label">Tipe kasur <small>Twin = 2 kasur single</small></p>
+          <div className={s.fac} role="group" aria-labelledby="beds-label">
+            {BEDS.map(chip)}
+          </div>
           {(err("facilities") || err("extraFacilities")) && <p className={s.err} role="alert">{err("facilities") ?? err("extraFacilities")}</p>}
         </section>
 

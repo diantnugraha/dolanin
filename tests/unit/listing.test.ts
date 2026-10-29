@@ -50,6 +50,7 @@ describe("listing", () => {
     expect(TYPE_LABEL).toEqual({ HOTEL: "Hotel", VILLA: "Villa" });
     expect(FACILITIES.map((f) => f.key)).toEqual([
       "wifi", "ac", "sarapan", "parkir-motor", "parkir-mobil", "kolam", "dapur", "air-panas",
+      "bed-single", "bed-twin", "bed-double", "bed-queen", "bed-king",
     ]);
     expect(FACILITIES.every((f) => f.Icon)).toBe(true);
   });

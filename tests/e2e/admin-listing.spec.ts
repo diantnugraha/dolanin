@@ -119,6 +119,22 @@ test("a stored facility key that is no longer offered is dropped on save, not a 
   }
 });
 
+test("bed types: their own group in the form, shown with the facilities on the detail page", async ({ page }) => {
+  await page.getByRole("row", { name: /Kamar Dago Atas/ }).getByRole("link", { name: /Ubah/ }).click();
+  const beds = page.getByRole("group", { name: /Tipe kasur/ });
+  await expect(beds.getByRole("button")).toHaveText(["Single bed", "Twin bed", "Double bed", "Queen bed", "King bed"]);
+  await beds.getByRole("button", { name: "Double bed" }).click();
+  await beds.getByRole("button", { name: "Twin bed" }).click();
+  await expect(beds.getByRole("button", { name: "Double bed" })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Simpan", exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/listing\?tersimpan=1$/);
+  await page.goto("/bandung/kamar-dago-atas");
+  const fac = page.locator("section", { has: page.getByRole("heading", { name: "Fasilitas" }) });
+  await expect(fac).toContainText("Twin bed");
+  await expect(fac).toContainText("Double bed");
+  await expect(fac).not.toContainText("King bed");
+});
+
 test("publishing with every booking link empty is refused on the form", async ({ page }) => {
   await page.getByRole("row", { name: /Hotel Gedong Kuning/ }).getByRole("link", { name: /Ubah/ }).click();
   for (const label of ["Agoda", "Traveloka", "Trip.com", "tiket.com", "Booking.com", "WhatsApp"]) {
