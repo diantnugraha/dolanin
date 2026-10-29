@@ -226,12 +226,12 @@ components:
     padding: "24px"
   action-dock:
     backgroundColor: "{colors.putih}"
-    padding: "10px 16px 14px"
+    padding: "8px 16px 10px"
   channel-tile:
     backgroundColor: "{colors.putih}"
     rounded: "{rounded.inner}"
-    height: "56px"
-    padding: "0 12px"
+    height: "44px"
+    padding: "0 10px"
   input-search:
     backgroundColor: "{colors.putih}"
     textColor: "{colors.malam}"
@@ -404,9 +404,9 @@ A 4:5 real photograph with 16px radius on a Tint Laut placeholder, a Tint Laut c
 Jingga 20px/700 with -0.01em tracking and tabular figures; an 11px Abu "/malam" unit; an optional 12px Abu struck-through original price above. 28px in the detail price box and booking card.
 
 ### Action dock and booking card
-- **Action dock (phones):** white bar, Garis top rule, sticky at the bottom of the page column, 112px tall; a 12px Abu "Pesan di" at left and the price at right, then one channel tile per booking link. One to three tiles share the width; more become 132px tiles in a sideways scroll row (snap, no scrollbar, no fade: the cut-off tile at the edge is the cue). Hidden from 1024px.
+- **Action dock (phones):** white bar, Garis top rule, sticky at the bottom of the page column, 91px tall; a 12px Abu "Pesan di" at left and the price at right, then one channel tile per booking link. One to three tiles share the width; more become 104px tiles in a sideways scroll row (snap, no scrollbar, no fade: the cut-off tile at the edge is the cue). Hidden from 1024px.
 - **Booking card (desktop):** white, 20px radius, 24px padding, sticky 24px from the top; price and promo stamp, a 13px Abu "Pesan di" heading, stacked channel tiles (logo left, outline arrow right), and a 12px Abu note with an info icon.
-- **Channel tile:** white rounded rectangle (12px, owner decision: not a pill), Garis hairline, 56px tall, holding only the full brand logo, sized per logo so all read equally large (Agoda 30px, Booking.com 17px, others 21px; a single tile 34/24px). Order is fixed: Agoda, Traveloka, Trip.com, tiket.com, Booking.com, WhatsApp. Accessible name "Pesan di {channel}" / "Chat via WhatsApp"; the logo image is decorative. Logos live in `public/channels/` (full) and `public/channels/icon-*.png` (20px square icons for the CMS and dashboard).
+- **Channel tile:** white rounded rectangle (12px, owner decision: not a pill), Garis hairline, holding only the full brand logo, sized per logo so all read equally large. Phone dock: 44px tall, logos at most Agoda 24px, Booking.com 13px, others 16px (a single tile 28/19px). Desktop card rows: 56px, logos 28/17/21px. Sizes are maxima: in a narrow tile the logo shrinks with its aspect ratio. Order is fixed: Agoda, Traveloka, Trip.com, tiket.com, Booking.com, WhatsApp. Accessible name "Pesan di {channel}" / "Chat via WhatsApp"; the logo image is decorative. Logos live in `public/channels/` (full) and `public/channels/icon-*.png` (20px square icons for the CMS and dashboard).
 
 ### WhatsApp help block
 A Malam panel (16px radius, 20px radius on desktop) with a Pasir heading, #D9DEE5 supporting text and a WhatsApp pill; stacks on phones, sits in a row on desktop.

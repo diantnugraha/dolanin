@@ -1,20 +1,20 @@
 /* Sticky at the end of the page column: always on screen, never covers content or footer.
-   Height with tiles = 10 + 24 + 8 + 56 + 14 = 112px (MediaHero subtracts it from the video height). */
+   Height with tiles = 1 + 8 + 22 + 6 + 44 + 10 = 91px (MediaHero subtracts it from the video height). */
 .dock {
   position: sticky;
   bottom: 0;
   z-index: 20;
   background: #fff;
   border-top: 1px solid var(--garis);
-  padding: 10px 16px 14px;
+  padding: 8px 16px 10px;
 }
 .top {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  height: 24px;
-  margin-bottom: 8px;
+  height: 22px;
+  margin-bottom: 6px;
 }
 .top > small {
   font-size: 12px;
@@ -24,7 +24,7 @@
 .price {
   font-size: 20px;
   font-weight: 700;
-  line-height: 24px;
+  line-height: 22px;
   color: var(--jingga);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;

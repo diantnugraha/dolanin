@@ -6,8 +6,8 @@
 .t {
   flex: 1 1 0;
   min-width: 0;
-  height: 56px;
-  padding: 0 12px;
+  height: 44px;
+  padding: 0 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -37,19 +37,19 @@
   width: auto;
   height: auto;
   max-width: 100%;
-  max-height: 21px;
+  max-height: 16px;
 }
 .agoda {
-  max-height: 30px;
-}
-.booking {
-  max-height: 17px;
-}
-.one .lg {
   max-height: 24px;
 }
-.one .agoda {
-  max-height: 34px;
+.booking {
+  max-height: 13px;
+}
+.dock.one .lg {
+  max-height: 19px;
+}
+.dock.one .agoda {
+  max-height: 28px;
 }
 
 /* More than three on a phone: fixed-width tiles in a sideways row. The cut-off tile at the edge says "more". */
@@ -66,7 +66,7 @@
   display: none;
 }
 .scroll .t {
-  flex: 0 0 132px;
+  flex: 0 0 104px;
   scroll-snap-align: start;
 }
 
@@ -76,12 +76,19 @@
 }
 .card .t {
   flex: none;
+  height: 56px;
   justify-content: flex-start;
   gap: 12px;
   padding: 0 16px;
 }
+.card .lg {
+  max-height: 21px;
+}
 .card .agoda {
   max-height: 28px;
+}
+.card .booking {
+  max-height: 17px;
 }
 .arr {
   flex: none;

@@ -42,6 +42,15 @@ test.describe("detail mobile", () => {
     }
   });
 
+  test("the dock stays compact: at most 92px tall, tiles 44px", async ({ page }) => {
+    for (const url of ["/bali/villa-sawah-asri", URL, "/bandung/kamar-dago-atas"]) {
+      await page.goto(url);
+      const dock = (await page.locator("[data-dock]").boundingBox())!;
+      expect(dock.height, url).toBeLessThanOrEqual(92);
+      expect((await page.locator("[data-dock] a").first().boundingBox())!.height, url).toBe(44);
+    }
+  });
+
   test("logos keep their aspect ratio on a narrow 360px phone", async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 780 });
     for (const url of ["/bali/villa-sawah-asri", URL]) {

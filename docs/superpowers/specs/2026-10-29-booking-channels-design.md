@@ -78,10 +78,11 @@ Semua file ada di `2026-10-29-booking-channels/`.
 | Booking.com | `Booking.com Logo.svg` |
 | WhatsApp | ikon datar `WhatsApp Logo green.svg` + tulisan dari `WhatsApp logo.svg`, warna teks `#111B21` |
 
-Tinggi tampil di HP agar logo terlihat sama besar:
-- 2–3 channel: Agoda 30px, Booking.com 17px, lainnya 21px.
-- 1 channel: Agoda 34px, lainnya 24px.
-- Logo tidak pernah melebihi lebar kotak.
+Tinggi tampil di HP agar logo terlihat sama besar (dirapatkan atas masukan pemilik 29 Oktober 2026: dock 91px, kotak 44px, kotak geser 104px):
+- 2 channel atau lebih: Agoda 24px, Booking.com 13px, lainnya 16px.
+- 1 channel: Agoda 28px, lainnya 19px.
+- Kartu desktop tetap 56px per baris: Agoda 28px, Booking.com 17px, lainnya 21px.
+- Ukuran di atas adalah batas maksimum: di kotak yang sempit, logo mengecil mengikuti rasionya dan tidak pernah melebihi kotak.
 
 **Ikon persegi** (`icons/`, PNG 96×96):
 - Traveloka, Trip.com, WhatsApp: ikon aplikasi resmi (App Store).
