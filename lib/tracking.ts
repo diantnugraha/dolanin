@@ -1,6 +1,7 @@
 import "server-only";
 import { db } from "@/lib/db";
 import { channelBySlug } from "@/lib/channels";
+import { listingWaText, withWaText } from "@/lib/wa";
 import type { BookingChannel, EventKind } from "../generated/prisma/client";
 
 const BOT_RE = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|slack|discord|headless/i;
@@ -37,7 +38,10 @@ export async function resolveGo(
   if (!wanted) return { status: 404 };
   const l = await db.listing.findFirst({
     where: { id, published: true },
-    select: { links: { select: { channel: true, url: true }, orderBy: { channel: "asc" } } },
+    select: {
+      name: true, slug: true, city: { select: { slug: true } },
+      links: { select: { channel: true, url: true }, orderBy: { channel: "asc" } },
+    },
   });
   if (!l) return { status: 404 };
 
@@ -54,5 +58,10 @@ export async function resolveGo(
       console.error("tracking: recordEvent failed", e);
     }
   }
-  return { status: 302, location: link.url };
+  // WhatsApp links without their own text open with one that names the listing (as the old WA button did).
+  const location =
+    link.channel === "WHATSAPP"
+      ? withWaText(link.url, listingWaText(l.name, `${process.env.NEXT_PUBLIC_SITE_URL}/${l.city.slug}/${l.slug}`))
+      : link.url;
+  return { status: 302, location };
 }

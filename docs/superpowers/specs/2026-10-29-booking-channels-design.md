@@ -25,7 +25,7 @@ Pemilik punya link untuk satu listing di beberapa OTA dan di WhatsApp. Pengunjun
 1. **Minimal satu link untuk listing yang tayang.** Link WhatsApp ikut dihitung, karena pesan langsung via WhatsApp adalah channel yang sah (lihat teks landing: "direct via WhatsApp"). Draf boleh tanpa link. Ini menjaga prinsip produk: jalan memesan selalu terlihat.
 2. **Domain link tidak dicek.** Link affiliate sering lewat jaringan affiliate atau short link (mis. `invol.co`), jadi setiap kolom cukup harus berupa URL `http(s)`.
 3. **Nomor WA default di Pengaturan tidak lagi dipakai halaman detail.** Nomor itu tetap dipakai tombol "Tanya via WA" di header dan blok WhatsApp di landing. Teks petunjuk di Pengaturan diperbarui.
-4. **Pesan WA otomatis** (nama listing + link listing) tidak lagi dibuat. Admin menulis teks sendiri di link (contoh di petunjuk form: `https://wa.me/628…?text=Halo%2C%20...`).
+4. **Pesan WA otomatis** (diputuskan pemilik 29 Oktober 2026): saat pengunjung mengklik tombol WhatsApp, link `wa.me/…` atau `api.whatsapp.com/…` yang belum berisi teks otomatis diberi teks "Halo, saya tertarik dengan {nama listing} di Dolanin: {link listing}". Teks yang ditulis admin sendiri di link tidak diubah; short link seperti `wa.link/…` dibiarkan apa adanya.
 5. **Data listing lama dipindahkan saat migrasi:**
    - `affiliateUrl` masuk ke channel sesuai domainnya: `agoda.com`, `traveloka.com`, `trip.com`, `tiket.com`, `booking.com`, termasuk subdomain (mis. `www.agoda.com`).
    - **Link dengan domain lain tidak dibuang.** Short link affiliate seperti `invol.co` sering dipakai, jadi kasus ini justru yang paling mungkin terjadi. Link itu disimpan di kolom sementara `legacyUrl`, lalu:

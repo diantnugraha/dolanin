@@ -31,9 +31,27 @@ describe("resolveGo", () => {
 
   it("every seeded channel of a listing resolves to its own link", async () => {
     const l = await get("omah-tugu-inn");
-    for (const [slug, ch] of [["agoda", "AGODA"], ["trip", "TRIP"], ["tiket", "TIKET"], ["booking", "BOOKING"], ["whatsapp", "WHATSAPP"]] as const) {
+    for (const [slug, ch] of [["agoda", "AGODA"], ["trip", "TRIP"], ["tiket", "TIKET"], ["booking", "BOOKING"]] as const) {
       expect(await resolveGo(l.id, slug, CHROME)).toEqual({ status: 302, location: await url(l.id, ch) });
     }
+  });
+
+  it("whatsapp: a link without its own text gets the listing's name and detail URL", async () => {
+    const l = await get("omah-tugu-inn"); // seeded https://wa.me/6281200000000
+    const r = await resolveGo(l.id, "whatsapp", CHROME);
+    expect(r.status).toBe(302);
+    const loc = new URL((r as { location: string }).location);
+    expect(`${loc.origin}${loc.pathname}`).toBe("https://wa.me/6281200000000");
+    expect(loc.searchParams.get("text")).toBe(
+      `Halo, saya tertarik dengan Omah Tugu Inn di Dolanin: ${process.env.NEXT_PUBLIC_SITE_URL}/${l.city.slug}/${l.slug}`,
+    );
+  });
+
+  it("whatsapp: the admin's own text is kept as is", async () => {
+    const l = await get("omah-tugu-inn");
+    const own = "https://wa.me/6281200000000?text=Halo%20admin";
+    await db.listingLink.update({ where: { listingId_channel: { listingId: l.id, channel: "WHATSAPP" } }, data: { url: own } });
+    expect(await resolveGo(l.id, "whatsapp", CHROME)).toEqual({ status: 302, location: own });
   });
 
   it("a channel the listing does not have -> 404, no event", async () => {
@@ -57,13 +75,16 @@ describe("resolveGo", () => {
   it("legacy pesan on a WhatsApp-only listing falls back to WhatsApp", async () => {
     const l = await get("omah-tugu-inn");
     await db.listingLink.deleteMany({ where: { listingId: l.id, channel: { not: "WHATSAPP" } } });
-    expect(await resolveGo(l.id, "pesan", CHROME)).toEqual({ status: 302, location: await url(l.id, "WHATSAPP") });
+    const r = await resolveGo(l.id, "pesan", CHROME);
+    expect(r.status).toBe(302);
+    expect((r as { location: string }).location.startsWith(`${await url(l.id, "WHATSAPP")}?text=`)).toBe(true);
     expect(await db.event.findFirst()).toMatchObject({ kind: "CLICK", channel: "WHATSAPP" });
   });
 
   it("legacy wa: the WhatsApp link", async () => {
     const l = await get("omah-tugu-inn");
-    expect(await resolveGo(l.id, "wa", CHROME)).toEqual({ status: 302, location: await url(l.id, "WHATSAPP") });
+    const r = await resolveGo(l.id, "wa", CHROME);
+    expect((r as { location: string }).location.startsWith(`${await url(l.id, "WHATSAPP")}?text=`)).toBe(true);
   });
 
   it("legacy pesan/wa with no matching link -> 404", async () => {
