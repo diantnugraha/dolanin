@@ -2,7 +2,7 @@ import { z } from "zod";
 import { parseRupiah } from "./format";
 import type { BookingChannel } from "../generated/prisma/client";
 import { CHANNELS } from "./channels";
-import { FACILITIES } from "./listing";
+import { FACILITIES, ROOMS } from "./listing";
 
 const URL_MSG = "Link harus diawali http:// atau https://";
 const httpUrl = z
@@ -66,6 +66,9 @@ export const listingInput = z
   .superRefine((v, ctx) => {
     if (v.published && v.media.length === 0) {
       ctx.addIssue({ code: "custom", path: ["media"], message: "Tambahkan minimal 1 foto atau video" });
+    }
+    if (v.facilities.filter((k) => ROOMS.some((r) => r.key === k)).length > 1) {
+      ctx.addIssue({ code: "custom", path: ["facilities"], message: "Pilih satu jumlah kamar" });
     }
     if (v.published && Object.keys(v.links).length === 0) {
       ctx.addIssue({ code: "custom", path: ["links"], message: "Isi minimal satu link pemesanan" });

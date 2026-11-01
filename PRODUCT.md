@@ -17,7 +17,7 @@ Satu aplikasi Next.js (App Router) yang berjalan di Node.js, dengan Prisma + Pos
 
 ## Product Purpose
 
-Dolanin adalah katalog terkurasi yang mengarahkan pengunjung ke link affiliate milik pemilik. Alurnya: landing (hero) → katalog → halaman detail → klik salah satu **link pemesanan** (Agoda, Traveloka, Trip.com, tiket.com, Booking.com, atau WhatsApp ke pemilik). Ukuran sukses: klik ke link pemesanan, dilihat per channel.
+Dolanin adalah katalog terkurasi yang mengarahkan pengunjung ke link affiliate milik pemilik. Alurnya: landing (hero) → katalog → halaman detail → klik salah satu **link pemesanan** (Agoda, Traveloka, Trip.com, tiket.com, Booking.com, Airbnb, TikTok, atau WhatsApp ke pemilik). Ukuran sukses: klik ke link pemesanan, dilihat per channel.
 
 ## Positioning
 
@@ -33,8 +33,8 @@ Dolanin menampilkan pilihan murah yang sudah diseleksi pemilik (kurasi), plus pr
 
 - Isi katalog hanya akomodasi. Tipe: **Hotel** dan **Villa**. Kategori Penginapan dihapus pemilik pada 28 Oktober 2026; listing Penginapan yang sudah ada menjadi Hotel. Tempat wisata dan transportasi tidak termasuk.
 - Filter: kota, harga, tipe. Urutan: harga.
-- Fasilitas listing berupa pilihan tetap (WiFi, AC, sarapan, parkir, kolam renang, dapur, air panas) ditambah **tipe kasur**: Single, Twin (2 kasur single), Double, Queen, King. Fasilitas lain bisa ditulis bebas.
-- Klik kartu katalog selalu membuka halaman detail dulu. Dari detail, pengunjung memilih tempat memesan: satu tombol logo per link yang diisi admin, urutan tetap Agoda, Traveloka, Trip.com, tiket.com, Booking.com, WhatsApp (sejak 29 Oktober 2026, menggantikan tombol Pesan dan Chat WhatsApp). Listing tayang wajib punya minimal satu link.
+- Fasilitas listing berupa pilihan tetap (WiFi, AC, sarapan, parkir, kolam renang, dapur, air panas) ditambah **tipe kasur** (Single, Twin = 2 kasur single, Double, Queen, King; boleh lebih dari satu) dan **jumlah kamar** (1, 2, 3, atau 4+ kamar; pilih satu). Fasilitas lain bisa ditulis bebas.
+- Klik kartu katalog selalu membuka halaman detail dulu. Dari detail, pengunjung memilih tempat memesan: satu tombol logo per link yang diisi admin, urutan tetap Agoda, Traveloka, Trip.com, tiket.com, Booking.com, Airbnb, TikTok, WhatsApp (sejak 29 Oktober 2026, menggantikan tombol Pesan dan Chat WhatsApp). Listing tayang wajib punya minimal satu link.
 - Media item: foto dan/atau video vertikal 9:16 (konten klien yang sudah ada di IG/TikTok). Kalau item punya video, halaman detail dibuka dengan video setinggi layar (autoplay, muted, loop). Kalau tidak ada video, halaman dibuka dengan galeri foto 4:5. Video di-upload sebagai file lewat CMS, bukan embed IG/TikTok. Ini keputusan sementara yang dianggap disetujui, dan ruang penyimpanan videonya belum dipilih.
 - CMS: hanya satu akun admin (dipakai bersama oleh pembuat web dan klien), tanpa role. Admin bisa CRUD listing dan kota, serta mengatur nomor WA default untuk tombol "Tanya via WA" di header dan landing. Ada dashboard berisi klik per channel, total klik, dan kunjungan halaman detail.
 - Satu web, satu katalog. Bukan multi-tenant.

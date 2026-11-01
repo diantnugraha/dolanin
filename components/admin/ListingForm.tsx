@@ -8,7 +8,7 @@ import type { AdminListingDetail } from "@/lib/admin";
 import type { Cover, ListingCardData } from "@/lib/catalog";
 import { CHANNELS } from "@/lib/channels";
 import { formatRupiah, parseRupiah } from "@/lib/format";
-import { AMENITIES, BEDS, FACILITIES, TYPE_LABEL } from "@/lib/listing";
+import { AMENITIES, BEDS, FACILITIES, ROOMS, TYPE_LABEL } from "@/lib/listing";
 import { saveListingAction } from "./actions";
 import { CardPreview } from "./CardPreview";
 import { MediaManager, type MediaItem } from "./MediaManager";
@@ -52,6 +52,19 @@ export function ListingForm({ cities, initial }: { cities: { id: string; name: s
   const chip = ({ key, label, Icon }: (typeof FACILITIES)[number]) => (
     <button key={key} type="button" aria-pressed={facilities.includes(key)}
       onClick={() => setFacilities((cur) => (cur.includes(key) ? cur.filter((k) => k !== key) : [...cur, key]))}>
+      <Icon size={16} aria-hidden="true" />
+      {label}
+    </button>
+  );
+  // Room count is a single choice: picking one replaces any other room key.
+  const roomChip = ({ key, label, Icon }: (typeof ROOMS)[number]) => (
+    <button key={key} type="button" aria-pressed={facilities.includes(key)}
+      onClick={() =>
+        setFacilities((cur) => {
+          const rest = cur.filter((k) => !ROOMS.some((r) => r.key === k));
+          return cur.includes(key) ? rest : [...rest, key];
+        })
+      }>
       <Icon size={16} aria-hidden="true" />
       {label}
     </button>
@@ -227,6 +240,10 @@ export function ListingForm({ cities, initial }: { cities: { id: string; name: s
           <p className={s.sub} id="beds-label">Tipe kasur <small>Twin = 2 kasur single</small></p>
           <div className={s.fac} role="group" aria-labelledby="beds-label">
             {BEDS.map(chip)}
+          </div>
+          <p className={s.sub} id="rooms-label">Jumlah kamar <small>pilih satu</small></p>
+          <div className={s.fac} role="group" aria-labelledby="rooms-label">
+            {ROOMS.map(roomChip)}
           </div>
           {(err("facilities") || err("extraFacilities")) && <p className={s.err} role="alert">{err("facilities") ?? err("extraFacilities")}</p>}
         </section>

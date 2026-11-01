@@ -135,6 +135,22 @@ test("bed types: their own group in the form, shown with the facilities on the d
   await expect(fac).not.toContainText("King bed");
 });
 
+test("room count: one choice, a second click replaces the first, shown on the detail page", async ({ page }) => {
+  await page.getByRole("row", { name: /Kamar Dago Atas/ }).getByRole("link", { name: /Ubah/ }).click();
+  const rooms = page.getByRole("group", { name: /Jumlah kamar/ });
+  await expect(rooms.getByRole("button")).toHaveText(["1 kamar", "2 kamar", "3 kamar", "4+ kamar"]);
+  await rooms.getByRole("button", { name: "2 kamar" }).click();
+  await rooms.getByRole("button", { name: "3 kamar" }).click();
+  await expect(rooms.getByRole("button", { name: "2 kamar" })).toHaveAttribute("aria-pressed", "false");
+  await expect(rooms.getByRole("button", { name: "3 kamar" })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Simpan", exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/listing\?tersimpan=1$/);
+  await page.goto("/bandung/kamar-dago-atas");
+  const fac = page.locator("section", { has: page.getByRole("heading", { name: "Fasilitas" }) });
+  await expect(fac).toContainText("3 kamar");
+  await expect(fac).not.toContainText("2 kamar");
+});
+
 test("publishing with every booking link empty is refused on the form", async ({ page }) => {
   await page.getByRole("row", { name: /Hotel Gedong Kuning/ }).getByRole("link", { name: /Ubah/ }).click();
   for (const label of ["Agoda", "Traveloka", "Trip.com", "tiket.com", "Booking.com", "WhatsApp"]) {
