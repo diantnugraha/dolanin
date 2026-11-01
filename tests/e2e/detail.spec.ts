@@ -74,10 +74,12 @@ test.describe("detail mobile", () => {
     }
   });
 
-  test("six links scroll sideways inside the dock, never the page", async ({ page }) => {
+  test("eight links scroll sideways inside the dock, never the page", async ({ page }) => {
     await page.goto(URL);
     const tiles = page.locator("[data-dock] a");
-    await expect(tiles).toHaveCount(6);
+    await expect(tiles).toHaveCount(8);
+    await expect(tiles.nth(5)).toHaveAccessibleName("Pesan di Airbnb");
+    await expect(tiles.nth(6)).toHaveAccessibleName("Pesan di TikTok");
     const row = page.locator("[data-dock] [role=group]");
     expect(await row.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

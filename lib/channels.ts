@@ -1,7 +1,7 @@
 // Isomorphic: safe for client components (type-only Prisma import).
 import type { BookingChannel } from "../generated/prisma/client";
 
-export type ChannelSlug = "agoda" | "traveloka" | "trip" | "tiket" | "booking" | "whatsapp";
+export type ChannelSlug = "agoda" | "traveloka" | "trip" | "tiket" | "booking" | "airbnb" | "tiktok" | "whatsapp";
 
 /** Display order everywhere; matches the BookingChannel enum order in the schema. */
 export const CHANNELS = [
@@ -10,6 +10,8 @@ export const CHANNELS = [
   { id: "TRIP", slug: "trip", label: "Trip.com" },
   { id: "TIKET", slug: "tiket", label: "tiket.com" },
   { id: "BOOKING", slug: "booking", label: "Booking.com" },
+  { id: "AIRBNB", slug: "airbnb", label: "Airbnb" },
+  { id: "TIKTOK", slug: "tiktok", label: "TikTok" },
   { id: "WHATSAPP", slug: "whatsapp", label: "WhatsApp" },
 ] as const satisfies readonly { id: BookingChannel; slug: ChannelSlug; label: string }[];
 

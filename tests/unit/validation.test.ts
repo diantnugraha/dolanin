@@ -43,6 +43,10 @@ describe("listingInput", () => {
     expect(err({ published: true, links: { AGODA: " " } })?.links).toBe("Isi minimal satu link pemesanan");
     expect(listingInput.safeParse({ ...base, published: false, links: {} }).success).toBe(true);
   });
+  it("room count: one choice at most", () => {
+    expect(listingInput.safeParse({ ...base, facilities: ["wifi", "kamar-2"] }).success).toBe(true);
+    expect(err({ facilities: ["kamar-1", "kamar-3"] })?.facilities).toBe("Pilih satu jumlah kamar");
+  });
   it("booking links: unknown channels are rejected", () => {
     expect(err({ links: { EXPEDIA: "https://x.com" } })).not.toBeNull();
   });

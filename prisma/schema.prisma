@@ -35,6 +35,8 @@ enum BookingChannel {
   TRIP
   TIKET
   BOOKING
+  AIRBNB
+  TIKTOK
   WHATSAPP
 }
 

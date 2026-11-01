@@ -10,7 +10,7 @@ Pemilik punya link untuk satu listing di beberapa OTA dan di WhatsApp. Pengunjun
 
 ## Keputusan pemilik
 
-- Enam channel, urutan tetap: **Agoda, Traveloka, Trip.com, tiket.com, Booking.com, WhatsApp**.
+- Channel, urutan tetap: **Agoda, Traveloka, Trip.com, tiket.com, Booking.com, Airbnb, TikTok, WhatsApp** (Airbnb dan TikTok ditambahkan pemilik 1 November 2026; awalnya enam channel).
 - Di form listing (CMS), admin mengisi link untuk channel mana pun. Channel yang dikosongkan tidak tampil di halaman detail.
 - Tombol "Pesan" dan "Chat WhatsApp" di halaman detail dihapus, diganti satu tombol per channel yang diisi.
 - WhatsApp per listing diisi sebagai **link**, bukan nomor.
@@ -39,7 +39,7 @@ Pemilik punya link untuk satu listing di beberapa OTA dan di WhatsApp. Pengunjun
    - Klik WA menjadi klik WhatsApp.
    - Klik Pesan menjadi klik channel hasil pemetaan domain link listingnya saat migrasi, atau **"Lainnya"** bila domainnya tidak dikenal.
    - Kunjungan tetap kunjungan.
-7. **URL klik** menjadi `/go/{id}/{channel}`, dengan `channel` salah satu dari `agoda`, `traveloka`, `trip`, `tiket`, `booking`, `whatsapp`.
+7. **URL klik** menjadi `/go/{id}/{channel}`, dengan `channel` salah satu dari `agoda`, `traveloka`, `trip`, `tiket`, `booking`, `airbnb`, `tiktok`, `whatsapp`.
    - Link lama `/go/{id}/pesan` diarahkan ke channel non-WhatsApp pertama listing, atau ke WhatsApp bila hanya itu yang ada; `/go/{id}/wa` diarahkan ke WhatsApp. Ini untuk halaman yang masih tersimpan di cache.
    - Klik dicatat atas channel tujuan akhirnya.
    - Channel yang tidak diisi menghasilkan 404. Permintaan HEAD tetap tidak dihitung sebagai klik.
@@ -58,7 +58,7 @@ Pemilik punya link untuk satu listing di beberapa OTA dan di WhatsApp. Pengunjun
     - Tanda "masih ada lagi" adalah kotak yang terpotong di tepi layar, bukan bayangan atau gradien, karena pemilik melarang gradien.
 11. **Model data:**
     - Tabel `ListingLink` (`listingId`, `channel`, `url`), unik per (`listingId`, `channel`).
-    - Enum `BookingChannel` (`AGODA`, `TRAVELOKA`, `TRIP`, `TIKET`, `BOOKING`, `WHATSAPP`), yang urutannya juga urutan tampil.
+    - Enum `BookingChannel` (`AGODA`, `TRAVELOKA`, `TRIP`, `TIKET`, `BOOKING`, `AIRBNB`, `TIKTOK`, `WHATSAPP`), yang urutannya juga urutan tampil.
     - `Event` memakai `kind` `VIEW` atau `CLICK`, ditambah kolom `channel` (boleh kosong; kosong berarti klik lama "Lainnya").
     - `Listing.legacyUrl` (boleh kosong): link affiliate lama yang domainnya tidak dikenal (lihat keputusan 5).
 12. **"Channel teratas" per listing** di dashboard tidak memperhitungkan klik "Lainnya".

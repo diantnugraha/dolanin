@@ -1,5 +1,5 @@
 import {
-  IconAirConditioning, IconBath, IconBed, IconCar, IconCoffee, IconParking, IconPool, IconToolsKitchen2, IconWifi,
+  IconAirConditioning, IconBath, IconBed, IconCar, IconCoffee, IconDoor, IconParking, IconPool, IconToolsKitchen2, IconWifi,
 } from "@tabler/icons-react";
 import type { ListingType } from "../generated/prisma/client";
 
@@ -31,7 +31,15 @@ export const BEDS = [
   { key: "bed-king", label: "King bed", Icon: IconBed },
 ] as const;
 
-export const FACILITIES = [...AMENITIES, ...BEDS] as const;
+/** Room count, stored in `facilities` too; one choice at most (validation enforces it). */
+export const ROOMS = [
+  { key: "kamar-1", label: "1 kamar", Icon: IconDoor },
+  { key: "kamar-2", label: "2 kamar", Icon: IconDoor },
+  { key: "kamar-3", label: "3 kamar", Icon: IconDoor },
+  { key: "kamar-4plus", label: "4+ kamar", Icon: IconDoor },
+] as const;
+
+export const FACILITIES = [...AMENITIES, ...BEDS, ...ROOMS] as const;
 
 export type FacilityKey = (typeof FACILITIES)[number]["key"];
 export type PricePreset = "lt150" | "150-300" | "gt300";

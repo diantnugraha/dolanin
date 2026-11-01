@@ -51,6 +51,7 @@ describe("listing", () => {
     expect(FACILITIES.map((f) => f.key)).toEqual([
       "wifi", "ac", "sarapan", "parkir-motor", "parkir-mobil", "kolam", "dapur", "air-panas",
       "bed-single", "bed-twin", "bed-double", "bed-queen", "bed-king",
+      "kamar-1", "kamar-2", "kamar-3", "kamar-4plus",
     ]);
     expect(FACILITIES.every((f) => f.Icon)).toBe(true);
   });

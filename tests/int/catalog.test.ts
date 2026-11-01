@@ -142,6 +142,8 @@ describe("getListingDetail", () => {
   it("lists the listing's booking channels in display order", async () => {
     expect((await getListingDetail("bali", "villa-sawah-asri"))?.channels).toEqual(["AGODA", "TRAVELOKA", "WHATSAPP"]);
     expect((await getListingDetail("bandung", "kamar-dago-atas"))?.channels).toEqual(["BOOKING"]);
+    // Airbnb and TikTok sort before WhatsApp in the database enum, not after it
+    expect((await getListingDetail("yogyakarta", "omah-tugu-inn"))?.channels.slice(-3)).toEqual(["AIRBNB", "TIKTOK", "WHATSAPP"]);
   });
 
   it("ignores non-ready videos for cover and media", async () => {
