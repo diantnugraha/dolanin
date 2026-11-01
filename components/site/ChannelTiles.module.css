@@ -45,6 +45,12 @@
 .booking {
   max-height: 13px;
 }
+.airbnb {
+  max-height: 18px;
+}
+.tiktok {
+  max-height: 14px;
+}
 .dock.one .lg {
   max-height: 19px;
 }
@@ -89,6 +95,12 @@
 }
 .card .booking {
   max-height: 17px;
+}
+.card .airbnb {
+  max-height: 23px;
+}
+.card .tiktok {
+  max-height: 18px;
 }
 .arr {
   flex: none;
