@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { IconCheck } from "@tabler/icons-react";
 import type { ListingType } from "../../generated/prisma/client";
-import { TYPE_LABEL, type CatalogParams, type PricePreset } from "@/lib/listing";
+import { BEDS, ROOMS, TYPE_LABEL, type CatalogParams, type PricePreset } from "@/lib/listing";
 import s from "./Filter.module.css";
 
 export type CityOption = { slug: string; name: string };
@@ -13,6 +13,32 @@ const PRESETS: { value: PricePreset; label: string }[] = [
   { value: "gt300", label: "> Rp300rb" },
 ];
 const TYPES = Object.keys(TYPE_LABEL) as ListingType[];
+
+const toggleKey = <K extends string>(list: K[] | undefined, key: K): K[] =>
+  list?.includes(key) ? list.filter((k) => k !== key) : [...(list ?? []), key];
+
+/** Multi-select chips as links: each one toggles its key in the URL. */
+function KeyChips<K extends string>({ items, chosen, href }: {
+  items: readonly { key: K; label: string }[];
+  chosen: K[] | undefined;
+  href: (next: K[]) => string;
+}) {
+  return (
+    <div className={s.quick}>
+      {items.map(({ key, label }) => {
+        const on = !!chosen?.includes(key);
+        return (
+          <Link key={key} href={href(toggleKey(chosen, key))} className={on ? s.on : undefined} aria-current={on ? "true" : undefined}>
+            {label}
+            {on && <span className="sr-only"> (dipilih)</span>}
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+const BED_CHIPS = BEDS.map((b) => ({ key: b.key, label: b.label.replace(/ bed$/, "") }));
 
 /** Filter groups as plain links and one GET form, so everything works without JS. */
 export function FilterPanel({
@@ -68,6 +94,14 @@ export function FilterPanel({
             </Link>
           );
         })}
+      </section>
+      <section className={s.grp}>
+        <h3>Tipe kasur</h3>
+        <KeyChips items={BED_CHIPS} chosen={params.beds} href={(beds) => hrefFor({ beds })} />
+      </section>
+      <section className={s.grp}>
+        <h3>Jumlah kamar</h3>
+        <KeyChips items={ROOMS} chosen={params.rooms} href={(rooms) => hrefFor({ rooms })} />
       </section>
       <section className={s.grp}>
         <h3>Harga per malam</h3>

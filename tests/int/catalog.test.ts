@@ -93,6 +93,19 @@ describe("getCatalog", () => {
     expect(r.typeCounts).toEqual({ HOTEL: 0, VILLA: 1 });
   });
 
+  it("bed types and room counts: any of within a group, all groups together; typeCounts honour them", async () => {
+    await db.listing.update({ where: { slug: "omah-tugu-inn" }, data: { facilities: ["wifi", "bed-double", "kamar-2"] } });
+    await db.listing.update({ where: { slug: "ndalem-prawiro" }, data: { facilities: ["bed-twin", "kamar-3"] } });
+    await db.listing.update({ where: { slug: "villa-lereng-kaliurang" }, data: { facilities: ["bed-double", "kamar-4plus"] } });
+    const yk = { citySlug: "yogyakarta" };
+    const slugs = async (p: Partial<CatalogParams>) => (await getCatalog(yk, { ...P, ...p })).items.map((i) => i.slug).sort();
+    expect(await slugs({ beds: ["bed-double"] })).toEqual(["omah-tugu-inn", "villa-lereng-kaliurang"]);
+    expect(await slugs({ beds: ["bed-twin", "bed-double"] })).toEqual(["ndalem-prawiro", "omah-tugu-inn", "villa-lereng-kaliurang"]);
+    expect(await slugs({ beds: ["bed-double"], rooms: ["kamar-2"] })).toEqual(["omah-tugu-inn"]);
+    expect(await slugs({ rooms: ["kamar-3", "kamar-4plus"] })).toEqual(["ndalem-prawiro", "villa-lereng-kaliurang"]);
+    expect((await getCatalog(yk, { ...P, beds: ["bed-double"] })).typeCounts).toEqual({ HOTEL: 1, VILLA: 1 });
+  });
+
   it("applies price preset", async () => {
     const r = await getCatalog({}, { ...P, preset: "lt150" });
     expect(r.items.length).toBeGreaterThan(0);

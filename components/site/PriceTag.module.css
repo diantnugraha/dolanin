@@ -20,8 +20,15 @@
   color: var(--abu);
   letter-spacing: 0;
 }
+.price small.from {
+  font-size: 12px;
+  font-weight: 500;
+}
 .lg .price {
   font-size: 28px;
+}
+.lg .price small.from {
+  font-size: 14px;
 }
 .lg .was {
   font-size: 14px;

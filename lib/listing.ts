@@ -42,12 +42,17 @@ export const ROOMS = [
 export const FACILITIES = [...AMENITIES, ...BEDS, ...ROOMS] as const;
 
 export type FacilityKey = (typeof FACILITIES)[number]["key"];
+export type BedKey = (typeof BEDS)[number]["key"];
+export type RoomKey = (typeof ROOMS)[number]["key"];
 export type PricePreset = "lt150" | "150-300" | "gt300";
 export type CatalogParams = {
   types: ListingType[];
   preset?: PricePreset;
   min?: number;
   max?: number;
+  /** Bed types / room counts: a listing matches when it has any of the chosen keys of each group. */
+  beds?: BedKey[];
+  rooms?: RoomKey[];
   sort: "asc" | "desc";
   page: number;
 };
@@ -64,6 +69,16 @@ const TYPES = Object.keys(TYPE_LABEL) as ListingType[];
 const PRESETS: PricePreset[] = ["lt150", "150-300", "gt300"];
 
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+
+// URL values are the keys without their prefix (kasur=double, kamar=4plus); always kept in definition order.
+const BED_KEYS = BEDS.map((b) => b.key);
+const ROOM_KEYS = ROOMS.map((r) => r.key);
+const pickKeys = <K extends string>(raw: string | undefined, keys: readonly K[], prefix: string): K[] => {
+  const want = new Set((raw ?? "").split(",").map((v) => prefix + v.trim().toLowerCase()));
+  return keys.filter((k) => want.has(k));
+};
+const urlValues = <K extends string>(chosen: K[] | undefined, keys: readonly K[], prefix: string) =>
+  keys.filter((k) => chosen?.includes(k)).map((k) => k.slice(prefix.length)).join(",");
 const MAX_PRICE = 100_000_000;
 const priceParam = (v: string | undefined) => {
   if (v === undefined || !/^\d+$/.test(v)) return undefined;
@@ -86,6 +101,10 @@ export function parseCatalogParams(sp: Record<string, string | string[] | undefi
   if (preset) out.preset = preset;
   if (min !== undefined) out.min = min;
   if (max !== undefined) out.max = max;
+  const beds = pickKeys(first(sp.kasur), BED_KEYS, "bed-");
+  const rooms = pickKeys(first(sp.kamar), ROOM_KEYS, "kamar-");
+  if (beds.length) out.beds = beds;
+  if (rooms.length) out.rooms = rooms;
   return out;
 }
 
@@ -99,6 +118,14 @@ export function priceRange(p: CatalogParams): { min?: number; max?: number } {
   return r;
 }
 
+/** `kasur` / `kamar` query values of the bed and room filters (also the min/max form's hidden fields). */
+export function roomFilterValues(p: Pick<CatalogParams, "beds" | "rooms">): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (p.beds?.length) out.kasur = urlValues(p.beds, BED_KEYS, "bed-");
+  if (p.rooms?.length) out.kamar = urlValues(p.rooms, ROOM_KEYS, "kamar-");
+  return out;
+}
+
 export function catalogHref(path: string, p: CatalogParams, patch: Partial<CatalogParams>): string {
   const next: CatalogParams = { ...p, ...patch };
   if (!("page" in patch)) next.page = 1;
@@ -107,6 +134,7 @@ export function catalogHref(path: string, p: CatalogParams, patch: Partial<Catal
   if (next.preset) q.set("harga", next.preset);
   if (next.min !== undefined) q.set("min", String(next.min));
   if (next.max !== undefined) q.set("max", String(next.max));
+  for (const [k, v] of Object.entries(roomFilterValues(next))) q.set(k, v);
   if (next.sort === "desc") q.set("urut", "termahal");
   if (next.page > 1) q.set("hal", String(next.page));
   const s = q.toString().replace(/%2C/g, ",");

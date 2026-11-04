@@ -25,14 +25,14 @@ Dolanin menampilkan pilihan murah yang sudah diseleksi pemilik (kurasi), plus pr
 
 ## Operating Context
 
-- Pengunjung menjelajah dari HP, menyaring berdasarkan **kota, harga, dan tipe**, dan mengurutkan berdasarkan **harga**.
+- Pengunjung menjelajah dari HP, menyaring berdasarkan **kota, harga, tipe, tipe kasur, dan jumlah kamar**, dan mengurutkan berdasarkan **harga**.
 - Setiap item di katalog punya halaman detail sebelum keluar ke situs partner.
 - Admin mengisi konten (foto/video, data, link pemesanan per channel) lewat CMS.
 
 ## Capabilities and Constraints
 
 - Isi katalog hanya akomodasi. Tipe: **Hotel** dan **Villa**. Kategori Penginapan dihapus pemilik pada 28 Oktober 2026; listing Penginapan yang sudah ada menjadi Hotel. Tempat wisata dan transportasi tidak termasuk.
-- Filter: kota, harga, tipe. Urutan: harga.
+- Filter: kota, harga, tipe, tipe kasur, dan jumlah kamar (dalam satu grup cukup cocok salah satu, antar grup harus cocok semua). Urutan: harga.
 - Fasilitas listing berupa pilihan tetap (WiFi, AC, sarapan, parkir, kolam renang, dapur, air panas) ditambah **tipe kasur** (Single, Twin = 2 kasur single, Double, Queen, King; boleh lebih dari satu) dan **jumlah kamar** (1, 2, 3, atau 4+ kamar; pilih satu). Fasilitas lain bisa ditulis bebas.
 - Klik kartu katalog selalu membuka halaman detail dulu. Dari detail, pengunjung memilih tempat memesan: satu tombol logo per link yang diisi admin, urutan tetap Agoda, Traveloka, Trip.com, tiket.com, Booking.com, Airbnb, TikTok, WhatsApp (sejak 29 Oktober 2026, menggantikan tombol Pesan dan Chat WhatsApp). Listing tayang wajib punya minimal satu link.
 - Media item: foto dan/atau video vertikal 9:16 (konten klien yang sudah ada di IG/TikTok). Kalau item punya video, halaman detail dibuka dengan video setinggi layar (autoplay, muted, loop). Kalau tidak ada video, halaman dibuka dengan galeri foto 4:5. Video di-upload sebagai file lewat CMS, bukan embed IG/TikTok. Ini keputusan sementara yang dianggap disetujui, dan ruang penyimpanan videonya belum dipilih.

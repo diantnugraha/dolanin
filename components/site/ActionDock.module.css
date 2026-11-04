@@ -34,6 +34,10 @@
   font-weight: 400;
   color: var(--abu);
 }
+.price small.from {
+  font-size: 12px;
+  font-weight: 500;
+}
 .top:last-child {
   margin-bottom: 0;
 }

@@ -80,7 +80,8 @@
 }
 
 @media (max-width: 1023px) {
-  .auto .price small {
+  /* compact phone card: hide the "/malam" unit, keep "Mulai" */
+  .auto .price small:not([data-from]) {
     display: none;
   }
 }

@@ -2,7 +2,7 @@ import { ViewTransition } from "react";
 import Link from "next/link";
 import { IconArrowLeft } from "@tabler/icons-react";
 import type { ListingCardData } from "@/lib/catalog";
-import { catalogHref, type CatalogParams } from "@/lib/listing";
+import { catalogHref, type CatalogParams, roomFilterValues } from "@/lib/listing";
 import type { ListingType } from "../../generated/prisma/client";
 import { CoverImage } from "./Media";
 import { FilterBar } from "./FilterBar";
@@ -32,6 +32,7 @@ export function CatalogView({
   const resetHref = withQ(basePath);
   const hidden: Record<string, string> = {};
   if (params.types.length) hidden.tipe = params.types.map((t) => t.toLowerCase()).join(",");
+  Object.assign(hidden, roomFilterValues(params));
   if (params.sort === "desc") hidden.urut = "termahal";
   if (query) hidden.q = query;
 

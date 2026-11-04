@@ -129,3 +129,50 @@ test.describe("catalog mobile without JS", () => {
     await expect(page).toHaveURL(/harga=lt150/);
   });
 });
+
+test.describe("bed type and room count filters", () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+  const setFacilities = async (rows: [string, string][]) => {
+    const { Client } = await import("pg");
+    const c = new Client({ connectionString: process.env.DATABASE_URL });
+    await c.connect();
+    try {
+      for (const [slug, f] of rows) await c.query(`UPDATE "Listing" SET facilities = $2 WHERE slug = $1`, [slug, f]);
+    } finally {
+      await c.end();
+    }
+  };
+  test.beforeAll(() => setFacilities([["omah-tugu-inn", "{wifi,bed-double,kamar-2}"], ["ndalem-prawiro", "{bed-twin,kamar-3}"]]));
+  test.afterAll(() => setFacilities([["omah-tugu-inn", "{wifi,ac,sarapan}"], ["ndalem-prawiro", "{wifi,air-panas}"]]));
+
+  test("chips filter the list; within a group any of, across groups all of", async ({ page }) => {
+    await page.goto("/yogyakarta");
+    await expect(page.getByRole("heading", { name: "Tipe kasur" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Jumlah kamar" })).toBeVisible();
+    await page.getByRole("link", { name: "Double", exact: true }).click();
+    await expect(page).toHaveURL(/\/yogyakarta\?kasur=double$/);
+    await expect(page.locator("a[data-price]")).toHaveCount(1);
+    await expect(page.locator("a[data-price]")).toContainText("Omah Tugu Inn");
+    await page.getByRole("link", { name: "Twin", exact: true }).click();
+    await expect(page).toHaveURL(/kasur=twin,double/);
+    await expect(page.locator("a[data-price]")).toHaveCount(2);
+    await page.getByRole("link", { name: "3 kamar", exact: true }).click();
+    await expect(page).toHaveURL(/kasur=twin,double&kamar=3/);
+    await expect(page.locator("a[data-price]")).toHaveCount(1);
+    await expect(page.locator("a[data-price]")).toContainText("Ndalem Prawiro");
+  });
+});
+
+test.describe("prices read 'Mulai'", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("every catalog card price starts with Mulai, and the mobile Kamar chip exists", async ({ page }) => {
+    await page.goto("/yogyakarta");
+    const cards = page.locator("a[data-price]");
+    const n = await cards.count();
+    expect(n).toBeGreaterThan(0);
+    // innerText: "Mulai" must be visible, not just present in the DOM
+    for (let i = 0; i < n; i++) await expect(cards.nth(i)).toContainText(/Mulai\s*Rp/, { useInnerText: true });
+    await expect(page.getByRole("button", { name: /Kamar/ })).toBeVisible();
+  });
+});

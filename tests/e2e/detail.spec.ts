@@ -26,6 +26,7 @@ test.describe("detail mobile", () => {
     await expect(page.getByText("Dipilih tim Dolanin")).toBeVisible();
     await expect(page.locator("main").getByText("Rp185.000").first()).toBeVisible();
     await expect(page.locator("[data-dock]").getByText("Pesan di")).toBeVisible();
+    await expect(page.locator("[data-dock]")).toContainText(/Mulai\s*Rp185\.000/);
   });
 
   test("three links share the dock width, in channel order", async ({ page }) => {
@@ -105,6 +106,7 @@ test.describe("detail desktop", () => {
     await page.goto("/bandung/kamar-dago-atas");
     const card = page.getByLabel("Pemesanan");
     await expect(card.getByRole("heading", { name: "Pesan di" })).toBeVisible();
+    await expect(card).toContainText(/Mulai\s*Rp245\.000/);
     await expect(card.getByRole("link")).toHaveCount(1);
     await expect(card.getByRole("link", { name: "Pesan di Booking.com" })).toHaveAttribute("href", `/go/${id}/booking`);
     await expect(card.getByText("Pemesanan diproses di situs partner resmi. Harga bisa berubah sewaktu-waktu.")).toBeVisible();
