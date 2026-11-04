@@ -17,7 +17,7 @@ export function PriceTag({
     <div className={`${s.wrap} ${size === "lg" ? s.lg : ""}`}>
       {isPromo({ price, normalPrice }) && <span className={s.was}>{formatRupiah(normalPrice!)}</span>}
       <div className={s.price}>
-        {formatRupiah(price)}
+        <small className={s.from} data-from>Mulai</small> {formatRupiah(price)}
         {perNight && <small> /malam</small>}
       </div>
     </div>

@@ -401,7 +401,7 @@ A 4:5 real photograph with 16px radius on a Tint Laut placeholder, a Tint Laut c
 - **Type tag:** Tint Laut pill, Laut Ink 11px/600 label, 2px 9px padding.
 
 ### Price tag
-Jingga 20px/700 with -0.01em tracking and tabular figures; an 11px Abu "/malam" unit; an optional 12px Abu struck-through original price above. 28px in the detail price box and booking card.
+A 12px Abu "Mulai" (500) before the amount (owner decision: every price reads "Mulai Rp…"), then Jingga 20px/700 with -0.01em tracking and tabular figures; an 11px Abu "/malam" unit; an optional 12px Abu struck-through original price above. 28px in the detail price box and booking card.
 
 ### Action dock and booking card
 - **Action dock (phones):** white bar, Garis top rule, sticky at the bottom of the page column, 91px tall; a 12px Abu "Pesan di" at left and the price at right, then one channel tile per booking link. One to three tiles share the width; more become 104px tiles in a sideways scroll row (snap, no scrollbar, no fade: the cut-off tile at the edge is the cue). Hidden from 1024px.

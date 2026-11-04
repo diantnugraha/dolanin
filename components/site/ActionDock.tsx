@@ -7,9 +7,9 @@ export function ActionDock({ id, price, channels }: { id: string; price: number;
   return (
     <div className={s.dock} data-dock>
       <div className={s.top}>
-        <small>{channels.length ? "Pesan di" : "mulai dari"}</small>
+        <small>{channels.length ? "Pesan di" : ""}</small>
         <div className={s.price}>
-          {formatRupiah(price)} <small>/malam</small>
+          <small className={s.from}>Mulai</small> {formatRupiah(price)} <small>/malam</small>
         </div>
       </div>
       <ChannelTiles id={id} channels={channels} variant="dock" />
