@@ -15,6 +15,7 @@ export function FilterBar({ params, hrefFor, cityName, panel }: { params: Catalo
     ...(cityName ? [{ label: cityName, icon: <IconMapPin size={16} stroke={1.75} aria-hidden="true" />, on: true }] : []),
     { label: "Harga", icon: undefined, on: priceOn },
     { label: "Tipe", icon: undefined, on: params.types.length > 0 },
+    { label: "Kamar", icon: undefined, on: !!(params.beds?.length || params.rooms?.length) },
   ];
   return (
     <>

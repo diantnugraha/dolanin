@@ -126,6 +126,8 @@ export async function getCatalog(
       ],
     });
   }
+  if (p.beds?.length) and.push({ facilities: { hasSome: p.beds } });
+  if (p.rooms?.length) and.push({ facilities: { hasSome: p.rooms } });
   const base: Prisma.ListingWhereInput = {
     published: true,
     ...(scope.citySlug ? { city: { slug: scope.citySlug } } : {}),

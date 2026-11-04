@@ -21,6 +21,12 @@ describe("listing", () => {
       types: ["VILLA"], min: 100000, max: 250000, sort: "asc", page: 1,
     });
   });
+  it("parses bed and room filters: valid keys only, deduped, in definition order", () => {
+    expect(parseCatalogParams({ kasur: "double,twin,foo,double", kamar: "4plus,2,9" })).toEqual({
+      types: [], sort: "asc", page: 1, beds: ["bed-twin", "bed-double"], rooms: ["kamar-2", "kamar-4plus"],
+    });
+    expect(parseCatalogParams({ kasur: "", kamar: "x" })).toEqual({ types: [], sort: "asc", page: 1 });
+  });
   it("bounds min/max", () => {
     expect(parseCatalogParams({ min: "99999999999" }).min).toBeUndefined();
     expect(parseCatalogParams({ max: "9".repeat(400) }).max).toBeUndefined();
@@ -39,6 +45,10 @@ describe("listing", () => {
     );
     expect(catalogHref("/yogyakarta", { types: [], sort: "asc", page: 3 }, { page: 4 })).toBe("/yogyakarta?hal=4");
     expect(catalogHref("/x", { types: [], sort: "asc", page: 1 }, {})).toBe("/x");
+    expect(
+      catalogHref("/x", { types: [], sort: "asc", page: 1, beds: ["bed-double", "bed-twin"], rooms: ["kamar-4plus"] }, {}),
+    ).toBe("/x?kasur=twin,double&kamar=4plus");
+    expect(catalogHref("/x", { types: [], sort: "asc", page: 2, beds: ["bed-king"] }, { beds: [] })).toBe("/x");
   });
   it("labels media for the viewer buttons", () => {
     expect(mediaLabel({ kind: "PHOTO" }, 1, 3)).toBe("Lihat foto 2 dari 3");
